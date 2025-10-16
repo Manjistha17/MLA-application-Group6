@@ -7,6 +7,7 @@ import DirectionsRunIcon from '@material-ui/icons/DirectionsRun';
 import BikeIcon from '@material-ui/icons/DirectionsBike';
 import PoolIcon from '@material-ui/icons/Pool';
 import FitnessCenterIcon from '@material-ui/icons/FitnessCenter';
+import SelfImprovementIcon from '@mui/icons-material/SelfImprovement';
 import OtherIcon from '@material-ui/icons/HelpOutline';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -72,6 +73,9 @@ const TrackExercise = ({ currentUser }) => {
           </IconButton>
           <IconButton color={state.exerciseType === 'Gym' ? "primary" : "default"} onClick={() => setState({ ...state, exerciseType: 'Gym' })}>
             <FitnessCenterIcon fontSize="large" />
+          </IconButton>
+          <IconButton color={state.exerciseType === 'Yoga' ? "primary" : "default"} onClick={() => setState({ ...state, exerciseType: 'Yoga' })}>
+            <SelfImprovementIcon fontSize="large" />
           </IconButton>
           <IconButton color={state.exerciseType === 'Other' ? "primary" : "default"} onClick={() => setState({ ...state, exerciseType: 'Other' })}>
             <OtherIcon fontSize="large" />
