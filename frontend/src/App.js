@@ -30,7 +30,7 @@ function App() {
     <div className="App">
       <Router>
         <div className="appTitle">
-          <h1>Ramya's MLA Fitness App</h1>
+          <h1>MLA Fitness App</h1>
           <img src={logo} alt="CFG Fitness App Logo" id="appLogo" />
         </div>
 
