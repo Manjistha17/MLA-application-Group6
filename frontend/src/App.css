@@ -27,7 +27,7 @@ body {
 }
 
 .appTitle h1 {
-  color: #F54996ff;
+  color: rgb(131, 21, 116);
   font-size: 36px;
   margin: 40px 0 40px 0;
 }
@@ -110,7 +110,7 @@ input#duration {
 }
 
 .navbar {
-  background-color: #F54996;
+  background-color: #951982;
 }
 
 .navbar-nav {

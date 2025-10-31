@@ -1,4 +1,6 @@
-const express = require('express');
+# tail logs for one service
+docker compose logs -f activity-tracking
+docker compose logs -f frontendconst express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const config = require('./config.json');
@@ -29,6 +31,9 @@ connection.on('error', (error) => {
 // Routes
 const exercisesRouter = require('./routes/exercises');
 app.use('/exercises', exercisesRouter);
+// Sessions (timer) routes
+const sessionsRouter = require('./routes/sessions');
+app.use('/sessions', sessionsRouter);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

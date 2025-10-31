@@ -15,3 +15,6 @@ const api = axios.create({
 });
 
 export const trackExercise = payload => api.post(`/exercises/add`, payload);
+export const startSession = payload => api.post(`/sessions/start`, payload);
+export const stopSession = payload => api.post(`/sessions/stop`, payload);
+export const listSessions = (username) => api.get(`/sessions?user=${encodeURIComponent(username)}`);
