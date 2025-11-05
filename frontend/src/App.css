@@ -9,9 +9,17 @@ body, html, div, h1, h2, h3, p, button {
   vertical-align: baseline;
 }
 
+/* Full-page background image */
 body {
   line-height: 1;
   color: #333; 
+  background-image: url('../public/background.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  height: 100vh;
+  margin: 0;
 }
 
 #appLogo {
@@ -21,9 +29,11 @@ body {
 
 .App {
   text-align: center;
-  max-width: 650px;
   margin: auto;
   padding: 20px;
+  min-height: 100vh;       /* ensure full screen height */
+  width: 100%;             /* span full width */
+  max-width: none;         /* remove previous restriction */
 }
 
 .appTitle h1 {
@@ -41,9 +51,8 @@ form {
   margin-bottom: 20px;
 }
 
-
 button.navigationButton {
-  background-color: #F54996ff; 
+  background-color: rgb(216, 138, 205); 
   color: white; 
   border: none;
   padding: 10px 20px;
@@ -54,7 +63,7 @@ button.navigationButton {
 }
 
 button.navigationButton:hover {
-  background-color: #ff66b2;
+  background-color: #ef8bbd;
 }
 
 /* Style the success message */
@@ -70,23 +79,23 @@ p.successMessage {
 }
 
 .btn-primary {
-  background-color: #F54996 !important;
-  border-color: #F54996ff !important;
+  background-color: #ef72aa !important;
+  border-color: rgb(231, 122, 171) !important;
 }
 
 .btn-primary:hover {
-  background-color: #f03087 !important; 
-  border-color: #F54996ff !important; 
+  background-color: #ef72aa  !important; 
+  border-color: #ef72aa  !important; 
 }
 
 .btn-success {
-  background-color: #F54996 !important;
-  border-color: #F54996ff !important;
+  background-color: #ef72aa !important;
+  border-color: #ef72aa  !important;
 }
 
 .btn-success:hover {
-  background-color: #f03087 !important;  
-  border-color: #F54996ff !important; 
+  background-color: #ef72aa !important;  
+  border-color: #ef72aa  !important; 
 }
 
 input#duration {
@@ -110,7 +119,7 @@ input#duration {
 }
 
 .navbar {
-  background-color: #F54996;
+  background-color: #ef72aa ;
 }
 
 .navbar-nav {
@@ -124,3 +133,25 @@ input#duration {
 .signup {
   margin: 20px;
 }
+
+/* Transparent login/signup box */
+.login-container,
+.signup-container,
+.componentContainer:has(.login-container) {
+  background-color: rgba(255, 255, 255, 0.8) !important;
+  border-radius: 10px;
+  padding: 20px;
+  backdrop-filter: blur(6px); /* nice frosted-glass look */
+}
+
+.login-page {
+  text-align: center;
+  margin-top: 60px;
+}
+.login-title {
+  font-size: 2rem;
+  color: rgb(49, 11, 172);
+  margin-bottom: 30px;
+  text-shadow: 0 0 12px rgba(14, 23, 176, 0.9);
+}
+
