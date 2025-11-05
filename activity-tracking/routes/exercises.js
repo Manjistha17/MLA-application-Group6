@@ -13,15 +13,55 @@ router.get('/', async (req, res) => {
     }
   });
   
+// // POST: Add a new exercise
+// router.post('/add', async (req, res) => {
+//   console.log(req.body)
+//   try {
+//     const { username, exerciseType, description, duration, date } = req.body;
+
+//     const newExercise = new Exercise({
+//       username,
+//       exerciseType,
+//       description,
+//       duration: Number(duration),
+//       date: Date.parse(date),
+//     });
+
+//     await newExercise.save();
+//     res.json({ message: 'Exercise added!' });
+//   } catch (error) {
+//     res.status(400).json({ error: 'Error: ' + error.message });
+//   }
+// });
+
+const mongoose = require('mongoose');
+
+// GET: Retrieve all activities from activity_mets_new
+router.get('/activities', async (req, res) => {
+  try {
+    const activities = await mongoose.connection.db
+      .collection('activity_mets_new')
+      .find({})
+      .toArray();
+
+    res.json(activities);
+  } catch (err) {
+    console.error('Failed to fetch activities', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // POST: Add a new exercise
 router.post('/add', async (req, res) => {
-  console.log(req.body)
+  console.log(req.body);
+
   try {
-    const { username, exerciseType, description, duration, date } = req.body;
+    const { username, exerciseType, subActivity, description, duration, date } = req.body;
 
     const newExercise = new Exercise({
       username,
       exerciseType,
+      subActivity, // just store the selected pace label
       description,
       duration: Number(duration),
       date: Date.parse(date),
@@ -29,10 +69,13 @@ router.post('/add', async (req, res) => {
 
     await newExercise.save();
     res.json({ message: 'Exercise added!' });
+
   } catch (error) {
+    console.error(error);
     res.status(400).json({ error: 'Error: ' + error.message });
   }
 });
+
 
 // GET: Retrieve an exercise by ID
 router.get('/:id', async (req, res) => {
