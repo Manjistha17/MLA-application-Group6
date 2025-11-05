@@ -1,5 +1,4 @@
-import React from 'react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -10,7 +9,7 @@ import Footer from './components/footer';
 import Login from './components/login';
 import Signup from './components/signup';
 import Journal from './components/journal';
-import logo from './img/CFG_logo.png'; // Update the path to your logo file
+import logo from './img/CFG_logo.png'; // Update path if needed
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -29,26 +28,90 @@ function App() {
   return (
     <div className="App">
       <Router>
-        <div className="appTitle">
-          <h1>MLA Fitness App</h1>
-          <img src={logo} alt="CFG Fitness App Logo" id="appLogo" />
-        </div>
+        {isLoggedIn && (
+          <div className="appTitle">
+            <h1>MLA Fitness App</h1>
+            <img src={logo} alt="CFG Fitness App Logo" id="appLogo" />
+          </div>
+        )}
 
         {isLoggedIn && <NavbarComponent onLogout={handleLogout} />}
 
-        <div className="componentContainer">
-          <Routes>
-            <Route path="/login" element={isLoggedIn ? <Navigate to="/" /> : <Login onLogin={handleLogin} />} />
-            <Route path="/signup" element={isLoggedIn ? <Navigate to="/" /> : <Signup onSignup={(username) => {
-              setIsLoggedIn(true);
-              setCurrentUser(username);
-            }} />} />
-            <Route path="/trackExercise" element={isLoggedIn ? <TrackExercise currentUser={currentUser} /> : <Navigate to="/login" />} />
-            <Route path="/statistics" element={isLoggedIn ? <Statistics currentUser={currentUser} /> : <Navigate to="/login" />} />
-            <Route path="/journal" element={isLoggedIn ? <Journal currentUser={currentUser} /> : <Navigate to="/login" />} />
-            <Route path="/" element={isLoggedIn ? <Navigate to="/trackExercise" /> : <Navigate to="/login" />} />
-          </Routes>
-        </div>
+        <Routes>
+          {/* Public routes (Login & Signup) */}
+          <Route
+            path="/login"
+            element={
+              isLoggedIn ? (
+                <Navigate to="/" />
+              ) : (
+                <Login onLogin={handleLogin} />
+              )
+            }
+          />
+          <Route
+            path="/signup"
+            element={
+              isLoggedIn ? (
+                <Navigate to="/" />
+              ) : (
+                <Signup
+                  onSignup={(username) => {
+                    setIsLoggedIn(true);
+                    setCurrentUser(username);
+                  }}
+                />
+              )
+            }
+          />
+
+          {/* Protected routes (inside componentContainer) */}
+          <Route
+            path="/trackExercise"
+            element={
+              isLoggedIn ? (
+                <div className="componentContainer">
+                  <TrackExercise currentUser={currentUser} />
+                </div>
+              ) : (
+                <Navigate to="/login" />
+              )
+            }
+          />
+          <Route
+            path="/statistics"
+            element={
+              isLoggedIn ? (
+                <div className="componentContainer">
+                  <Statistics currentUser={currentUser} />
+                </div>
+              ) : (
+                <Navigate to="/login" />
+              )
+            }
+          />
+          <Route
+            path="/journal"
+            element={
+              isLoggedIn ? (
+                <div className="componentContainer">
+                  <Journal currentUser={currentUser} />
+                </div>
+              ) : (
+                <Navigate to="/login" />
+              )
+            }
+          />
+
+          {/* Default route */}
+          <Route
+            path="/"
+            element={
+              isLoggedIn ? <Navigate to="/trackExercise" /> : <Navigate to="/login" />
+            }
+          />
+        </Routes>
+
         <Footer />
       </Router>
     </div>
