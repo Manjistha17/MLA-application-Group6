@@ -9,6 +9,11 @@ const exerciseSchema = new Schema(
       required: true,
       enum: ['Running', 'Cycling', 'Swimming', 'Gym', 'Other']
     },
+    subActivity: {
+      type: String,
+      required: false,  // Set to true if you want to make pace mandatory
+      // enum: ['Slow', 'Moderate', 'Fast']
+    },
     description: { type: String, required: false },
     duration: { 
         type: Number, 
