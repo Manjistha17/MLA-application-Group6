@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Form, Alert } from 'react-bootstrap';
+import { Button, Form, Alert, Card, Container } from 'react-bootstrap';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 
@@ -23,45 +23,87 @@ const Login = ({ onLogin }) => {
         setError('Invalid credentials');
       }
     } catch (err) {
-      setError('Failed to login');
+      setError('Failed to login. Please check your credentials.');
     }
-};
+  };
 
   return (
-    <div className="login-container">
+    <Container
+      fluid
+      className="d-flex flex-column justify-content-center align-items-center vh-100"
+      style={{
+        backgroundImage: "url('/background.jpg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
+      {/* 🔹 Title moved outside the login box */}
+      <h1
+        className="text-center mb-3"
+        style={{
+          color: '#efeff1ff',
+          fontWeight: '700',
+          textShadow: '0px 2px 6px rgba(192, 36, 127, 0.69)',
+        }}
+      >
+        Welcome to the MLA Fitness App!
+      </h1>
+      <p
+        className="text-center mb-4"
+        style={{
+          color: '#efeff1ff',
+          fontWeight: '700',           
+          fontSize: '1.8rem',          
+          textShadow: '0px 1px 4px rgba(192, 36, 127, 0.69)',
+        }}
+      >
+        Group 6
+      </p>
 
-      {error && <Alert variant="danger">{error}</Alert>}
+      {/* 🔹 Login box */}
+      <Card
+        className="p-4 shadow-sm"
+        style={{
+          maxWidth: '400px',
+          width: '100%',
+          borderRadius: '10px',
+          backgroundColor: 'rgba(255, 255, 255, 0.85)',
+        }}
+      >
+        {error && <Alert variant="danger">{error}</Alert>}
 
-      <Form onSubmit={handleLogin}>
-        <Form.Group controlId="formUsername">
-          <Form.Label>Username</Form.Label>
-          <Form.Control 
-            type="text" 
-            placeholder="Enter username" 
-            value={username} 
-            onChange={(e) => setUsername(e.target.value)} 
-          />
-        </Form.Group>
+        <Form onSubmit={handleLogin}>
+          <Form.Group controlId="formUsername" className="mb-3">
+            <Form.Label>Username</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="Enter your username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+          </Form.Group>
 
-        <Form.Group controlId="formPassword">
-          <Form.Label>Password</Form.Label>
-          <Form.Control 
-            type="password" 
-            placeholder="Password" 
-            value={password} 
-            onChange={(e) => setPassword(e.target.value)} 
-          />
-        </Form.Group>
+          <Form.Group controlId="formPassword" className="mb-3">
+            <Form.Label>Password</Form.Label>
+            <Form.Control
+              type="password"
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </Form.Group>
 
-        <Button variant="primary" type="submit" style={{ marginTop: '20px' }}>
-          Login
-        </Button>
-      </Form>
+          <Button variant="primary" type="submit" className="w-100 mt-2">
+            Login
+          </Button>
+        </Form>
 
-      <p className="mt-3">
-    Don't have an account? <Link to="/signup">Sign up</Link>
-</p>
-    </div>
+        <p className="text-center mt-3 mb-0">
+          New user? <Link to="/signup">Sign up here</Link>
+        </p>
+      </Card>
+    </Container>
   );
 };
 
