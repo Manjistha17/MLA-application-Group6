@@ -17,17 +17,13 @@ const TrackExercise = ({ currentUser }) => {
     exerciseType: '',
     description: '',
     duration: 0,
-    // pace: '', // ✅ Added here
     subActivity: '',
     date: new Date(),
   });
   const [message, setMessage] = useState('');
+  const [activities, setActivities] = useState([]);
+  const [selectedActivity, setSelectedActivity] = useState(null);
 
-  const [activities, setActivities] = useState([]);  // fetched activities from backend
-  const [selectedActivity, setSelectedActivity] = useState(null); // current selected exercise's details
-
-
-  // Fetch activities from backend on mount
   useEffect(() => {
     const fetchActivities = async () => {
       try {
@@ -41,17 +37,13 @@ const TrackExercise = ({ currentUser }) => {
   }, []);
 
   const handleExerciseTypeSelect = (type) => {
-  console.log('Activities:', activities);          // what you fetched
-  const activity = activities.find((a) => a.activity === type);
-  console.log('Selected Activity:', activity);    // should not be null
-  setState({ ...state, exerciseType: type, subActivity: '' });
-  setSelectedActivity(activity || null);
+    const activity = activities.find((a) => a.activity === type);
+    setState({ ...state, exerciseType: type, subActivity: '' });
+    setSelectedActivity(activity || null);
   };
-
 
   const onSubmit = async (e) => {
     e.preventDefault();
-
     const dataToSubmit = {
       username: currentUser,
       ...state,
@@ -61,12 +53,10 @@ const TrackExercise = ({ currentUser }) => {
       const response = await trackExercise(dataToSubmit);
       console.log(response.data);
 
-      // Reset form
       setState({
         exerciseType: '',
         description: '',
         duration: 0,
-        // pace: '',
         subActivity: '',
         date: new Date(),
       });
@@ -80,126 +70,127 @@ const TrackExercise = ({ currentUser }) => {
   };
 
   return (
-    <div>
-      <h3>Track exercise</h3>
-      <Form onSubmit={onSubmit} style={{ maxWidth: '400px', margin: 'auto' }}>
-        {/* Date Picker */}
-        <Form.Group controlId="formDate" className="form-margin">
-          <Form.Label>Date:</Form.Label>
-          <DatePicker
-            selected={state.date}
-            onChange={(date) => setState({ ...state, date })}
-            dateFormat="yyyy/MM/dd"
-          />
-        </Form.Group>
-
-        {/* Exercise Type Icons */}
-        <div style={{ marginBottom: '20px' }}>
-          <IconButton
-            color={state.exerciseType === 'Running' ? 'primary' : 'default'}
-            // onClick={() => setState({ ...state, exerciseType: 'Running' })}
-            onClick={() => handleExerciseTypeSelect('Running')}
-          >
-            <DirectionsRunIcon fontSize="large" />
-          </IconButton>
-          <IconButton
-            color={state.exerciseType === 'Cycling' ? 'primary' : 'default'}
-            // onClick={() => setState({ ...state, exerciseType: 'Cycling' })}
-            onClick={() => handleExerciseTypeSelect('Cycling')}
-          >
-            <BikeIcon fontSize="large" />
-          </IconButton>
-          <IconButton
-            color={state.exerciseType === 'Swimming' ? 'primary' : 'default'}
-            // onClick={() => setState({ ...state, exerciseType: 'Swimming' })}
-            onClick={() => handleExerciseTypeSelect('Swimming')}
-          >
-            <PoolIcon fontSize="large" />
-          </IconButton>
-          <IconButton
-            color={state.exerciseType === 'Gym' ? 'primary' : 'default'}
-            // onClick={() => setState({ ...state, exerciseType: 'Gym' })}
-            onClick={() => handleExerciseTypeSelect('Gym')}
-          >
-            <FitnessCenterIcon fontSize="large" />
-          </IconButton>
-          <IconButton
-            color={state.exerciseType === 'Other' ? 'primary' : 'default'}
-            onClick={() => setState({ ...state, exerciseType: 'Other' })}
-          >
-            <OtherIcon fontSize="large" />
-          </IconButton>
-        </div>
-
-        {/* Description */}
-        <Form.Group controlId="description" style={{ marginBottom: '20px' }}>
-          <Form.Label>Description:</Form.Label>
-          <Form.Control
-            as="textarea"
-            rows={3}
-            required
-            value={state.description}
-            onChange={(e) => setState({ ...state, description: e.target.value })}
-          />
-        </Form.Group>
-
-        {/* Duration */}
-        <Form.Group controlId="duration" style={{ marginBottom: '20px' }}>
-          <Form.Label>Duration (in minutes):</Form.Label>
-          <Form.Control
-            type="number"
-            required
-            value={state.duration}
-            onChange={(e) => setState({ ...state, duration: e.target.value })}
-          />
-        </Form.Group>
-
-        {/* ✅ Pace Dropdown (moved outside the duration group)
-        <Form.Group controlId="pace" style={{ marginBottom: '20px' }}>
-          <Form.Label>Select Pace:</Form.Label>
-          <Form.Control
-            as="select"
-            required
-            value={state.pace}
-            onChange={(e) => setState({ ...state, pace: e.target.value })}
-          >
-            <option value="">-- Select Pace --</option>
-            <option value="Slow">Slow</option>
-            <option value="Moderate">Moderate</option>
-            <option value="Fast">Fast</option>
-          </Form.Control>
-        </Form.Group> */}
-
-         {/* Sub-Activity Dropdown */}
-        {selectedActivity && (
-          <Form.Group controlId="subActivity" style={{ marginBottom: '20px' }}>
-            <Form.Label>{selectedActivity.dropdown_label}</Form.Label>
-            <Form.Control
-              as="select"
-              value={state.subActivity}
-              onChange={(e) => setState({ ...state, subActivity: e.target.value })}
-              required
-            >
-              <option value="">-- Select --</option>
-              {selectedActivity.sub_activity_options.map((opt) => (
-                <option key={opt.name} value={opt.name}>
-                  {opt.name}
-                </option>
-              ))}
-            </Form.Control>
+    <div
+      style={{
+        backgroundImage: 'url("/login_box.jpg")', 
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        minHeight: '100vh',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        opacity: 0.95, // ✅ makes the entire background slightly transparent
+      }}
+    >
+      <div
+        style={{
+          backgroundColor: 'rgba(255, 255, 255, 0.85)',
+          padding: '30px',
+          borderRadius: '10px',
+          boxShadow: '0 4px 10px rgba(0, 0, 0, 0.3)',
+          width: '400px',
+        }}
+      >
+        <h3 className="text-center mb-4">Track Exercise</h3>
+        <Form onSubmit={onSubmit}>
+          <Form.Group controlId="formDate" className="form-margin">
+            <Form.Label>Date:</Form.Label>
+            <DatePicker
+              selected={state.date}
+              onChange={(date) => setState({ ...state, date })}
+              dateFormat="yyyy/MM/dd"
+            />
           </Form.Group>
+
+          {/* Exercise Type Icons */}
+          <div style={{ marginBottom: '20px', textAlign: 'center' }}>
+            <IconButton
+              color={state.exerciseType === 'Running' ? 'primary' : 'default'}
+              onClick={() => handleExerciseTypeSelect('Running')}
+            >
+              <DirectionsRunIcon fontSize="large" />
+            </IconButton>
+            <IconButton
+              color={state.exerciseType === 'Cycling' ? 'primary' : 'default'}
+              onClick={() => handleExerciseTypeSelect('Cycling')}
+            >
+              <BikeIcon fontSize="large" />
+            </IconButton>
+            <IconButton
+              color={state.exerciseType === 'Swimming' ? 'primary' : 'default'}
+              onClick={() => handleExerciseTypeSelect('Swimming')}
+            >
+              <PoolIcon fontSize="large" />
+            </IconButton>
+            <IconButton
+              color={state.exerciseType === 'Gym' ? 'primary' : 'default'}
+              onClick={() => handleExerciseTypeSelect('Gym')}
+            >
+              <FitnessCenterIcon fontSize="large" />
+            </IconButton>
+            <IconButton
+              color={state.exerciseType === 'Other' ? 'primary' : 'default'}
+              onClick={() => setState({ ...state, exerciseType: 'Other' })}
+            >
+              <OtherIcon fontSize="large" />
+            </IconButton>
+          </div>
+
+          {/* Description */}
+          <Form.Group controlId="description" style={{ marginBottom: '20px' }}>
+            <Form.Label>Description:</Form.Label>
+            <Form.Control
+              as="textarea"
+              rows={3}
+              required
+              value={state.description}
+              onChange={(e) => setState({ ...state, description: e.target.value })}
+            />
+          </Form.Group>
+
+          {/* Duration */}
+          <Form.Group controlId="duration" style={{ marginBottom: '20px' }}>
+            <Form.Label>Duration (in minutes):</Form.Label>
+            <Form.Control
+              type="number"
+              required
+              value={state.duration}
+              onChange={(e) => setState({ ...state, duration: e.target.value })}
+            />
+          </Form.Group>
+
+          {/* Sub-Activity Dropdown */}
+          {selectedActivity && (
+            <Form.Group controlId="subActivity" style={{ marginBottom: '20px' }}>
+              <Form.Label>{selectedActivity.dropdown_label}</Form.Label>
+              <Form.Control
+                as="select"
+                value={state.subActivity}
+                onChange={(e) => setState({ ...state, subActivity: e.target.value })}
+                required
+              >
+                <option value="">-- Select --</option>
+                {selectedActivity.sub_activity_options.map((opt) => (
+                  <option key={opt.name} value={opt.name}>
+                    {opt.name}
+                  </option>
+                ))}
+              </Form.Control>
+            </Form.Group>
+          )}
+
+          <Button variant="success" type="submit" className="w-100">
+            Save activity
+          </Button>
+        </Form>
+
+        {message && (
+          <p className="text-center mt-3" style={{ color: 'green' }}>
+            {message}
+          </p>
         )}
-
-
-
-
-        {/* Submit Button */}
-        <Button variant="success" type="submit">
-          Save activity
-        </Button>
-      </Form>
-
-      {message && <p style={{ color: 'green' }}>{message}</p>}
+      </div>
     </div>
   );
 };
