@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Button, Form, Alert, Card, Container } from 'react-bootstrap';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Login = ({ onLogin }) => {
+  const navigate = useNavigate(); // ✅ must be inside the component
+
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -19,6 +21,7 @@ const Login = ({ onLogin }) => {
 
       if (response.status === 200) {
         onLogin(username);
+        navigate('/dashboard'); // ✅ use navigate instead of reload
       } else {
         setError('Invalid credentials');
       }
@@ -32,13 +35,12 @@ const Login = ({ onLogin }) => {
       fluid
       className="d-flex flex-column justify-content-center align-items-center vh-100"
       style={{
-        backgroundImage: "url('/background.jpg')",
+        backgroundImage: "url('/login_box.jpg')",
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
       }}
     >
-      {/* 🔹 Title moved outside the login box */}
       <h1
         className="text-center mb-3"
         style={{
@@ -49,19 +51,7 @@ const Login = ({ onLogin }) => {
       >
         Welcome to the MLA Fitness App!
       </h1>
-      <p
-        className="text-center mb-4"
-        style={{
-          color: '#efeff1ff',
-          fontWeight: '700',           
-          fontSize: '1.8rem',          
-          textShadow: '0px 1px 4px rgba(192, 36, 127, 0.69)',
-        }}
-      >
-        Group 6
-      </p>
 
-      {/* 🔹 Login box */}
       <Card
         className="p-4 shadow-sm"
         style={{
