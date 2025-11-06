@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
 import { trackExercise } from '../api';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import IconButton from '@material-ui/core/IconButton';
-import DirectionsRunIcon from '@material-ui/icons/DirectionsRun';
-import BikeIcon from '@material-ui/icons/DirectionsBike';
-import PoolIcon from '@material-ui/icons/Pool';
-import FitnessCenterIcon from '@material-ui/icons/FitnessCenter';
-import OtherIcon from '@material-ui/icons/HelpOutline';
+import IconButton from '@mui/material/IconButton';
+import DirectionsRunIcon from '@mui/icons-material/DirectionsRun';
+import BikeIcon from '@mui/icons-material/DirectionsBike';
+import PoolIcon from '@mui/icons-material/Pool';
+import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
+import OtherIcon from '@mui/icons-material/HelpOutline';
+import SelfImprovementIcon from '@mui/icons-material/SelfImprovement';
+
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
@@ -72,6 +74,9 @@ const TrackExercise = ({ currentUser }) => {
           </IconButton>
           <IconButton color={state.exerciseType === 'Gym' ? "primary" : "default"} onClick={() => setState({ ...state, exerciseType: 'Gym' })}>
             <FitnessCenterIcon fontSize="large" />
+          </IconButton>
+          <IconButton color={state.exerciseType === 'Yoga' ? "primary" : "default"} onClick={() => setState({ ...state, exerciseType: 'Yoga' })}>
+            <SelfImprovementIcon fontSize="large" />
           </IconButton>
           <IconButton color={state.exerciseType === 'Other' ? "primary" : "default"} onClick={() => setState({ ...state, exerciseType: 'Other' })}>
             <OtherIcon fontSize="large" />
