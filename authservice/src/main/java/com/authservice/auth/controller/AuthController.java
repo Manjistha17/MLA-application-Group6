@@ -105,7 +105,7 @@ public class AuthController {
             return ResponseEntity.badRequest().body(singleMessage("Missing username or password"));
         }
 
-        User existingUser = userRepository.findByUsername(incoming.getUsername().trim());
+        User existingUser = userRepository.findByUsername(incoming.getUsername().trim()).orElse(null);
         if (existingUser != null && passwordEncoder.matches(incoming.getPassword(), existingUser.getPassword())) {
             return ResponseEntity.ok(singleMessage("User authenticated"));
         } else {

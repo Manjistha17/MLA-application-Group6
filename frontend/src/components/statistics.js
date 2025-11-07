@@ -20,18 +20,43 @@ const Statistics = ({ currentUser }) => {
   const currentUserData = data.find(item => item.username === currentUser);
 
   return (
-    <div className="stats-container">
-      <h4>Well done, {currentUser}! This is your overall effort:</h4>
-      {currentUserData ? (
-        currentUserData.exercises.map((item, index) => (
-          <div key={index} className="exercise-data">
-            <div><strong>{item.exerciseType}</strong></div>
-            <div>Total Duration: {item.totalDuration} min</div>
-          </div>
-        ))
-      ) : (
-        <p>No data available</p>
-      )}
+    <div
+      style={{
+        backgroundImage: 'url("/login_box.jpg")', // ✅ from public folder
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        minHeight: '100vh',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: '40px',
+      }}
+    >
+      <div
+        className="stats-container"
+        style={{
+          backgroundColor: 'rgba(255, 255, 255, 0.8)',
+          borderRadius: '12px',
+          padding: '30px',
+          maxWidth: '600px',
+          width: '90%',
+          boxShadow: '0 0 15px rgba(0,0,0,0.2)',
+          textAlign: 'center',
+        }}
+      >
+        <h4>Well done, {currentUser}! This is your overall effort:</h4>
+        {currentUserData ? (
+          currentUserData.exercises.map((item, index) => (
+            <div key={index} className="exercise-data">
+              <div><strong>{item.exerciseType}</strong></div>
+              <div>Total Duration: {item.totalDuration} min</div>
+            </div>
+          ))
+        ) : (
+          <p>No data available</p>
+        )}
+      </div>
     </div>
   );
 };
