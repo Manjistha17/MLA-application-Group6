@@ -14,13 +14,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .cors().and() // Enable CORS (configure this based on your requirements)
-                .csrf().disable() // Disable CSRF (enable and configure this in production)
+                .cors().and()
+                .csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/api/auth/signup", "/api/auth/login").permitAll() // Public access to signup and login
-                .anyRequest().authenticated() // All other requests need authentication
+                // ✅ Allow *all* /api/auth endpoints (signup, login, user, etc.)
+                .antMatchers("/api/auth/**").permitAll()
+                .anyRequest().authenticated()
                 .and()
-                .httpBasic();
+                .httpBasic().disable();  // disable login popup for browsers
     }
 
     @Bean

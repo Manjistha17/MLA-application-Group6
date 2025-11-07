@@ -11,6 +11,7 @@ import Signup from './components/signup';
 import Journal from './components/journal';
 import logo from './img/CFG_logo.png'; // Update path if needed
 import DailyStats from './components/DailyStats';
+import Dashboard from './components/Dashboard';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -38,16 +39,102 @@ function App() {
 
         <div className="componentContainer">
           <Routes>
-            <Route path="/login" element={isLoggedIn ? <Navigate to="/" /> : <Login onLogin={handleLogin} />} />
-            <Route path="/signup" element={isLoggedIn ? <Navigate to="/" /> : <Signup onSignup={(username) => {
-              setIsLoggedIn(true);
-              setCurrentUser(username);
-            }} />} />
-            <Route path="/trackExercise" element={isLoggedIn ? <TrackExercise currentUser={currentUser} /> : <Navigate to="/login" />} />
-            <Route path="/statistics" element={isLoggedIn ? <Statistics currentUser={currentUser} /> : <Navigate to="/login" />} />
-            <Route path="/journal" element={isLoggedIn ? <Journal currentUser={currentUser} /> : <Navigate to="/login" />} />
-            <Route path="/dailystats" element={isLoggedIn ? <DailyStats currentUser={currentUser} /> : <Navigate to="/login" />} />
-            <Route path="/" element={isLoggedIn ? <Navigate to="/trackExercise" /> : <Navigate to="/login" />} />
+            {/* ✅ Login */}
+            <Route
+              path="/login"
+              element={
+                isLoggedIn ? (
+                  <Navigate to="/" />
+                ) : (
+                  <div className="route-login">
+                    <Login onLogin={handleLogin} />
+                  </div>
+                )
+              }
+            />
+
+            {/* ✅ Signup */}
+            <Route
+              path="/signup"
+              element={
+                isLoggedIn ? (
+                  <Navigate to="/" />
+                ) : (
+                  <Signup
+                    onSignup={(username) => {
+                      setIsLoggedIn(true);
+                      setCurrentUser(username);
+                    }}
+                  />
+                )
+              }
+            />
+
+            {/* ✅ Dashboard */}
+            <Route
+              path="/dashboard"
+              element={
+                isLoggedIn ? (
+                  <Dashboard currentUser={currentUser} />
+                ) : (
+                  <Navigate to="/login" />
+                )
+              }
+            />
+
+            {/* ✅ Other routes */}
+            <Route
+              path="/trackExercise"
+              element={
+                isLoggedIn ? (
+                  <TrackExercise currentUser={currentUser} />
+                ) : (
+                  <Navigate to="/login" />
+                )
+              }
+            />
+            <Route
+              path="/statistics"
+              element={
+                isLoggedIn ? (
+                  <Statistics currentUser={currentUser} />
+                ) : (
+                  <Navigate to="/login" />
+                )
+              }
+            />
+            <Route
+              path="/journal"
+              element={
+                isLoggedIn ? (
+                  <Journal currentUser={currentUser} />
+                ) : (
+                  <Navigate to="/login" />
+                )
+              }
+            />
+            <Route
+              path="/dailystats"
+              element={
+                isLoggedIn ? (
+                  <DailyStats currentUser={currentUser} />
+                ) : (
+                  <Navigate to="/login" />
+                )
+              }
+            />
+
+            {/* ✅ Default route */}
+            <Route
+              path="/"
+              element={
+                isLoggedIn ? (
+                  <Navigate to="/dashboard" />
+                ) : (
+                  <Navigate to="/login" />
+                )
+              }
+            />
           </Routes>
         </div>
         <Footer />
