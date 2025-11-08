@@ -11,16 +11,19 @@ import FitnessCenterIcon from '@material-ui/icons/FitnessCenter';
 import OtherIcon from '@material-ui/icons/HelpOutline';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import Timer from './Timer';
 
 const TrackExercise = ({ currentUser }) => {
   const [state, setState] = useState({
     exerciseType: '',
-    description: '',
     duration: 0,
     subActivity: '',
     date: new Date(),
+    startTime: null,
+    endTime: null,
   });
   const [message, setMessage] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
   const [activities, setActivities] = useState([]);
   const [selectedActivity, setSelectedActivity] = useState(null);
 
@@ -44,9 +47,38 @@ const TrackExercise = ({ currentUser }) => {
 
   const onSubmit = async (e) => {
     e.preventDefault();
+    setErrorMsg('');
+    setMessage('');
+
+    // Validation
+    if (!currentUser) {
+      setErrorMsg('Please log in to save an activity.');
+      return;
+    }
+    if (!state.exerciseType) {
+      setErrorMsg('Please select an exercise type.');
+      return;
+    }
+    if (selectedActivity && !state.subActivity) {
+      setErrorMsg('Please select a sub-activity option.');
+      return;
+    }
+    const durationInt = Number.isFinite(state.duration) ? Math.floor(Number(state.duration)) : 0;
+    if (!durationInt || durationInt < 1) {
+      setErrorMsg('Please record a duration with the timer before saving.');
+      return;
+    }
+
+    const dateIso = state.date instanceof Date ? state.date.toISOString() : state.date;
     const dataToSubmit = {
       username: currentUser,
-      ...state,
+      exerciseType: state.exerciseType,
+      subActivity: state.subActivity,
+      description: state.description,
+      duration: durationInt,
+      date: dateIso,
+      startTime: state.startTime,
+      endTime: state.endTime,
     };
 
     try {
@@ -55,17 +87,19 @@ const TrackExercise = ({ currentUser }) => {
 
       setState({
         exerciseType: '',
-        description: '',
         duration: 0,
         subActivity: '',
         date: new Date(),
+        startTime: null,
+        endTime: null,
       });
 
       setMessage('✅ Activity logged successfully!');
       setTimeout(() => setMessage(''), 2000);
     } catch (error) {
       console.error('Error logging your activity!', error);
-      setMessage('❌ Failed to log activity');
+      const detail = error?.response?.data?.error || error.message || 'Unknown error';
+      setErrorMsg(`❌ Failed to log activity: ${detail}`);
     }
   };
 
@@ -137,28 +171,18 @@ const TrackExercise = ({ currentUser }) => {
             </IconButton>
           </div>
 
-          {/* Description */}
-          <Form.Group controlId="description" style={{ marginBottom: '20px' }}>
-            <Form.Label>Description:</Form.Label>
-            <Form.Control
-              as="textarea"
-              rows={3}
-              required
-              value={state.description}
-              onChange={(e) => setState({ ...state, description: e.target.value })}
-            />
-          </Form.Group>
-
-          {/* Duration */}
-          <Form.Group controlId="duration" style={{ marginBottom: '20px' }}>
-            <Form.Label>Duration (in minutes):</Form.Label>
-            <Form.Control
-              type="number"
-              required
-              value={state.duration}
-              onChange={(e) => setState({ ...state, duration: e.target.value })}
-            />
-          </Form.Group>
+          {/* Timer */}
+          <div style={{ marginBottom: '20px' }}>
+            <Timer onTimerStop={(session) => {
+              // Store exact duration in seconds and session timestamps
+              setState(prev => ({
+                ...prev,
+                duration: Number(session.duration),
+                startTime: session.startTime,
+                endTime: session.endTime,
+              }));
+            }} />
+          </div>
 
           {/* Sub-Activity Dropdown */}
           {selectedActivity && (
@@ -188,6 +212,11 @@ const TrackExercise = ({ currentUser }) => {
         {message && (
           <p className="text-center mt-3" style={{ color: 'green' }}>
             {message}
+          </p>
+        )}
+        {errorMsg && (
+          <p className="text-center mt-2" style={{ color: 'red' }}>
+            {errorMsg}
           </p>
         )}
       </div>
