@@ -1,0 +1,60 @@
+.timer-container {
+    max-width: 400px;
+    margin: 20px auto;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+}
+
+.timer-display {
+    font-size: 3rem;
+    font-family: monospace;
+    text-align: center;
+    margin: 20px 0;
+    color: #333;
+}
+
+.timer-controls {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.timer-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.timer-button:not(.disabled) {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.timer-button.disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.task-input {
+    width: 100%;
+    padding: 8px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.error-message {
+    color: #f44336;
+    text-align: center;
+    margin-bottom: 10px;
+    padding: 8px;
+    background-color: #ffebee;
+    border-radius: 4px;
+}
