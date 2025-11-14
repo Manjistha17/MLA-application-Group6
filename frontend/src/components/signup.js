@@ -4,7 +4,7 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 
 const Signup = ({ onSignup }) => {
-  const [formData, setFormData] = useState({ username: '', password: '' });
+  const [formData, setFormData] = useState({ username: '', password: '', email: '' });
   const [error, setError] = useState('');
 
   const handleInputChange = (e) => {
@@ -18,7 +18,7 @@ const Signup = ({ onSignup }) => {
     setError('');
 
     try {
-        const response = await axios.post('http://localhost:8080/api/auth/signup', formData);
+        const response = await axios.post('/api/auth/signup', formData);
 
         if (response.data === 'User registered successfully!') {
             console.log('User registered successfully');
@@ -61,6 +61,18 @@ const Signup = ({ onSignup }) => {
             required
           />
         </Form.Group>
+         <Form.Group controlId="formBasicEmail">
+  <Form.Label>Email</Form.Label>
+  <Form.Control
+    type="email"
+    placeholder="Enter email"
+    name="email"
+    value={formData.email}
+    onChange={handleInputChange}
+    required
+  />
+</Form.Group>
+        
 
         <Button variant="primary" type="submit" style={{ marginTop: '20px' }}>
           Signup

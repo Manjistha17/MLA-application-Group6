@@ -1,17 +1,25 @@
 import axios from 'axios';
 
-function getUrl() {
-    if (process.env.CODESPACES === "true") {
-        return `https://${process.env.CODESPACE_NAME}-5300.app.github.dev`;
-    } else {
-        return `http://localhost:5300`;
-    }
-}
+// function getUrl() {
+//     if (process.env.CODESPACES === "true") {
+//         return `https://${process.env.CODESPACE_NAME}-5300.app.github.dev`;
+//     } else {
+//         return `http://localhost:5300`;
+//     }
+// }
 
-const baseURL = getUrl();
+// const baseURL = getUrl();
+
+// const api = axios.create({
+//     baseURL
+// });
 
 const api = axios.create({
-    baseURL
+  baseURL: '/', // No hardcoding localhost or port
+  headers: { 'Content-Type': 'application/json' },
 });
 
-export const trackExercise = payload => api.post(`/exercises/add`, payload);
+// ✅ Export your API calls
+export const trackExercise = (payload) => api.post('exercises/add/', payload);
+
+

@@ -12,7 +12,7 @@ const Login = ({ onLogin }) => {
     e.preventDefault();
 
     try {
-      const response = await axios.post('http://localhost:8080/api/auth/login', {
+      const response = await axios.post('/api/auth/login', {
         username,
         password,
       });
@@ -98,6 +98,13 @@ const Login = ({ onLogin }) => {
             Login
           </Button>
         </Form>
+
+        <p className="text-center mt-2 mb-3">
+           <Link to="/forgotPassword" style={{ textDecoration: 'underline', color: '#c0247f' }}>
+              Forgot Password?
+           </Link>
+        </p>
+
 
         <p className="text-center mt-3 mb-0">
           New user? <Link to="/signup">Sign up here</Link>

@@ -31,7 +31,7 @@ const TrackExercise = ({ currentUser }) => {
   useEffect(() => {
     const fetchActivities = async () => {
       try {
-        const response = await axios.get('http://localhost:5300/exercises/activities/');
+        const response = await axios.get('/exercises/activities/');
         setActivities(response.data);
       } catch (error) {
         console.error('Error fetching activities', error);
@@ -58,6 +58,7 @@ const TrackExercise = ({ currentUser }) => {
     };
 
     try {
+      
       const response = await trackExercise(dataToSubmit);
       console.log(response.data);
 
