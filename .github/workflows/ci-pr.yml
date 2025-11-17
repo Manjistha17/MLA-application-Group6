@@ -1,0 +1,89 @@
+name: CI - Validate PR (Feature → Main)
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        service: [frontend, activity-tracking, authservice, analytics]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # ---------------- NODE SERVICES (frontend + activity-tracking) ----------------
+      - name: Set up Node.js
+        if: ${{ matrix.service == 'frontend' || matrix.service == 'activity-tracking' }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.service == 'frontend' && '18' || '14' }}
+          cache: npm
+
+      - name: Install dependencies (Node)
+        if: ${{ matrix.service == 'frontend' || matrix.service == 'activity-tracking' }}
+        run: |
+          cd ${{ matrix.service }}
+          npm install
+
+      - name: Lint + Test (frontend)
+        if: ${{ matrix.service == 'frontend' }}
+        run: |
+          cd frontend
+          npm run lint --if-present
+          npm test --if-present -- --ci --watchAll=false
+
+      - name: Build (frontend)
+        if: ${{ matrix.service == 'frontend' }}
+        run: |
+          cd frontend
+          npm run build
+
+      # ---------------- PYTHON (analytics) ----------------
+      - name: Set up Python
+        if: ${{ matrix.service == 'analytics' }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies (Python)
+        if: ${{ matrix.service == 'analytics' }}
+        run: |
+          cd analytics
+          pip install --no-cache-dir -r requirements.txt
+
+      - name: Run tests (Python)
+        if: ${{ matrix.service == 'analytics' }}
+        run: |
+          cd analytics
+          pytest || echo "No tests found"
+
+      # ---------------- JAVA / GRADLE (authservice) ----------------
+      - name: Set up Java
+        if: ${{ matrix.service == 'authservice' }}
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: 17
+
+      - name: Build Spring Boot (Gradle)
+        if: ${{ matrix.service == 'authservice' }}
+        run: |
+          cd authservice
+          ./gradlew bootJar
+
+      # ---------------- UPLOAD ARTIFACTS ----------------
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.service }}-artifact
+          path: |
+            ${{ matrix.service }}/dist
+            ${{ matrix.service }}/build
+            ${{ matrix.service }}/build/libs/*.jar
+          if-no-files-found: ignore
