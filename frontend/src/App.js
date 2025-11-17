@@ -11,6 +11,7 @@ import Signup from './components/signup';
 import Journal from './components/journal';
 import logo from './img/CFG_logo.png'; // Update path if needed
 import DailyStats from './components/DailyStats';
+import Dashboard from './components/Dashboard';
 import ForgotPassword from './components/ForgotPassword';
 import ResetPassword from './components/ResetPassword';
 
@@ -31,81 +32,111 @@ function App() {
   return (
     <div className="App">
       <Router>
-        {isLoggedIn && (
-          <div className="appTitle">
-            <h1>MLA Fitness App</h1>
-            <img src={logo} alt="CFG Fitness App Logo" id="appLogo" />
-          </div>
-        )}
+        <div className="appTitle">
+          <h1>MLA Fitness App</h1>
+          <img src={logo} alt="CFG Fitness App Logo" id="appLogo" />
+        </div>
 
         {isLoggedIn && <NavbarComponent onLogout={handleLogout} />}
 
-        <Routes>
-          {/* Public routes (Login & Signup) */}
-          <Route
-            path="/login"
-            element={
-              isLoggedIn ? (
-                <Navigate to="/" />
-              ) : (
-                <Login onLogin={handleLogin} />
-              )
-            }
-          />
-          <Route
-            path="/signup"
-            element={
-              isLoggedIn ? (
-                <Navigate to="/" />
-              ) : (
-                <Signup
-                  onSignup={(username) => {
-                    setIsLoggedIn(true);
-                    setCurrentUser(username);
-                  }}
-                />
-              )
-            }
-          />
+        <div className="componentContainer">
+          <Routes>
+            {/* ✅ Login */}
+            <Route
+              path="/login"
+              element={
+                isLoggedIn ? (
+                  <Navigate to="/" />
+                ) : (
+                  <div className="route-login">
+                    <Login onLogin={handleLogin} />
+                  </div>
+                )
+              }
+            />
 
-          {/* Protected routes (inside componentContainer) */}
-          <Route
-            path="/trackExercise"
-            element={
-              isLoggedIn ? (
-                <div className="componentContainer">
+            {/* ✅ Signup */}
+            <Route
+              path="/signup"
+              element={
+                isLoggedIn ? (
+                  <Navigate to="/" />
+                ) : (
+                  <Signup
+                    onSignup={(username) => {
+                      setIsLoggedIn(true);
+                      setCurrentUser(username);
+                    }}
+                  />
+                )
+              }
+            />
+
+            {/* ✅ Dashboard */}
+            <Route
+              path="/dashboard"
+              element={
+                isLoggedIn ? (
+                  <Dashboard currentUser={currentUser} />
+                ) : (
+                  <Navigate to="/login" />
+                )
+              }
+            />
+
+            {/* ✅ Other routes */}
+            <Route
+              path="/trackExercise"
+              element={
+                isLoggedIn ? (
                   <TrackExercise currentUser={currentUser} />
-                </div>
-              ) : (
-                <Navigate to="/login" />
-              )
-            }
-          />
-          <Route
-            path="/statistics"
-            element={
-              isLoggedIn ? (
-                <div className="componentContainer">
+                ) : (
+                  <Navigate to="/login" />
+                )
+              }
+            />
+            <Route
+              path="/statistics"
+              element={
+                isLoggedIn ? (
                   <Statistics currentUser={currentUser} />
-                </div>
-              ) : (
-                <Navigate to="/login" />
-              )
-            }
-          />
-          <Route
-            path="/journal"
-            element={
-              isLoggedIn ? (
-                <div className="componentContainer">
+                ) : (
+                  <Navigate to="/login" />
+                )
+              }
+            />
+            <Route
+              path="/journal"
+              element={
+                isLoggedIn ? (
                   <Journal currentUser={currentUser} />
-                </div>
-              ) : (
-                <Navigate to="/login" />
-              )
-            }
-          />
+                ) : (
+                  <Navigate to="/login" />
+                )
+              }
+            />
+            <Route
+              path="/dailystats"
+              element={
+                isLoggedIn ? (
+                  <DailyStats currentUser={currentUser} />
+                ) : (
+                  <Navigate to="/login" />
+                )
+              }
+            />
 
+            {/* ✅ Default route */}
+            <Route
+              path="/"
+              element={
+                isLoggedIn ? (
+                  <Navigate to="/dashboard" />
+                ) : (
+                  <Navigate to="/login" />
+                )
+              }
+            />
           {/* Default route */}
           <Route
             path="/"
