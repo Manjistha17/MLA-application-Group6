@@ -37,7 +37,7 @@ router.get('/', async (req, res) => {
 const mongoose = require('mongoose');
 
 // GET: Retrieve all activities from activity_mets_new
-router.get('/activities', async (req, res) => {
+router.get('/activities/', async (req, res) => {
   try {
     const activities = await mongoose.connection.db
       .collection('activity_mets_new')
