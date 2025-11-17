@@ -15,8 +15,7 @@ public class User {
     private Integer age;
     private String gender;
     private Double height;
-    private Double weight;
-    private String email;       
+    private Double weight;      
     private String resetToken;  
 
     public User() {
@@ -26,7 +25,6 @@ public class User {
                 Integer age, String gender, Double height, Double weight) {
         this.username = username;
         this.password = password;
-        this.email=email;
         this.email = email;
         this.contact = contact;
         this.age = age;
@@ -105,16 +103,6 @@ public class User {
 
     public void setWeight(Double weight) {
         this.weight = weight;
-    }
-}
-
-    
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 
     public String getResetToken() {
