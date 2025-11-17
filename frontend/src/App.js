@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+
 import NavbarComponent from './components/navbar';
 import TrackExercise from './components/trackExercise';
 import Statistics from './components/statistics';
@@ -9,7 +10,7 @@ import Footer from './components/footer';
 import Login from './components/login';
 import Signup from './components/signup';
 import Journal from './components/journal';
-import logo from './img/CFG_logo.png'; // Update path if needed
+import logo from './img/CFG_logo.png';
 import DailyStats from './components/DailyStats';
 import Dashboard from './components/Dashboard';
 import ForgotPassword from './components/ForgotPassword';
@@ -32,6 +33,7 @@ function App() {
   return (
     <div className="App">
       <Router>
+
         <div className="appTitle">
           <h1>MLA Fitness App</h1>
           <img src={logo} alt="CFG Fitness App Logo" id="appLogo" />
@@ -41,21 +43,15 @@ function App() {
 
         <div className="componentContainer">
           <Routes>
-            {/* ✅ Login */}
-            <Route
-              path="/login"
+
+            {/* Public routes */}
+            <Route 
+              path="/login" 
               element={
-                isLoggedIn ? (
-                  <Navigate to="/" />
-                ) : (
-                  <div className="route-login">
-                    <Login onLogin={handleLogin} />
-                  </div>
-                )
-              }
+                isLoggedIn ? <Navigate to="/" /> : <Login onLogin={handleLogin} />
+              } 
             />
 
-            {/* ✅ Signup */}
             <Route
               path="/signup"
               element={
@@ -72,7 +68,10 @@ function App() {
               }
             />
 
-            {/* ✅ Dashboard */}
+            <Route path="/forgotPassword" element={<ForgotPassword />} />
+            <Route path="/resetPassword" element={<ResetPassword />} />
+
+            {/* Protected routes */}
             <Route
               path="/dashboard"
               element={
@@ -84,7 +83,6 @@ function App() {
               }
             />
 
-            {/* ✅ Other routes */}
             <Route
               path="/trackExercise"
               element={
@@ -95,6 +93,7 @@ function App() {
                 )
               }
             />
+
             <Route
               path="/statistics"
               element={
@@ -105,6 +104,7 @@ function App() {
                 )
               }
             />
+
             <Route
               path="/journal"
               element={
@@ -115,6 +115,7 @@ function App() {
                 )
               }
             />
+
             <Route
               path="/dailystats"
               element={
@@ -126,7 +127,7 @@ function App() {
               }
             />
 
-            {/* ✅ Default route */}
+            {/* Default route */}
             <Route
               path="/"
               element={
@@ -137,32 +138,12 @@ function App() {
                 )
               }
             />
-          {/* Default route */}
-          <Route
-            path="/"
-            element={
-              isLoggedIn ? <Navigate to="/trackExercise" /> : <Navigate to="/login" />
-            }
-          />
-        </Routes>
 
-        <div className="componentContainer">
-          <Routes>
-            <Route path="/login" element={isLoggedIn ? <Navigate to="/" /> : <Login onLogin={handleLogin} />} />
-            <Route path="/signup" element={isLoggedIn ? <Navigate to="/" /> : <Signup onSignup={(username) => {
-              setIsLoggedIn(true);
-              setCurrentUser(username);
-            }} />} />
-            <Route path="/forgotPassword" element={<ForgotPassword />} />
-            <Route path="/resetPassword" element={<ResetPassword />} />
-            <Route path="/trackExercise" element={isLoggedIn ? <TrackExercise currentUser={currentUser} /> : <Navigate to="/login" />} />
-            <Route path="/statistics" element={isLoggedIn ? <Statistics currentUser={currentUser} /> : <Navigate to="/login" />} />
-            <Route path="/journal" element={isLoggedIn ? <Journal currentUser={currentUser} /> : <Navigate to="/login" />} />
-            <Route path="/dailystats" element={isLoggedIn ? <DailyStats currentUser={currentUser} /> : <Navigate to="/login" />} />
-            <Route path="/" element={isLoggedIn ? <Navigate to="/trackExercise" /> : <Navigate to="/login" />} />
           </Routes>
         </div>
+
         <Footer />
+
       </Router>
     </div>
   );
