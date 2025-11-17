@@ -11,7 +11,8 @@ import Signup from './components/signup';
 import Journal from './components/journal';
 import logo from './img/CFG_logo.png'; // Update path if needed
 import DailyStats from './components/DailyStats';
-import logo from './img/CFG_logo.png'; // Update the path to your logo file
+import ForgotPassword from './components/ForgotPassword';
+import ResetPassword from './components/ResetPassword';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -121,6 +122,8 @@ function App() {
               setIsLoggedIn(true);
               setCurrentUser(username);
             }} />} />
+            <Route path="/forgotPassword" element={<ForgotPassword />} />
+            <Route path="/resetPassword" element={<ResetPassword />} />
             <Route path="/trackExercise" element={isLoggedIn ? <TrackExercise currentUser={currentUser} /> : <Navigate to="/login" />} />
             <Route path="/statistics" element={isLoggedIn ? <Statistics currentUser={currentUser} /> : <Navigate to="/login" />} />
             <Route path="/journal" element={isLoggedIn ? <Journal currentUser={currentUser} /> : <Navigate to="/login" />} />
