@@ -1,0 +1,68 @@
+/* Full-page container */
+.dashboard-container {
+  /*background-image: url("../public/login_box.jpg");*/
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Center box */
+.dashboard-box {
+  background-color: rgba(255, 255, 255, 0.85);
+  border-radius: 16px;
+  padding: 40px 60px;
+  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  max-width: 600px;
+  width: 90%;
+  backdrop-filter: blur(8px);
+}
+
+/* Modern heading */
+.dashboard-box h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 25px;
+  letter-spacing: 0.5px;
+}
+
+/* Grid layout for details */
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px 20px;
+  font-size: 1rem;
+  color: #444;
+}
+
+.details-grid p {
+  margin: 0;
+  text-align: left;
+}
+
+/* Bold field names */
+.details-grid strong {
+  color: #c0247f;
+  font-weight: 600;
+}
+
+/* Subtle animation */
+.dashboard-box {
+  animation: fadeInUp 0.8s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
