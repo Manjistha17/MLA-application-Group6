@@ -1,5 +1,5 @@
 /* Full-page container */
-.dashboard-container {
+.profile-container {
   /*background-image: url("../public/login_box.jpg");*/
   background-size: cover;
   background-position: center;
@@ -11,7 +11,7 @@
 }
 
 /* Center box */
-.dashboard-box {
+.profile-box {
   background-color: rgba(255, 255, 255, 0.85);
   border-radius: 16px;
   padding: 40px 60px;
@@ -23,7 +23,7 @@
 }
 
 /* Modern heading */
-.dashboard-box h2 {
+.profile-box h2 {
   font-size: 2rem;
   font-weight: 700;
   color: #333;
@@ -52,7 +52,7 @@
 }
 
 /* Subtle animation */
-.dashboard-box {
+.profile-box {
   animation: fadeInUp 0.8s ease-out;
 }
 
