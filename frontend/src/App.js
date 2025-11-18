@@ -11,7 +11,7 @@ import Signup from './components/signup';
 import Journal from './components/journal';
 import logo from './img/CFG_logo.png'; // Update path if needed
 import DailyStats from './components/DailyStats';
-import Dashboard from './components/Dashboard';
+import Profile from './components/Profile';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -70,12 +70,12 @@ function App() {
               }
             />
 
-            {/* ✅ Dashboard */}
+            {/* ✅ Profile */}
             <Route
-              path="/dashboard"
+              path="/profile"
               element={
                 isLoggedIn ? (
-                  <Dashboard currentUser={currentUser} />
+                  <Profile currentUser={currentUser} />
                 ) : (
                   <Navigate to="/login" />
                 )
@@ -129,7 +129,7 @@ function App() {
               path="/"
               element={
                 isLoggedIn ? (
-                  <Navigate to="/dashboard" />
+                  <Navigate to="/profile" />
                 ) : (
                   <Navigate to="/login" />
                 )

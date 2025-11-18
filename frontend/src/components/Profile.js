@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import "./Dashboard.css";
+import "./Profile.css";
 
-const Dashboard = ({ currentUser }) => {
+const Profile = ({ currentUser }) => {
   const [userDetails, setUserDetails] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -31,7 +31,7 @@ const Dashboard = ({ currentUser }) => {
   if (loading) {
     return (
       <div
-        className="dashboard-container"
+        className="profile-container"
         style={{
           backgroundImage: "url('/login_box.jpg')",
           backgroundSize: "cover",
@@ -43,7 +43,7 @@ const Dashboard = ({ currentUser }) => {
           alignItems: "center",
         }}
       >
-        <div className="dashboard-box">
+        <div className="profile-box">
           <h2>Welcome, {currentUser}!</h2>
           <p>Loading your details...</p>
         </div>
@@ -54,7 +54,7 @@ const Dashboard = ({ currentUser }) => {
   if (!userDetails) {
     return (
       <div
-        className="dashboard-container"
+        className="profile-container"
         style={{
           backgroundImage: "url('/login_box.jpg')",
           backgroundSize: "cover",
@@ -66,7 +66,7 @@ const Dashboard = ({ currentUser }) => {
           alignItems: "center",
         }}
       >
-        <div className="dashboard-box">
+        <div className="profile-box">
           <h2>Welcome, {currentUser}!</h2>
           <p>Could not load your details.</p>
         </div>
@@ -76,7 +76,7 @@ const Dashboard = ({ currentUser }) => {
 
   return (
     <div
-      className="dashboard-container"
+      className="profile-container"
       style={{
         backgroundImage: "url('/login_box.jpg')",
         backgroundSize: "cover",
@@ -88,7 +88,7 @@ const Dashboard = ({ currentUser }) => {
         alignItems: "center",
       }}
     >
-      <div className="dashboard-box">
+      <div className="profile-box">
         <h2>Welcome, {userDetails.username}!</h2>
         <div className="details-grid">
           <p><strong>Email:</strong> {userDetails.email}</p>
@@ -103,4 +103,4 @@ const Dashboard = ({ currentUser }) => {
   );
 };
 
-export default Dashboard;
+export default Profile;
