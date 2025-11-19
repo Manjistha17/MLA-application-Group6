@@ -26,7 +26,6 @@ const Journal = ({ currentUser }) => {
   };
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  
   useEffect(() => {
     fetchExercises();
   }, [currentUser, startDate, endDate]);
