@@ -9,12 +9,13 @@ const Profile = ({ currentUser }) => {
   useEffect(() => {
     const fetchDetails = async () => {
       try {
-        const baseUrl =
-          window.location.hostname === "localhost"
-            ? "http://localhost:8080"
-            : "http://authservice:8080";
+        // const baseUrl =
+        //   window.location.hostname === "localhost"
+        //     ? "http://localhost:8080"
+        //     : "http://authservice:8080";
 
-        const response = await axios.get(`${baseUrl}/api/auth/user/${currentUser}`);
+        // const response = await axios.get(`${baseUrl}/api/auth/user/${currentUser}`);
+        const response = await axios.get(`/api/auth/user/${currentUser}`);
         setUserDetails(response.data);
       } catch (error) {
         console.error("❌ Error fetching user details:", error);

@@ -24,11 +24,12 @@ const TrackExercise = ({ currentUser }) => {
   const [message, setMessage] = useState('');
   const [activities, setActivities] = useState([]);
   const [selectedActivity, setSelectedActivity] = useState(null);
-
+  
+// eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const fetchActivities = async () => {
       try {
-        const response = await axios.get('http://localhost:5300/exercises/activities/');
+        const response = await axios.get('/exercises/activities/');
         setActivities(response.data);
       } catch (error) {
         console.error('Error fetching activities', error);

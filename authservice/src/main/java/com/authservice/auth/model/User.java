@@ -15,7 +15,8 @@ public class User {
     private Integer age;
     private String gender;
     private Double height;
-    private Double weight;
+    private Double weight;      
+    private String resetToken;  
 
     public User() {
     }
@@ -102,5 +103,13 @@ public class User {
 
     public void setWeight(Double weight) {
         this.weight = weight;
+    }
+
+    public String getResetToken() {
+        return resetToken;
+    }
+
+    public void setResetToken(String resetToken) {
+        this.resetToken = resetToken;
     }
 }
