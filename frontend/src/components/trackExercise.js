@@ -24,7 +24,8 @@ const TrackExercise = ({ currentUser }) => {
   const [message, setMessage] = useState('');
   const [activities, setActivities] = useState([]);
   const [selectedActivity, setSelectedActivity] = useState(null);
-
+  
+// eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const fetchActivities = async () => {
       try {
