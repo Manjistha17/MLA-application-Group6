@@ -5,6 +5,8 @@ import './DailyStats.css';
 const DailyStats = ({ currentUser }) => {
   const [exercises, setExercises] = useState([]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+
   useEffect(() => {
     const fetchExercises = async () => {
       try {

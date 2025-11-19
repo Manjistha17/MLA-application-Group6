@@ -5,6 +5,8 @@ import './statistics.css';
 const Statistics = ({ currentUser }) => {
   const [data, setData] = useState([]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+
   useEffect(() => {
     const url = `/stats/${currentUser}`;
 
