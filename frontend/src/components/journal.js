@@ -9,6 +9,8 @@ const Journal = ({ currentUser }) => {
   const [endDate, setEndDate] = useState(moment().endOf('week').toDate());
   const [exercises, setExercises] = useState([]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+
   const fetchExercises = async () => {
     try {
       const url = `/stats/weekly/?user=${currentUser}&start=${moment(startDate).format('YYYY-MM-DD')}&end=${moment(endDate).format('YYYY-MM-DD')}`;
