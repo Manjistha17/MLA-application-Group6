@@ -23,7 +23,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.service == 'frontend' && '18' || '14' }}
-          cache: npm
+          # cache: npm
 
       - name: Install dependencies (Node)
         if: ${{ matrix.service == 'frontend' || matrix.service == 'activity-tracking' }}
