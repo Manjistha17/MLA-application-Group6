@@ -12,7 +12,7 @@ import Signup from './components/signup';
 import Journal from './components/journal';
 import logo from './img/CFG_logo.png';
 import DailyStats from './components/DailyStats';
-import Dashboard from './components/Dashboard';
+import Profile from './components/Profile';
 import ForgotPassword from './components/ForgotPassword';
 import ResetPassword from './components/ResetPassword';
 
@@ -68,15 +68,16 @@ function App() {
               }
             />
 
+            {/* ✅ Profile */}
             <Route path="/forgotPassword" element={<ForgotPassword />} />
             <Route path="/resetPassword" element={<ResetPassword />} />
 
             {/* Protected routes */}
             <Route
-              path="/dashboard"
+              path="/profile"
               element={
                 isLoggedIn ? (
-                  <Dashboard currentUser={currentUser} />
+                  <Profile currentUser={currentUser} />
                 ) : (
                   <Navigate to="/login" />
                 )
@@ -132,7 +133,7 @@ function App() {
               path="/"
               element={
                 isLoggedIn ? (
-                  <Navigate to="/dashboard" />
+                  <Navigate to="/profile" />
                 ) : (
                   <Navigate to="/login" />
                 )
