@@ -25,9 +25,10 @@ const Journal = ({ currentUser }) => {
     }
   };
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  
   useEffect(() => {
     fetchExercises();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUser, startDate, endDate]);
 
   const goToPreviousWeek = () => {
