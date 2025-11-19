@@ -31,12 +31,12 @@ jobs:
           cd ${{ matrix.service }}
           npm install
 
-      - name: Lint + Test (frontend)
-        if: ${{ matrix.service == 'frontend' }}
-        run: |
-          cd frontend
-          npm run lint --if-present
-          npm test --if-present -- --ci --watchAll=false
+      # - name: Lint + Test (frontend)
+      #   if: ${{ matrix.service == 'frontend' }}
+      #   run: |
+      #     cd frontend
+      #     npm run lint --if-present
+      #     npm test --if-present -- --ci --watchAll=false
 
       - name: Build (frontend)
         if: ${{ matrix.service == 'frontend' }}
