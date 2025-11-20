@@ -118,6 +118,7 @@ const Signup = ({ onSignup }) => {
     const errors = runAllValidators();
     if (Object.keys(errors).length) {
       setFieldErrors(errors);
+      // Announce the error for screen reader users
       setGlobalError('Please fix the highlighted fields.');
       return;
     }
@@ -171,12 +172,34 @@ const Signup = ({ onSignup }) => {
   const progressVariant = ['danger', 'danger', 'warning', 'info', 'success'][
     Math.min(4, pwdStrength.score)
   ];
+  
+  // Create unique IDs for ARIA linking
+  const usernameErrorId = 'usernameError';
+  const passwordErrorId = 'passwordError';
+  const passwordHelpId = 'passwordHelp';
+  const confirmPasswordErrorId = 'confirmPasswordError';
+  const emailErrorId = 'emailError';
+  const contactErrorId = 'contactError';
+  const contactHelpId = 'contactHelp';
+  const ageErrorId = 'ageError';
+  const genderErrorId = 'genderError';
+  const heightErrorId = 'heightError';
+  const weightErrorId = 'weightError';
+  const passwordStrengthId = 'passwordStrengthStatus';
+  const globalErrorId = 'globalError';
 
   return (
-    <div>
-      {globalError && <Alert variant="danger">{globalError}</Alert>}
+    // Use role="region" and aria-live for the error message area
+    <div aria-live="polite">
+      {/* Role of alert for critical, time-sensitive errors */}
+      {globalError && (
+        <Alert variant="danger" id={globalErrorId} role="alert">
+          {globalError}
+        </Alert>
+      )}
 
       <Form onSubmit={handleSignup} noValidate>
+        {/* Username Field */}
         <Form.Group controlId="formUsername" className="mb-2">
           <Form.Label>Username</Form.Label>
           <Form.Control
@@ -189,12 +212,16 @@ const Signup = ({ onSignup }) => {
             required
             minLength={3}
             autoFocus
+            // Link error message for screen readers
+            aria-invalid={!!fieldErrors.username}
+            aria-describedby={fieldErrors.username ? usernameErrorId : undefined}
           />
-          <Form.Control.Feedback type="invalid">
+          <Form.Control.Feedback type="invalid" id={usernameErrorId}>
             {fieldErrors.username}
           </Form.Control.Feedback>
         </Form.Group>
 
+        {/* Password Field */}
         <Form.Group controlId="formPassword" className="mb-2">
           <Form.Label>Password</Form.Label>
           <Form.Control
@@ -206,12 +233,17 @@ const Signup = ({ onSignup }) => {
             isInvalid={!!fieldErrors.password || !!fieldErrors.confirmPassword}
             required
             minLength={6}
-            aria-describedby="passwordHelp"
+            // Link help text and error message
+            aria-describedby={`${passwordHelpId} ${passwordStrengthId} ${
+              fieldErrors.password ? passwordErrorId : ''
+            }`}
+            aria-invalid={!!fieldErrors.password}
           />
-          <Form.Text id="passwordHelp" muted>
+          <Form.Text id={passwordHelpId} muted>
             Use at least 8 characters for a stronger password.
           </Form.Text>
 
+          {/* Password Strength Indicator - Use aria-live to announce changes */}
           <div className="mt-2">
             <ProgressBar
               now={(pwdStrength.score / 4) * 100}
@@ -219,14 +251,24 @@ const Signup = ({ onSignup }) => {
               variant={progressVariant}
               animated
               striped
+              // Make the progress bar accessible with ARIA
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"
+              aria-valuenow={pwdStrength.score}
+              aria-valuemin={0}
+              aria-valuemax={4}
+              // Hidden span to provide a clear, full description of the status
+              aria-label={`Password strength: ${pwdStrength.label}`}
             />
           </div>
 
-          <Form.Control.Feedback type="invalid">
+          <Form.Control.Feedback type="invalid" id={passwordErrorId}>
             {fieldErrors.password}
           </Form.Control.Feedback>
         </Form.Group>
 
+        {/* Confirm Password Field */}
         <Form.Group controlId="formConfirmPassword" className="mb-2">
           <Form.Label>Confirm Password</Form.Label>
           <Form.Control
@@ -238,12 +280,17 @@ const Signup = ({ onSignup }) => {
             isInvalid={!!fieldErrors.confirmPassword}
             required
             minLength={6}
+            aria-invalid={!!fieldErrors.confirmPassword}
+            aria-describedby={
+              fieldErrors.confirmPassword ? confirmPasswordErrorId : undefined
+            }
           />
-          <Form.Control.Feedback type="invalid">
+          <Form.Control.Feedback type="invalid" id={confirmPasswordErrorId}>
             {fieldErrors.confirmPassword}
           </Form.Control.Feedback>
         </Form.Group>
 
+        {/* Email Field */}
         <Form.Group controlId="formEmail" className="mb-2">
           <Form.Label>Email</Form.Label>
           <Form.Control
@@ -254,12 +301,15 @@ const Signup = ({ onSignup }) => {
             onBlur={handleBlurValidate}
             isInvalid={!!fieldErrors.email}
             required
+            aria-invalid={!!fieldErrors.email}
+            aria-describedby={fieldErrors.email ? emailErrorId : undefined}
           />
-          <Form.Control.Feedback type="invalid">
+          <Form.Control.Feedback type="invalid" id={emailErrorId}>
             {fieldErrors.email}
           </Form.Control.Feedback>
         </Form.Group>
 
+        {/* Contact Field */}
         <Form.Group controlId="formContact" className="mb-2">
           <Form.Label>Contact Number</Form.Label>
           <InputGroup>
@@ -272,14 +322,21 @@ const Signup = ({ onSignup }) => {
               isInvalid={!!fieldErrors.contact}
               placeholder="Digits only, e.g. 919876543210"
               required
+              aria-invalid={!!fieldErrors.contact}
+              aria-describedby={`${contactHelpId} ${
+                fieldErrors.contact ? contactErrorId : ''
+              }`}
             />
           </InputGroup>
-          <Form.Control.Feedback type="invalid">
+          <Form.Control.Feedback type="invalid" id={contactErrorId}>
             {fieldErrors.contact}
           </Form.Control.Feedback>
-          <Form.Text muted>Include country code if needed, digits only.</Form.Text>
+          <Form.Text id={contactHelpId} muted>
+            Include country code if needed, digits only.
+          </Form.Text>
         </Form.Group>
 
+        {/* Age Field */}
         <Form.Group controlId="formAge" className="mb-2">
           <Form.Label>Age</Form.Label>
           <Form.Control
@@ -292,12 +349,15 @@ const Signup = ({ onSignup }) => {
             min={1}
             max={120}
             required
+            aria-invalid={!!fieldErrors.age}
+            aria-describedby={fieldErrors.age ? ageErrorId : undefined}
           />
-          <Form.Control.Feedback type="invalid">
+          <Form.Control.Feedback type="invalid" id={ageErrorId}>
             {fieldErrors.age}
           </Form.Control.Feedback>
         </Form.Group>
 
+        {/* Gender Field - Form.Select (dropdown) */}
         <Form.Group controlId="formGender" className="mb-2">
           <Form.Label>Gender</Form.Label>
           <Form.Select
@@ -307,18 +367,22 @@ const Signup = ({ onSignup }) => {
             onBlur={handleBlurValidate}
             isInvalid={!!fieldErrors.gender}
             required
+            aria-invalid={!!fieldErrors.gender}
+            aria-describedby={fieldErrors.gender ? genderErrorId : undefined}
           >
-            <option value="">Select</option>
+            {/* The first option should be disabled/unselectable if possible, or have a meaningful prompt */}
+            <option value="" disabled>Select a gender</option>
             <option value="male">Male</option>
             <option value="female">Female</option>
             <option value="other">Other</option>
             <option value="prefer_not_say">Prefer not to say</option>
           </Form.Select>
-          <Form.Control.Feedback type="invalid">
+          <Form.Control.Feedback type="invalid" id={genderErrorId}>
             {fieldErrors.gender}
           </Form.Control.Feedback>
         </Form.Group>
 
+        {/* Height Field */}
         <Form.Group controlId="formHeight" className="mb-2">
           <Form.Label>Height (cm)</Form.Label>
           <Form.Control
@@ -331,12 +395,15 @@ const Signup = ({ onSignup }) => {
             min={1}
             max={300}
             required
+            aria-invalid={!!fieldErrors.height}
+            aria-describedby={fieldErrors.height ? heightErrorId : undefined}
           />
-          <Form.Control.Feedback type="invalid">
+          <Form.Control.Feedback type="invalid" id={heightErrorId}>
             {fieldErrors.height}
           </Form.Control.Feedback>
         </Form.Group>
 
+        {/* Weight Field */}
         <Form.Group controlId="formWeight" className="mb-2">
           <Form.Label>Weight (kg)</Form.Label>
           <Form.Control
@@ -349,13 +416,24 @@ const Signup = ({ onSignup }) => {
             min={1}
             max={500}
             required
+            aria-invalid={!!fieldErrors.weight}
+            aria-describedby={fieldErrors.weight ? weightErrorId : undefined}
           />
-          <Form.Control.Feedback type="invalid">
+          <Form.Control.Feedback type="invalid" id={weightErrorId}>
             {fieldErrors.weight}
           </Form.Control.Feedback>
         </Form.Group>
 
-        <Button variant="primary" type="submit" disabled={loading} className="mt-2">
+        {/* Submit Button */}
+        <Button
+          variant="primary"
+          type="submit"
+          disabled={loading}
+          className="mt-2"
+          // Set aria-live="polite" on the button's text when loading to announce status change
+          aria-live={loading ? 'polite' : undefined}
+          aria-busy={loading}
+        >
           {loading ? (
             <>
               <Spinner
@@ -363,7 +441,7 @@ const Signup = ({ onSignup }) => {
                 animation="border"
                 size="sm"
                 role="status"
-                aria-hidden="true"
+                aria-hidden="true" // Hide the visual spinner from screen readers, the text is the status
               />
               {' '}Signing up...
             </>
