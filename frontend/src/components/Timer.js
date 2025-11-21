@@ -27,13 +27,31 @@ const Timer = ({ onTimerStop }) => {
         }
         setError('');
         setIsRunning(true);
-        setStartTime(new Date());
+        // Only set startTime if this is a fresh start (time is 0)
+        if (time === 0) {
+            setStartTime(new Date());
+        }
+    };
+
+    const pauseTimer = () => {
+        if (!isRunning) {
+            setError('No active timer to pause');
+            return;
+        }
+        setError('');
+        setIsRunning(false);
+    };
+
+    const resetTimer = () => {
+        setError('');
+        setIsRunning(false);
         setTime(0);
+        setStartTime(null);
     };
 
     const stopTimer = () => {
-        if (!isRunning) {
-            setError('No active timer to stop');
+        if (time === 0) {
+            setError('No duration recorded to save');
             return;
         }
         setError('');
@@ -49,6 +67,10 @@ const Timer = ({ onTimerStop }) => {
 
         // Report session to parent and let parent handle persistence/auth
         if (onTimerStop) onTimerStop(session);
+        
+        // Reset timer after stopping
+        setTime(0);
+        setStartTime(null);
     };
 
     const formatTime = (seconds) => {
@@ -66,17 +88,31 @@ const Timer = ({ onTimerStop }) => {
             <div className="timer-controls">
                 <button 
                     onClick={startTimer}
-                    className={`timer-button ${isRunning ? 'disabled' : ''}`}
+                    className={`timer-button start-button ${isRunning ? 'disabled' : ''}`}
                     disabled={isRunning}
                 >
-                    Start Timer
+                    {time > 0 && !isRunning ? 'Resume' : 'Start'}
+                </button>
+                <button 
+                    onClick={pauseTimer}
+                    className={`timer-button pause-button ${!isRunning ? 'disabled' : ''}`}
+                    disabled={!isRunning}
+                >
+                    Pause
                 </button>
                 <button 
                     onClick={stopTimer}
-                    className={`timer-button ${!isRunning ? 'disabled' : ''}`}
-                    disabled={!isRunning}
+                    className={`timer-button stop-button ${time === 0 ? 'disabled' : ''}`}
+                    disabled={time === 0}
                 >
-                    Stop Timer
+                    Stop & Save
+                </button>
+                <button 
+                    onClick={resetTimer}
+                    className={`timer-button reset-button ${time === 0 && !isRunning ? 'disabled' : ''}`}
+                    disabled={time === 0 && !isRunning}
+                >
+                    Reset
                 </button>
             </div>
         </div>

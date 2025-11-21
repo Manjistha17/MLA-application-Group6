@@ -156,8 +156,10 @@ input#duration {
 }
 
 /* --- Override componentContainer for login page --- */
-.route-login .componentContainer {
+/* Ensure the outer container doesn't add gray background when rendering login route inside it */
+.componentContainer:has(.route-login) {
   background-color: transparent !important;
   padding: 0 !important;
+  box-shadow: none !important;
 }
 

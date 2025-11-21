@@ -15,16 +15,19 @@ const exerciseSchema = new Schema(
       // enum: ['Slow', 'Moderate', 'Fast']
     },
     description: { type: String, required: false },
-    duration: { 
-        type: Number, 
-        required: true,
-        validate: {
-            validator: Number.isInteger,
-            message: 'Duration should be an integer.'
-        },
-        min: [1, 'Duration should be positive.']
+  // Duration stored in seconds (integer >= 1)
+  duration: {
+    type: Number,
+    required: true,
+    validate: {
+      validator: Number.isInteger,
+      message: 'Duration should be an integer (seconds).'
     },
+    min: [1, 'Duration should be at least 1 second.']
+  },
     date: { type: Date, required: true },
+    startTime: { type: Date, required: false },
+    endTime: { type: Date, required: false },
   },
   { timestamps: true }
 );

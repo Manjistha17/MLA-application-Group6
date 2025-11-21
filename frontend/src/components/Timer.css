@@ -20,6 +20,7 @@
     gap: 10px;
     justify-content: center;
     margin-top: 20px;
+    flex-wrap: wrap;
 }
 
 .timer-button {
@@ -28,17 +29,51 @@
     border-radius: 4px;
     font-size: 1rem;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, opacity 0.3s;
+    font-weight: 500;
 }
 
-.timer-button:not(.disabled) {
+.timer-button.start-button:not(.disabled) {
     background-color: #4CAF50;
     color: white;
 }
 
+.timer-button.start-button:not(.disabled):hover {
+    background-color: #45a049;
+}
+
+.timer-button.pause-button:not(.disabled) {
+    background-color: #ff9800;
+    color: white;
+}
+
+.timer-button.pause-button:not(.disabled):hover {
+    background-color: #e68900;
+}
+
+.timer-button.stop-button:not(.disabled) {
+    background-color: #f44336;
+    color: white;
+}
+
+.timer-button.stop-button:not(.disabled):hover {
+    background-color: #da190b;
+}
+
+.timer-button.reset-button:not(.disabled) {
+    background-color: #2196F3;
+    color: white;
+}
+
+.timer-button.reset-button:not(.disabled):hover {
+    background-color: #0b7dda;
+}
+
 .timer-button.disabled {
     background-color: #cccccc;
+    color: #666;
     cursor: not-allowed;
+    opacity: 0.6;
 }
 
 .task-input {
