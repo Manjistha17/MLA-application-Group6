@@ -5,13 +5,11 @@ import './DailyStats.css';
 const DailyStats = ({ currentUser }) => {
   const [exercises, setExercises] = useState([]);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-
   useEffect(() => {
     const fetchExercises = async () => {
       try {
         // URL without start and end params
-        const url = `/stats/daily/`;
+        const url = `http://localhost:5050/stats/daily/`;
         const response = await axios.get(url);
 
         if (response.data.stats && Array.isArray(response.data.stats)) {

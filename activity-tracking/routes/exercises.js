@@ -37,7 +37,7 @@ router.get('/', async (req, res) => {
 const mongoose = require('mongoose');
 
 // GET: Retrieve all activities from activity_mets_new
-router.get('/activities/', async (req, res) => {
+router.get('/activities', async (req, res) => {
   try {
     const activities = await mongoose.connection.db
       .collection('activity_mets_new')
@@ -56,7 +56,7 @@ router.post('/add', async (req, res) => {
   console.log(req.body);
 
   try {
-    const { username, exerciseType, subActivity, description, duration, date } = req.body;
+    const { username, exerciseType, subActivity, description, duration, date, startTime, endTime } = req.body;
 
     const newExercise = new Exercise({
       username,
@@ -64,7 +64,9 @@ router.post('/add', async (req, res) => {
       subActivity, // just store the selected pace label
       description,
       duration: Number(duration),
-      date: Date.parse(date),
+      date: date ? Date.parse(date) : Date.now(),
+      startTime: startTime ? new Date(startTime) : undefined,
+      endTime: endTime ? new Date(endTime) : undefined,
     });
 
     await newExercise.save();

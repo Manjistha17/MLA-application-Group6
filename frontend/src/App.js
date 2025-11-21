@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-
 import NavbarComponent from './components/navbar';
 import TrackExercise from './components/trackExercise';
 import Statistics from './components/statistics';
@@ -10,11 +9,9 @@ import Footer from './components/footer';
 import Login from './components/login';
 import Signup from './components/signup';
 import Journal from './components/journal';
-import logo from './img/CFG_logo.png';
+import logo from './img/CFG_logo.png'; // Update path if needed
 import DailyStats from './components/DailyStats';
-import Profile from './components/Profile';
-import ForgotPassword from './components/ForgotPassword';
-import ResetPassword from './components/ResetPassword';
+import Dashboard from './components/Dashboard';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -33,25 +30,32 @@ function App() {
   return (
     <div className="App">
       <Router>
-
-        <div className="appTitle">
-          <h1>MLA Fitness App</h1>
-          <img src={logo} alt="CFG Fitness App Logo" id="appLogo" />
-        </div>
+        {isLoggedIn && (
+          <div className="appTitle">
+            <h1>MLA Fitness App</h1>
+            <img src={logo} alt="CFG Fitness App Logo" id="appLogo" />
+          </div>
+        )}
 
         {isLoggedIn && <NavbarComponent onLogout={handleLogout} />}
 
         <div className="componentContainer">
           <Routes>
-
-            {/* Public routes */}
-            <Route 
-              path="/login" 
+            {/* ✅ Login */}
+            <Route
+              path="/login"
               element={
-                isLoggedIn ? <Navigate to="/" /> : <Login onLogin={handleLogin} />
-              } 
+                isLoggedIn ? (
+                  <Navigate to="/" />
+                ) : (
+                  <div className="route-login">
+                    <Login onLogin={handleLogin} />
+                  </div>
+                )
+              }
             />
 
+            {/* ✅ Signup */}
             <Route
               path="/signup"
               element={
@@ -68,22 +72,19 @@ function App() {
               }
             />
 
-            {/* ✅ Profile */}
-            <Route path="/forgotPassword" element={<ForgotPassword />} />
-            <Route path="/resetPassword" element={<ResetPassword />} />
-
-            {/* Protected routes */}
+            {/* ✅ Dashboard */}
             <Route
-              path="/profile"
+              path="/dashboard"
               element={
                 isLoggedIn ? (
-                  <Profile currentUser={currentUser} />
+                  <Dashboard currentUser={currentUser} />
                 ) : (
                   <Navigate to="/login" />
                 )
               }
             />
 
+            {/* ✅ Other routes */}
             <Route
               path="/trackExercise"
               element={
@@ -94,7 +95,6 @@ function App() {
                 )
               }
             />
-
             <Route
               path="/statistics"
               element={
@@ -105,7 +105,6 @@ function App() {
                 )
               }
             />
-
             <Route
               path="/journal"
               element={
@@ -116,7 +115,6 @@ function App() {
                 )
               }
             />
-
             <Route
               path="/dailystats"
               element={
@@ -128,23 +126,20 @@ function App() {
               }
             />
 
-            {/* Default route */}
+            {/* ✅ Default route */}
             <Route
               path="/"
               element={
                 isLoggedIn ? (
-                  <Navigate to="/profile" />
+                  <Navigate to="/dashboard" />
                 ) : (
                   <Navigate to="/login" />
                 )
               }
             />
-
           </Routes>
         </div>
-
         <Footer />
-
       </Router>
     </div>
   );

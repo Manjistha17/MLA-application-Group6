@@ -5,10 +5,8 @@ import './statistics.css';
 const Statistics = ({ currentUser }) => {
   const [data, setData] = useState([]);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-
   useEffect(() => {
-    const url = `/stats/${currentUser}`;
+    const url = `http://localhost:5050/stats/${currentUser}`;
 
     axios.get(url)
       .then(response => {

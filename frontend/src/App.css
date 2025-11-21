@@ -52,7 +52,7 @@ form {
 }
 
 button.navigationButton {
-  background-color: rgb(95, 46, 143); 
+  background-color: rgb(216, 138, 205); 
   color: white; 
   border: none;
   padding: 10px 20px;
@@ -63,7 +63,7 @@ button.navigationButton {
 }
 
 button.navigationButton:hover {
-  background-color: rgb(95, 46, 143);
+  background-color: #ef8bbd;
 }
 
 /* Style the success message */
@@ -79,23 +79,23 @@ p.successMessage {
 }
 
 .btn-primary {
-  background-color:rgb(95, 46, 143)!important;
-  border-color: rgb(95, 46, 143) !important;
+  background-color: #ef72aa !important;
+  border-color: rgb(231, 122, 171) !important;
 }
 
 .btn-primary:hover {
-  background-color: rgb(95, 46, 143) !important; 
-  border-color: rgb(95, 46, 143)  !important; 
+  background-color: #ef72aa  !important; 
+  border-color: #ef72aa  !important; 
 }
 
 .btn-success {
-  background-color:rgb(95, 46, 143)!important;
+  background-color: #ef72aa !important;
   border-color: #ef72aa  !important;
 }
 
 .btn-success:hover {
-  background-color: rgb(95, 46, 143) !important;  
-  border-color: rgb(95, 46, 143)  !important; 
+  background-color: #ef72aa !important;  
+  border-color: #ef72aa  !important; 
 }
 
 input#duration {
@@ -119,7 +119,7 @@ input#duration {
 }
 
 .navbar {
-  background-color: rgb(95, 46, 143) ;
+  background-color: #ef72aa ;
 }
 
 .navbar-nav {
@@ -156,24 +156,10 @@ input#duration {
 }
 
 /* --- Override componentContainer for login page --- */
-.route-login .componentContainer {
+/* Ensure the outer container doesn't add gray background when rendering login route inside it */
+.componentContainer:has(.route-login) {
   background-color: transparent !important;
   padding: 0 !important;
+  box-shadow: none !important;
 }
 
-/* Equal spacing for all navbar links */
-.navbar-links .nav-link {
-  margin: 0 20px !important;
-  font-size: 1.05rem;
-}
-
-/* Make navbar link text white */
-.navbar-links .nav-link {
-  color: white !important;
-}
-
-/* Make navbar hover effect light pink */
-.navbar-links .nav-link:hover {
-  color: #ffcae6 !important;  /* light pink hover */
-  transition: 0.2s;
-}

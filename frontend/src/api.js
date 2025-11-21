@@ -1,8 +1,17 @@
 import axios from 'axios';
 
-const api = axios.create({
-  baseURL: '/', 
-  headers: { 'Content-Type': 'application/json' },
-  });
+function getUrl() {
+    if (process.env.CODESPACES === "true") {
+        return `https://${process.env.CODESPACE_NAME}-5300.app.github.dev`;
+    } else {
+        return `http://localhost:5300`;
+    }
+}
 
-export const trackExercise = (payload) => api.post('exercises/add/', payload);
+const baseURL = getUrl();
+
+const api = axios.create({
+    baseURL
+});
+
+export const trackExercise = payload => api.post(`/exercises/add`, payload);
