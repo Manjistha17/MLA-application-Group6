@@ -59,6 +59,13 @@ const TrackExercise = ({ currentUser }) => {
   const onSubmit = async (e) => {
     e.preventDefault();
     
+    // Validate that duration is positive
+    if (!state.duration || state.duration <= 0) {
+      setMessage('❌ Please use the timer to track your exercise duration!');
+      setTimeout(() => setMessage(''), 3000);
+      return;
+    }
+    
     // Auto-generate description based on exercise type and timer session
     const autoDescription = timerSession 
       ? `${state.exerciseType} session for ${Math.floor(timerSession.duration / 60)}m ${timerSession.duration % 60}s`
@@ -171,6 +178,13 @@ const TrackExercise = ({ currentUser }) => {
               <div style={{ marginTop: '10px', padding: '10px', backgroundColor: '#f0f8ff', borderRadius: '5px' }}>
                 <small>
                   Last session: {Math.floor(timerSession.duration / 60)}m {timerSession.duration % 60}s
+                </small>
+              </div>
+            )}
+            {state.duration > 0 && (
+              <div style={{ marginTop: '10px', padding: '8px', backgroundColor: '#e8f5e8', borderRadius: '5px', textAlign: 'center' }}>
+                <small style={{ color: '#2e7d32', fontWeight: 'bold' }}>
+                  ✅ Duration to save: {state.duration} minutes
                 </small>
               </div>
             )}
