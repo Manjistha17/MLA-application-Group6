@@ -28,7 +28,10 @@ connection.on('error', (error) => {
 
 // Routes
 const exercisesRouter = require('./routes/exercises');
+const timerSessionsRouter = require('./routes/timer-sessions');
+
 app.use('/exercises', exercisesRouter);
+app.use('/api', timerSessionsRouter);
 
 
 // Error handling middleware

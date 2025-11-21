@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 package com.authservice.auth.repository;
 
 import com.authservice.auth.model.User;
@@ -13,3 +14,17 @@ public interface UserRepository extends MongoRepository<User, String> {
     boolean existsByUsername(String username);
 }
 
+=======
+package com.authservice.auth.repository;
+
+import com.authservice.auth.model.User;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import java.util.Optional;
+
+public interface UserRepository extends MongoRepository<User, String> {
+    Optional<User> findByUsername(String username);   // ✅ safer return type
+
+    boolean existsByUsername(String username);
+}
+
+>>>>>>> d38aa20 (feat: complete timer enhancement with pause/reset + login fixes + docker improvements)
