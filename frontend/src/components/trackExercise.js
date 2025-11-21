@@ -17,7 +17,6 @@ import Timer from './Timer';
 const TrackExercise = ({ currentUser }) => {
   const [state, setState] = useState({
     exerciseType: '',
-    description: '',
     duration: 0,
     subActivity: '',
     date: new Date(),
@@ -50,15 +49,25 @@ const TrackExercise = ({ currentUser }) => {
     setTimerSession(sessionData);
     // Automatically populate duration with timer data
     if (sessionData && sessionData.duration) {
-      setState(prev => ({ ...prev, duration: Math.round(sessionData.duration / 60) })); // Convert seconds to minutes
+      setState(prev => ({ 
+        ...prev, 
+        duration: Math.round(sessionData.duration / 60) // Convert seconds to minutes
+      }));
     }
   };
 
   const onSubmit = async (e) => {
     e.preventDefault();
+    
+    // Auto-generate description based on exercise type and timer session
+    const autoDescription = timerSession 
+      ? `${state.exerciseType} session for ${Math.floor(timerSession.duration / 60)}m ${timerSession.duration % 60}s`
+      : `${state.exerciseType} exercise session`;
+    
     const dataToSubmit = {
       username: currentUser,
       ...state,
+      description: autoDescription,
     };
 
     try {
@@ -67,7 +76,6 @@ const TrackExercise = ({ currentUser }) => {
 
       setState({
         exerciseType: '',
-        description: '',
         duration: 0,
         subActivity: '',
         date: new Date(),
@@ -167,29 +175,6 @@ const TrackExercise = ({ currentUser }) => {
               </div>
             )}
           </div>
-
-          {/* Description */}
-          <Form.Group controlId="description" style={{ marginBottom: '20px' }}>
-            <Form.Label>Description:</Form.Label>
-            <Form.Control
-              as="textarea"
-              rows={3}
-              required
-              value={state.description}
-              onChange={(e) => setState({ ...state, description: e.target.value })}
-            />
-          </Form.Group>
-
-          {/* Duration */}
-          <Form.Group controlId="duration" style={{ marginBottom: '20px' }}>
-            <Form.Label>Duration (in minutes):</Form.Label>
-            <Form.Control
-              type="number"
-              required
-              value={state.duration}
-              onChange={(e) => setState({ ...state, duration: e.target.value })}
-            />
-          </Form.Group>
 
           {/* Sub-Activity Dropdown */}
           {selectedActivity && (
