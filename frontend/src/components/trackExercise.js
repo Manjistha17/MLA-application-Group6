@@ -12,6 +12,7 @@ import OtherIcon from '@mui/icons-material/HelpOutline';
 import SelfImprovementIcon from '@mui/icons-material/SelfImprovement';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import Timer from './Timer';
 
 const TrackExercise = ({ currentUser }) => {
   const [state, setState] = useState({
@@ -24,6 +25,7 @@ const TrackExercise = ({ currentUser }) => {
   const [message, setMessage] = useState('');
   const [activities, setActivities] = useState([]);
   const [selectedActivity, setSelectedActivity] = useState(null);
+  const [timerSession, setTimerSession] = useState(null);
   
 // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
@@ -42,6 +44,14 @@ const TrackExercise = ({ currentUser }) => {
     const activity = activities.find((a) => a.activity === type);
     setState({ ...state, exerciseType: type, subActivity: '' });
     setSelectedActivity(activity || null);
+  };
+
+  const handleTimerStop = (sessionData) => {
+    setTimerSession(sessionData);
+    // Automatically populate duration with timer data
+    if (sessionData && sessionData.duration) {
+      setState(prev => ({ ...prev, duration: Math.round(sessionData.duration / 60) })); // Convert seconds to minutes
+    }
   };
 
   const onSubmit = async (e) => {
@@ -143,6 +153,19 @@ const TrackExercise = ({ currentUser }) => {
             >
               <OtherIcon fontSize="large" />
             </IconButton>
+          </div>
+
+          {/* Timer Component */}
+          <div style={{ marginBottom: '20px' }}>
+            <h5 className="text-center">Exercise Timer</h5>
+            <Timer onTimerStop={handleTimerStop} />
+            {timerSession && (
+              <div style={{ marginTop: '10px', padding: '10px', backgroundColor: '#f0f8ff', borderRadius: '5px' }}>
+                <small>
+                  Last session: {Math.floor(timerSession.duration / 60)}m {timerSession.duration % 60}s
+                </small>
+              </div>
+            )}
           </div>
 
           {/* Description */}
