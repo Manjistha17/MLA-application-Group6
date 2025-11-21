@@ -7,6 +7,7 @@ services:
     ports:
       - "8081:80"  # Map host port 8081 to container port 80
     depends_on:
+      - authservice
       - activity-tracking
       - analytics
     networks:
@@ -39,19 +40,19 @@ services:
     networks:
       - app-network
 
-  # authservice:
-  #   build:
-  #     context: ./authservice
-  #     dockerfile: Dockerfile
-  #   environment:
-  #     - SPRING_DATA_MONGODB_DATABASE=test
-  #     - SPRING_DATA_MONGODB_URI=mongodb://root:cfgmla23@mongodb:27017
-  #   expose:
-  #     - "8080"
-  #   depends_on:
-  #     - mongodb
-  #   networks:
-  #     - app-network
+  authservice:
+    build:
+      context: ./authservice
+      dockerfile: Dockerfile
+    environment:
+      - SPRING_DATA_MONGODB_DATABASE=test
+      - SPRING_DATA_MONGODB_URI=mongodb://root:cfgmla23@mongodb:27017
+    expose:
+      - "8080"
+    depends_on:
+      - mongodb
+    networks:
+      - app-network
 
   mongodb:
     image: mongo:latest
