@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import {
   Button,
@@ -23,6 +23,7 @@ const initialForm = {
   weight: '',
 };
 
+// ... (passwordStrength function remains the same)
 const passwordStrength = (pwd) => {
   if (!pwd) return { score: 0, label: 'Too short' };
   let score = 0;
@@ -34,6 +35,7 @@ const passwordStrength = (pwd) => {
   return { score, label: labels[score] || 'Very weak' };
 };
 
+// ... (loadSaved function remains the same)
 const loadSaved = () => {
   try {
     const raw = localStorage.getItem('signupForm');
@@ -49,6 +51,14 @@ const Signup = ({ onSignup }) => {
   const [globalError, setGlobalError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // 1. REF for Focus Management
+  const formFieldsRef = useRef({});
+
+  // 2. PAGE TITLE
+  useEffect(() => {
+    document.title = 'Sign Up - Fitness Tracker App';
+  }, []);
+
   useEffect(() => {
     // persist form while user types (useful for long forms)
     try {
@@ -63,12 +73,12 @@ const Signup = ({ onSignup }) => {
     setGlobalError('');
   };
 
-  // inline validators return message or empty string
+  // ... (validators object remains the same)
   const validators = {
     username: (v) =>
       !v || v.trim().length < 3 ? 'Username must be at least 3 characters.' : '',
     password: (v) =>
-      !v || v.length < 6 ? 'Password must be at least 6 characters.' : '',
+      !v || v.length < 8 ? 'Password must be at least 8 characters.' : '', // Updated to 8 for strength indicator match
     confirmPassword: (v, all) =>
       v !== all.password ? 'Passwords do not match.' : '',
     email: (v) =>
@@ -112,20 +122,35 @@ const Signup = ({ onSignup }) => {
     setFieldErrors((p) => ({ ...p, [name]: msg }));
   };
 
+  // 3. FOCUS MANAGEMENT ON SUBMISSION ERROR
+  useEffect(() => {
+    if (globalError && Object.keys(fieldErrors).length > 0) {
+      // Find the name of the first field with an error
+      const firstErrorName = Object.keys(fieldErrors)[0];
+      
+      // Focus on the corresponding input element using the ref
+      const firstErrorElement = formFieldsRef.current[firstErrorName];
+      if (firstErrorElement) {
+        firstErrorElement.focus();
+      }
+    }
+  }, [globalError, fieldErrors]);
+
+
   const handleSignup = async (e) => {
     e.preventDefault();
     setGlobalError('');
     const errors = runAllValidators();
+
     if (Object.keys(errors).length) {
       setFieldErrors(errors);
-      // Announce the error for screen reader users
-      setGlobalError('Please fix the highlighted fields.');
+      // Set the global error, which triggers the useEffect to focus on the first field
+      setGlobalError('Please fix the highlighted fields to continue.');
       return;
     }
 
     setLoading(true);
     try {
-      // map client fields to backend shape if needed before sending
       const payload = {
         username: formData.username,
         password: formData.password,
@@ -147,7 +172,6 @@ const Signup = ({ onSignup }) => {
         typeof response.data === 'string' ? response.data : response.data?.message;
 
       if (message && message.toLowerCase().includes('success')) {
-        // clear saved draft on success
         try {
           localStorage.removeItem('signupForm');
         } catch {}
@@ -189,18 +213,20 @@ const Signup = ({ onSignup }) => {
   const globalErrorId = 'globalError';
 
   return (
-    // Use role="region" and aria-live for the error message area
-    <div aria-live="polite">
-      {/* Role of alert for critical, time-sensitive errors */}
+    // Add main role for semantic structure
+    <main className="container p-4" aria-live="polite">
+      <h1 className="mb-4">Create an Account</h1>
+      
+      {/* Global Error - role="alert" makes this critical message immediately announced */}
       {globalError && (
-        <Alert variant="danger" id={globalErrorId} role="alert">
+        <Alert variant="danger" id={globalErrorId} role="alert" className="mb-3">
           {globalError}
         </Alert>
       )}
 
       <Form onSubmit={handleSignup} noValidate>
         {/* Username Field */}
-        <Form.Group controlId="formUsername" className="mb-2">
+        <Form.Group controlId="formUsername" className="mb-3">
           <Form.Label>Username</Form.Label>
           <Form.Control
             type="text"
@@ -212,7 +238,9 @@ const Signup = ({ onSignup }) => {
             required
             minLength={3}
             autoFocus
-            // Link error message for screen readers
+            // Ref for focus management
+            ref={(el) => (formFieldsRef.current.username = el)}
+            // ARIA Attributes
             aria-invalid={!!fieldErrors.username}
             aria-describedby={fieldErrors.username ? usernameErrorId : undefined}
           />
@@ -222,7 +250,7 @@ const Signup = ({ onSignup }) => {
         </Form.Group>
 
         {/* Password Field */}
-        <Form.Group controlId="formPassword" className="mb-2">
+        <Form.Group controlId="formPassword" className="mb-3">
           <Form.Label>Password</Form.Label>
           <Form.Control
             type="password"
@@ -232,18 +260,20 @@ const Signup = ({ onSignup }) => {
             onBlur={handleBlurValidate}
             isInvalid={!!fieldErrors.password || !!fieldErrors.confirmPassword}
             required
-            minLength={6}
-            // Link help text and error message
+            minLength={8} // Changed to 8
+            // Ref for focus management
+            ref={(el) => (formFieldsRef.current.password = el)}
+            // ARIA Attributes
             aria-describedby={`${passwordHelpId} ${passwordStrengthId} ${
               fieldErrors.password ? passwordErrorId : ''
             }`}
             aria-invalid={!!fieldErrors.password}
           />
           <Form.Text id={passwordHelpId} muted>
-            Use at least 8 characters for a stronger password.
+            Password must be at least 8 characters long.
           </Form.Text>
 
-          {/* Password Strength Indicator - Use aria-live to announce changes */}
+          {/* Password Strength Indicator - Use aria-live="polite" to announce changes */}
           <div className="mt-2">
             <ProgressBar
               now={(pwdStrength.score / 4) * 100}
@@ -259,6 +289,7 @@ const Signup = ({ onSignup }) => {
               aria-valuemin={0}
               aria-valuemax={4}
               // Hidden span to provide a clear, full description of the status
+              // Screen readers will announce the label and the role/live change
               aria-label={`Password strength: ${pwdStrength.label}`}
             />
           </div>
@@ -269,7 +300,7 @@ const Signup = ({ onSignup }) => {
         </Form.Group>
 
         {/* Confirm Password Field */}
-        <Form.Group controlId="formConfirmPassword" className="mb-2">
+        <Form.Group controlId="formConfirmPassword" className="mb-3">
           <Form.Label>Confirm Password</Form.Label>
           <Form.Control
             type="password"
@@ -280,6 +311,9 @@ const Signup = ({ onSignup }) => {
             isInvalid={!!fieldErrors.confirmPassword}
             required
             minLength={6}
+            // Ref for focus management
+            ref={(el) => (formFieldsRef.current.confirmPassword = el)}
+            // ARIA Attributes
             aria-invalid={!!fieldErrors.confirmPassword}
             aria-describedby={
               fieldErrors.confirmPassword ? confirmPasswordErrorId : undefined
@@ -291,7 +325,7 @@ const Signup = ({ onSignup }) => {
         </Form.Group>
 
         {/* Email Field */}
-        <Form.Group controlId="formEmail" className="mb-2">
+        <Form.Group controlId="formEmail" className="mb-3">
           <Form.Label>Email</Form.Label>
           <Form.Control
             type="email"
@@ -301,6 +335,9 @@ const Signup = ({ onSignup }) => {
             onBlur={handleBlurValidate}
             isInvalid={!!fieldErrors.email}
             required
+            // Ref for focus management
+            ref={(el) => (formFieldsRef.current.email = el)}
+            // ARIA Attributes
             aria-invalid={!!fieldErrors.email}
             aria-describedby={fieldErrors.email ? emailErrorId : undefined}
           />
@@ -310,7 +347,7 @@ const Signup = ({ onSignup }) => {
         </Form.Group>
 
         {/* Contact Field */}
-        <Form.Group controlId="formContact" className="mb-2">
+        <Form.Group controlId="formContact" className="mb-3">
           <Form.Label>Contact Number</Form.Label>
           <InputGroup>
             <Form.Control
@@ -322,6 +359,9 @@ const Signup = ({ onSignup }) => {
               isInvalid={!!fieldErrors.contact}
               placeholder="Digits only, e.g. 919876543210"
               required
+              // Ref for focus management
+              ref={(el) => (formFieldsRef.current.contact = el)}
+              // ARIA Attributes
               aria-invalid={!!fieldErrors.contact}
               aria-describedby={`${contactHelpId} ${
                 fieldErrors.contact ? contactErrorId : ''
@@ -337,7 +377,7 @@ const Signup = ({ onSignup }) => {
         </Form.Group>
 
         {/* Age Field */}
-        <Form.Group controlId="formAge" className="mb-2">
+        <Form.Group controlId="formAge" className="mb-3">
           <Form.Label>Age</Form.Label>
           <Form.Control
             type="number"
@@ -349,6 +389,9 @@ const Signup = ({ onSignup }) => {
             min={1}
             max={120}
             required
+            // Ref for focus management
+            ref={(el) => (formFieldsRef.current.age = el)}
+            // ARIA Attributes
             aria-invalid={!!fieldErrors.age}
             aria-describedby={fieldErrors.age ? ageErrorId : undefined}
           />
@@ -358,7 +401,7 @@ const Signup = ({ onSignup }) => {
         </Form.Group>
 
         {/* Gender Field - Form.Select (dropdown) */}
-        <Form.Group controlId="formGender" className="mb-2">
+        <Form.Group controlId="formGender" className="mb-3">
           <Form.Label>Gender</Form.Label>
           <Form.Select
             name="gender"
@@ -367,10 +410,12 @@ const Signup = ({ onSignup }) => {
             onBlur={handleBlurValidate}
             isInvalid={!!fieldErrors.gender}
             required
+            // Ref for focus management
+            ref={(el) => (formFieldsRef.current.gender = el)}
+            // ARIA Attributes
             aria-invalid={!!fieldErrors.gender}
             aria-describedby={fieldErrors.gender ? genderErrorId : undefined}
           >
-            {/* The first option should be disabled/unselectable if possible, or have a meaningful prompt */}
             <option value="" disabled>Select a gender</option>
             <option value="male">Male</option>
             <option value="female">Female</option>
@@ -383,7 +428,7 @@ const Signup = ({ onSignup }) => {
         </Form.Group>
 
         {/* Height Field */}
-        <Form.Group controlId="formHeight" className="mb-2">
+        <Form.Group controlId="formHeight" className="mb-3">
           <Form.Label>Height (cm)</Form.Label>
           <Form.Control
             type="number"
@@ -395,6 +440,9 @@ const Signup = ({ onSignup }) => {
             min={1}
             max={300}
             required
+            // Ref for focus management
+            ref={(el) => (formFieldsRef.current.height = el)}
+            // ARIA Attributes
             aria-invalid={!!fieldErrors.height}
             aria-describedby={fieldErrors.height ? heightErrorId : undefined}
           />
@@ -404,7 +452,7 @@ const Signup = ({ onSignup }) => {
         </Form.Group>
 
         {/* Weight Field */}
-        <Form.Group controlId="formWeight" className="mb-2">
+        <Form.Group controlId="formWeight" className="mb-3">
           <Form.Label>Weight (kg)</Form.Label>
           <Form.Control
             type="number"
@@ -416,6 +464,9 @@ const Signup = ({ onSignup }) => {
             min={1}
             max={500}
             required
+            // Ref for focus management
+            ref={(el) => (formFieldsRef.current.weight = el)}
+            // ARIA Attributes
             aria-invalid={!!fieldErrors.weight}
             aria-describedby={fieldErrors.weight ? weightErrorId : undefined}
           />
@@ -429,8 +480,7 @@ const Signup = ({ onSignup }) => {
           variant="primary"
           type="submit"
           disabled={loading}
-          className="mt-2"
-          // Set aria-live="polite" on the button's text when loading to announce status change
+          className="mt-3 w-100" // Added w-100 for better mobile/keyboard visibility
           aria-live={loading ? 'polite' : undefined}
           aria-busy={loading}
         >
@@ -441,7 +491,7 @@ const Signup = ({ onSignup }) => {
                 animation="border"
                 size="sm"
                 role="status"
-                aria-hidden="true" // Hide the visual spinner from screen readers, the text is the status
+                aria-hidden="true"
               />
               {' '}Signing up...
             </>
@@ -451,10 +501,10 @@ const Signup = ({ onSignup }) => {
         </Button>
       </Form>
 
-      <p className="mt-3">
+      <p className="mt-3 text-center">
         Already have an account? <Link to="/login">Login</Link>
       </p>
-    </div>
+    </main>
   );
 };
 
