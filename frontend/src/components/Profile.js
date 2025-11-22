@@ -7,27 +7,13 @@ const Profile = ({ currentUser }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchDetails = async () => {
-      try {
-        // const baseUrl =
-        //   window.location.hostname === "localhost"
-        //     ? "http://localhost:8080"
-        //     : "http://authservice:8080";
+  if (!currentUser) return;
 
-        // const response = await axios.get(`${baseUrl}/api/auth/user/${currentUser}`);
-        const response = await axios.get(`/api/auth/user/${currentUser}`);
-        setUserDetails(response.data);
-      } catch (error) {
-        console.error("❌ Error fetching user details:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (currentUser) {
-      fetchDetails();
-    }
-  }, [currentUser]);
+  axios.get(`/api/auth/details/${currentUser}`)
+    .then(res => setUserDetails(res.data))
+    .catch(err => console.error("Error loading profile:", err))
+    .finally(() => setLoading(false));
+}, [currentUser]);
 
   if (loading) {
     return (
@@ -91,6 +77,12 @@ const Profile = ({ currentUser }) => {
     >
       <div className="profile-box">
         <h2>Welcome, {userDetails.username}!</h2>
+        <button
+          className="edit-profile-btn"
+          onClick={() => window.location.href = "/edit-profile"}
+        >
+          Edit Profile
+        </button>
         <div className="details-grid">
           <p><strong>Email:</strong> {userDetails.email}</p>
           <p><strong>Contact:</strong> {userDetails.contact}</p>
