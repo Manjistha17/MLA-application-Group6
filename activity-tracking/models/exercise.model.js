@@ -13,6 +13,7 @@ const exerciseSchema = new Schema(
       type: String,
       required: false,  // Set to true if you want to make pace mandatory
       // enum: ['Slow', 'Moderate', 'Fast']
+      default: ''
     },
     description: { type: String, required: false },
     duration: { 
