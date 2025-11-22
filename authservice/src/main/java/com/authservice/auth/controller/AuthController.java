@@ -81,6 +81,10 @@ public class AuthController {
         resp.put("message", "User authenticated");
         resp.put("username", existing.getUsername());
         resp.put("email", existing.getEmail());
+    @PostMapping("/forgotPassword")
+public ResponseEntity<?> forgotPassword(@RequestBody User user) {
+    String email = user.getEmail();
+    logger.info("Forgot password requested for email: {}", email);
 
         return ResponseEntity.ok(resp);
     }
@@ -91,6 +95,11 @@ public class AuthController {
 
         User user = userRepository.findByUsername(username).orElse(null);
 
+ @PostMapping("/resetPassword")
+public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest request) {
+    try {
+        // 1️⃣ Find user by the reset token
+        User user = userRepository.findByResetToken(request.getToken());
         if (user == null) {
             return ResponseEntity.status(404).body(message("User not found"));
         }
