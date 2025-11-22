@@ -61,8 +61,8 @@ services:
     environment:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=cfgmla23
-    expose:
-      - "27017"
+    ports:
+     - "27017:27017"
     volumes:
       - mongodbdata:/data/db
     networks:
