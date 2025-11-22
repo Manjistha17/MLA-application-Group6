@@ -21,7 +21,7 @@ const Login = ({ onLogin }) => {
 
       if (response.status === 200) {
         onLogin(username);
-        navigate('/profile'); // ✅ use navigate instead of reload
+        navigate('/dashboard'); // use navigate instead of reload
       } else {
         setError('Invalid credentials');
       }

@@ -14,7 +14,7 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
 
-    @GetMapping("/user/{username}")
+    @GetMapping("/details/{username}")
     public ResponseEntity<User> getUserByUsername(@PathVariable String username) {
         return userRepository
                 .findByUsername(username)                // Optional<User>
