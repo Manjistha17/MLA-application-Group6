@@ -174,8 +174,6 @@ const Signup = ({ onSignup }) => {
 
   return (
     <div>
-      {globalError && <Alert variant="danger">{globalError}</Alert>}
-
       <Form onSubmit={handleSignup} noValidate>
         <Form.Group controlId="formUsername" className="mb-2">
           <Form.Label>Username</Form.Label>
@@ -371,6 +369,7 @@ const Signup = ({ onSignup }) => {
             'Signup'
           )}
         </Button>
+        {globalError && <Alert variant="danger" className="mt-3">{globalError}</Alert>}
       </Form>
 
       <p className="mt-3">
