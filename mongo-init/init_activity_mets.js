@@ -12,6 +12,15 @@ const activity_mets_new = [
     ]
   },
   {
+    activity: "Swimming",
+    dropdown_label: "Select Intensity",
+    sub_activity_options: [
+      { name: "Light", description: "Easy swimming / casual pace", met: 6.0 },
+      { name: "Moderate", description: "Continuous laps at moderate effort", met: 8.0 },
+      { name: "Vigorous", description: "Fast laps / competitive pace", met: 10.0 }
+    ]
+  },
+  {
     activity: "Walking",
     dropdown_label: "Select Intensity",
     sub_activity_options: [

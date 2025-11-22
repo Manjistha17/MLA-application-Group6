@@ -130,7 +130,7 @@ public class AuthController {
         }
     } 
 
-    @PostMapping("/forgot-password")
+    @PostMapping("/forgotPassword")
 public ResponseEntity<?> forgotPassword(@RequestBody User user) {
     String email = user.getEmail();
     logger.info("Forgot password requested for email: {}", email);
@@ -163,7 +163,7 @@ public ResponseEntity<?> forgotPassword(@RequestBody User user) {
 }
 
 
- @PostMapping("/reset-password")
+ @PostMapping("/resetPassword")
 public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest request) {
     try {
         // 1️⃣ Find user by the reset token
