@@ -190,7 +190,6 @@ const TrackExercise = ({ currentUser }) => {
             )}
           </div>
 
-          {/* Sub-Activity Dropdown */}
           {selectedActivity && (
             <Form.Group controlId="subActivity" style={{ marginBottom: '20px' }}>
               <Form.Label>{selectedActivity.dropdown_label}</Form.Label>

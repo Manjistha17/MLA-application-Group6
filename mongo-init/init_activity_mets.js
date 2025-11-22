@@ -60,7 +60,8 @@ const activity_mets_new = [
 
 async function initActivityMets() {
   try {
-    await mongoose.connect('mongodb://localhost:27017/test'); // replace with your DB URI
+    // await mongoose.connect('mongodb://localhost:27017/test'); // replace with your DB URI
+    await mongoose.connect('mongodb://root:cfgmla23@localhost:27017/test?authSource=admin');
     console.log('Connected to MongoDB');
 
     const db = mongoose.connection.db;
