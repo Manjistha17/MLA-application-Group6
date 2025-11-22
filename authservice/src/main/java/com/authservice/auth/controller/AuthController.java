@@ -2,29 +2,20 @@ package com.authservice.auth.controller;
 
 import com.authservice.auth.dto.ResetPasswordRequest;
 import com.authservice.auth.model.User;
-// import com.authservice.auth.dto.ForgotPasswordRequest;
 import com.authservice.auth.repository.UserRepository;
 
-import java.util.UUID;
+import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.regex.Pattern;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 @RestController
 @CrossOrigin(origins = "*", allowedHeaders = "*")
@@ -39,159 +30,106 @@ public class AuthController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private JavaMailSender mailSender;  // ✅ enable in config
+    @Autowired(required = false)
+    private JavaMailSender mailSender;
 
-    private static final Pattern EMAIL_REGEX = Pattern.compile("^\\S+@\\S+\\.\\S+$");
-    private static final Pattern CONTACT_REGEX = Pattern.compile("^\\d{7,15}$");
+    private static final List<String> VALID_GENDERS =
+            Arrays.asList("male", "female", "other", "prefer_not_say");
 
+    // SIGNUP
     @PostMapping("/signup")
-    public ResponseEntity<?> registerUser(@RequestBody User incoming) {
-        if (incoming == null
-                || incoming.getUsername() == null
-                || incoming.getPassword() == null) {
-            return ResponseEntity.badRequest().body(singleMessage("Missing username or password"));
-        }
+    public ResponseEntity<?> register(@RequestBody User incoming) {
 
-        String username = incoming.getUsername().trim();
-        String rawPassword = incoming.getPassword();
+        if (incoming.getUsername() == null || incoming.getPassword() == null)
+            return ResponseEntity.badRequest().body(message("Missing username or password"));
 
-        if (username.length() < 3) {
-            return ResponseEntity.badRequest().body(singleMessage("Username must be at least 3 characters"));
-        }
-        if (rawPassword.length() < 6) {
-            return ResponseEntity.badRequest().body(singleMessage("Password must be at least 6 characters"));
-        }
+        if (incoming.getUsername().trim().length() < 3)
+            return ResponseEntity.badRequest().body(message("Username must be at least 3 characters"));
 
-        if (userRepository.existsByUsername(username)) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(singleMessage("User already exists - please log in"));
-        }
+        if (incoming.getPassword().length() < 6)
+            return ResponseEntity.badRequest().body(message("Password must be at least 6 characters"));
 
-        // optional field validations
-        if (incoming.getEmail() != null && !EMAIL_REGEX.matcher(incoming.getEmail().trim()).matches()) {
-            return ResponseEntity.badRequest().body(singleMessage("Invalid email format"));
-        }
-        if (incoming.getContact() != null && !CONTACT_REGEX.matcher(incoming.getContact().trim()).matches()) {
-            return ResponseEntity.badRequest().body(singleMessage("Contact must be 7-15 digits"));
-        }
-        if (incoming.getAge() != null) {
-            int age = incoming.getAge();
-            if (age <= 0 || age > 120) {
-                return ResponseEntity.badRequest().body(singleMessage("Enter a valid age (1-120)"));
-            }
-        }
-        if (incoming.getHeight() != null) {
-            double h = incoming.getHeight();
-            if (h <= 0 || h > 300) {
-                return ResponseEntity.badRequest().body(singleMessage("Enter valid height in cm"));
-            }
-        }
-        if (incoming.getWeight() != null) {
-            double w = incoming.getWeight();
-            if (w <= 0 || w > 500) {
-                return ResponseEntity.badRequest().body(singleMessage("Enter valid weight in kg"));
-            }
-        }
-        if (incoming.getGender() != null) {
-            String g = incoming.getGender().trim().toLowerCase();
-            if (!Arrays.asList("male", "female", "other", "prefer_not_say").contains(g)) {
-                return ResponseEntity.badRequest().body(singleMessage("Invalid gender value"));
-            }
-        }
+        if (userRepository.existsByUsername(incoming.getUsername().trim()))
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(message("User already exists"));
 
-        // create new User and copy only allowed fields
-        User userToSave = new User();
-        userToSave.setUsername(username);
-        userToSave.setPassword(passwordEncoder.encode(rawPassword));
+        User u = new User();
+        u.setUsername(incoming.getUsername().trim());
+        u.setPassword(passwordEncoder.encode(incoming.getPassword()));
+        u.setEmail(incoming.getEmail());
+        u.setContact(incoming.getContact());
+        u.setAge(incoming.getAge());
+        u.setGender(incoming.getGender());
+        u.setHeight(incoming.getHeight());
+        u.setWeight(incoming.getWeight());
 
-        if (Objects.nonNull(incoming.getEmail())) userToSave.setEmail(incoming.getEmail().trim());
-        if (Objects.nonNull(incoming.getContact())) userToSave.setContact(incoming.getContact().trim());
-        if (Objects.nonNull(incoming.getAge())) userToSave.setAge(incoming.getAge());
-        if (Objects.nonNull(incoming.getGender())) userToSave.setGender(incoming.getGender().trim());
-        if (Objects.nonNull(incoming.getHeight())) userToSave.setHeight(incoming.getHeight());
-        if (Objects.nonNull(incoming.getWeight())) userToSave.setWeight(incoming.getWeight());
-
-        userRepository.save(userToSave);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(singleMessage("User registered successfully"));
+        userRepository.save(u);
+        return ResponseEntity.status(HttpStatus.CREATED).body(message("User registered"));
     }
 
+    // LOGIN
     @PostMapping("/login")
-    public ResponseEntity<?> authenticateUser(@RequestBody User incoming) {
-        if (incoming == null || incoming.getUsername() == null || incoming.getPassword() == null) {
-            return ResponseEntity.badRequest().body(singleMessage("Missing username or password"));
-        }
+    public ResponseEntity<?> login(@RequestBody User incoming) {
 
-        User existingUser = userRepository.findByUsername(incoming.getUsername().trim()).orElse(null);
-        if (existingUser != null && passwordEncoder.matches(incoming.getPassword(), existingUser.getPassword())) {
-            return ResponseEntity.ok(singleMessage("User authenticated"));
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(singleMessage("Invalid credentials"));
-        }
-    } 
+        User existing = userRepository.findByUsername(incoming.getUsername()).orElse(null);
+        if (existing == null)
+            return ResponseEntity.status(401).body(message("Invalid credentials"));
 
-    @PostMapping("/forgot-password")
-public ResponseEntity<?> forgotPassword(@RequestBody User user) {
-    String email = user.getEmail();
-    logger.info("Forgot password requested for email: {}", email);
+        if (!passwordEncoder.matches(incoming.getPassword(), existing.getPassword()))
+            return ResponseEntity.status(401).body(message("Invalid credentials"));
 
-    User existingUser = userRepository.findByEmail(email);
-    if (existingUser == null) {
-        logger.info("User not found for email: {}", email);
-        return ResponseEntity.status(404).body("User not found");
+        Map<String, Object> resp = new HashMap<>();
+        resp.put("message", "User authenticated");
+        resp.put("username", existing.getUsername());
+        resp.put("email", existing.getEmail());
+
+        return ResponseEntity.ok(resp);
     }
 
-    String token = UUID.randomUUID().toString();
-    existingUser.setResetToken(token);
-    userRepository.save(existingUser);
+    // GET USER BY USERNAME (FIXED)
+    @GetMapping("/user/{username}")
+    public ResponseEntity<?> getUser(@PathVariable String username) {
 
-    // String resetLink = "http://localhost:8080/reset-password?token=" + token;
-    String resetLink = "http://localhost:8081/resetPassword?token=" + token;
-    logger.info("Password reset link: {}", resetLink);
+        User user = userRepository.findByUsername(username).orElse(null);
 
-    SimpleMailMessage message = new SimpleMailMessage();
-    message.setTo(email);
-    message.setSubject("Password Reset Request");
-    message.setText("Hi " + existingUser.getUsername() + ",\n\n"
-            + "Click the link below to reset your password:\n"
-            + resetLink + "\n\n"
-            + "If you did not request this, please ignore this email.\n\n"
-            + "Thanks!");
-    mailSender.send(message);
-
-    return ResponseEntity.ok("Password reset link sent to your email!");
-}
-
-
- @PostMapping("/reset-password")
-public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest request) {
-    try {
-        // 1️⃣ Find user by the reset token
-        User user = userRepository.findByResetToken(request.getToken());
         if (user == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                 .body("Invalid or expired token");
+            return ResponseEntity.status(404).body(message("User not found"));
         }
 
-        // 2️⃣ Update the password
-        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
-        user.setResetToken(null); // clear the token after use
-        userRepository.save(user);
-
-        // 3️⃣ Return success
-        return ResponseEntity.ok("Password reset successfully");
-
-    } catch (Exception e) {
-        e.printStackTrace();
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                             .body("Something went wrong while resetting the password");
+        return ResponseEntity.ok(user);
     }
-}
 
+    // UPDATE USER PROFILE
+    @PutMapping("/user/{username}")
+    public ResponseEntity<?> updateUser(@PathVariable String username, @RequestBody User updated) {
 
-    // helper to produce Map<String,String> compatible with Java 8
-    private Map<String, String> singleMessage(String msg) {
-        Map<String, String> m = new HashMap<>();
+        User existing = userRepository.findByUsername(username).orElse(null);
+        if (existing == null)
+            return ResponseEntity.status(404).body(message("User not found"));
+
+        existing.setContact(updated.getContact());
+        existing.setAge(updated.getAge());
+        existing.setGender(updated.getGender());
+        existing.setHeight(updated.getHeight());
+        existing.setWeight(updated.getWeight());
+
+        userRepository.save(existing);
+        return ResponseEntity.ok(existing);
+    }
+
+    // RESET PASSWORD
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest req) {
+        User u = userRepository.findByResetToken(req.getToken());
+        if (u == null)
+            return ResponseEntity.badRequest().body("Invalid token");
+        u.setPassword(passwordEncoder.encode(req.getNewPassword()));
+        u.setResetToken(null);
+        userRepository.save(u);
+        return ResponseEntity.ok("Password reset successful");
+    }
+
+    private Map<String,String> message(String msg){
+        Map<String,String> m = new HashMap<>();
         m.put("message", msg);
         return m;
     }
