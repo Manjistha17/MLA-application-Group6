@@ -5,6 +5,7 @@ import com.authservice.auth.model.User;
 import com.authservice.auth.repository.UserRepository;
 
 import java.util.*;
+import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,15 +15,11 @@ import org.springframework.web.bind.annotation.*;
 
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @RestController
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RequestMapping("/api/auth")
 public class AuthController {
-
-    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     @Autowired
     private UserRepository userRepository;
@@ -33,24 +30,23 @@ public class AuthController {
     @Autowired(required = false)
     private JavaMailSender mailSender;
 
-    private static final List<String> VALID_GENDERS =
-            Arrays.asList("male", "female", "other", "prefer_not_say");
+    private static final Pattern EMAIL_REGEX = Pattern.compile("^\\S+@\\S+\\.\\S+$");
 
-    // SIGNUP
+    // SIGNUP ------------------------------------------------------
     @PostMapping("/signup")
-    public ResponseEntity<?> register(@RequestBody User incoming) {
+    public ResponseEntity<?> signup(@RequestBody User incoming) {
 
         if (incoming.getUsername() == null || incoming.getPassword() == null)
-            return ResponseEntity.badRequest().body(message("Missing username or password"));
+            return message(HttpStatus.BAD_REQUEST, "Missing username or password");
 
         if (incoming.getUsername().trim().length() < 3)
-            return ResponseEntity.badRequest().body(message("Username must be at least 3 characters"));
+            return message(HttpStatus.BAD_REQUEST, "Username must be at least 3 characters");
 
         if (incoming.getPassword().length() < 6)
-            return ResponseEntity.badRequest().body(message("Password must be at least 6 characters"));
+            return message(HttpStatus.BAD_REQUEST, "Password must be at least 6 characters");
 
         if (userRepository.existsByUsername(incoming.getUsername().trim()))
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(message("User already exists"));
+            return message(HttpStatus.CONFLICT, "User already exists");
 
         User u = new User();
         u.setUsername(incoming.getUsername().trim());
@@ -63,83 +59,106 @@ public class AuthController {
         u.setWeight(incoming.getWeight());
 
         userRepository.save(u);
-        return ResponseEntity.status(HttpStatus.CREATED).body(message("User registered"));
+
+        return message(HttpStatus.CREATED, "User registered");
     }
 
-    // LOGIN
+    // LOGIN ------------------------------------------------------
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody User incoming) {
 
         User existing = userRepository.findByUsername(incoming.getUsername()).orElse(null);
-        if (existing == null)
-            return ResponseEntity.status(401).body(message("Invalid credentials"));
+        if (existing == null || !passwordEncoder.matches(incoming.getPassword(), existing.getPassword()))
+            return message(HttpStatus.UNAUTHORIZED, "Invalid credentials");
 
-        if (!passwordEncoder.matches(incoming.getPassword(), existing.getPassword()))
-            return ResponseEntity.status(401).body(message("Invalid credentials"));
-
-        Map<String, Object> resp = new HashMap<>();
-        resp.put("message", "User authenticated");
+        Map<String,Object> resp = new HashMap<>();
         resp.put("username", existing.getUsername());
         resp.put("email", existing.getEmail());
-    @PostMapping("/forgotPassword")
-public ResponseEntity<?> forgotPassword(@RequestBody User user) {
-    String email = user.getEmail();
-    logger.info("Forgot password requested for email: {}", email);
+        resp.put("message", "User authenticated");
 
         return ResponseEntity.ok(resp);
     }
 
-    // GET USER BY USERNAME (FIXED)
+    // GET USER ---------------------------------------------------
     @GetMapping("/user/{username}")
     public ResponseEntity<?> getUser(@PathVariable String username) {
 
-        User user = userRepository.findByUsername(username).orElse(null);
+        User u = userRepository.findByUsername(username).orElse(null);
+        if (u == null) return message(HttpStatus.NOT_FOUND, "User not found");
 
- @PostMapping("/resetPassword")
-public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest request) {
-    try {
-        // 1️⃣ Find user by the reset token
-        User user = userRepository.findByResetToken(request.getToken());
-        if (user == null) {
-            return ResponseEntity.status(404).body(message("User not found"));
-        }
-
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(u);
     }
 
-    // UPDATE USER PROFILE
+    // UPDATE USER ------------------------------------------------
     @PutMapping("/user/{username}")
     public ResponseEntity<?> updateUser(@PathVariable String username, @RequestBody User updated) {
 
-        User existing = userRepository.findByUsername(username).orElse(null);
-        if (existing == null)
-            return ResponseEntity.status(404).body(message("User not found"));
+        User u = userRepository.findByUsername(username).orElse(null);
+        if (u == null) return message(HttpStatus.NOT_FOUND, "User not found");
 
-        existing.setContact(updated.getContact());
-        existing.setAge(updated.getAge());
-        existing.setGender(updated.getGender());
-        existing.setHeight(updated.getHeight());
-        existing.setWeight(updated.getWeight());
+        u.setContact(updated.getContact());
+        u.setAge(updated.getAge());
+        u.setGender(updated.getGender());
+        u.setHeight(updated.getHeight());
+        u.setWeight(updated.getWeight());
 
-        userRepository.save(existing);
-        return ResponseEntity.ok(existing);
+        userRepository.save(u);
+        return ResponseEntity.ok(u);
     }
 
-    // RESET PASSWORD
-    @PostMapping("/reset-password")
+    // FORGOT PASSWORD -------------------------------------------
+    @PostMapping("/forgotPassword")
+    public ResponseEntity<?> forgotPassword(@RequestBody Map<String,String> body) {
+
+        String email = body.get("email");
+
+        if (email == null || !EMAIL_REGEX.matcher(email).matches())
+            return message(HttpStatus.BAD_REQUEST, "Invalid email");
+
+        // FIX: Use list not single return
+        List<User> users = userRepository.findAllByEmail(email);
+
+        if (users == null || users.isEmpty())
+            return message(HttpStatus.NOT_FOUND, "Email not registered");
+
+        User u = users.get(0); // use the first match
+
+        String token = UUID.randomUUID().toString();
+        u.setResetToken(token);
+        userRepository.save(u);
+
+        String resetLink = "http://localhost:8081/resetPassword?token=" + token;
+
+        if (mailSender != null) {
+            SimpleMailMessage msg = new SimpleMailMessage();
+            msg.setTo(email);
+            msg.setSubject("Password Reset Request");
+            msg.setText("Click here to reset your password:\n" + resetLink);
+            mailSender.send(msg);
+        }
+
+        return message(HttpStatus.OK, "Reset link has been emailed");
+    }
+
+    // RESET PASSWORD ---------------------------------------------
+    @PostMapping("/resetPassword")
     public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest req) {
+
         User u = userRepository.findByResetToken(req.getToken());
-        if (u == null)
-            return ResponseEntity.badRequest().body("Invalid token");
+        if (u == null) return message(HttpStatus.BAD_REQUEST, "Invalid or expired token");
+
         u.setPassword(passwordEncoder.encode(req.getNewPassword()));
         u.setResetToken(null);
+
         userRepository.save(u);
-        return ResponseEntity.ok("Password reset successful");
+
+        return message(HttpStatus.OK, "Password reset successfully");
     }
 
-    private Map<String,String> message(String msg){
+    // HELPER -----------------------------------------------------
+    private ResponseEntity<Map<String,String>> message(HttpStatus status, String text) {
         Map<String,String> m = new HashMap<>();
-        m.put("message", msg);
-        return m;
+        m.put("message", text);
+        return ResponseEntity.status(status).body(m);
     }
 }
