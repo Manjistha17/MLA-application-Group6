@@ -14,12 +14,39 @@ app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}},
      methods="GET,HEAD,POST,OPTIONS,PUT,PATCH,DELETE")
 
+# 1. Always have at least one handler
+if not app.logger.handlers:
+    handler = logging.StreamHandler()
+    handler.setLevel(logging.INFO)
+    app.logger.addHandler(handler)
+
+# 2. Attach Gunicorn's logger if running under Gunicorn
+gunicorn_error_logger = logging.getLogger('gunicorn.error')
+if gunicorn_error_logger.handlers:
+    app.logger.handlers = gunicorn_error_logger.handlers
+
+# 3. Set level
+app.logger.setLevel(logging.INFO)
+
+
 load_dotenv()
 mongo_uri = os.getenv('MONGO_URI')
 mongo_db = os.getenv('MONGO_DB')
 
 client = MongoClient(mongo_uri)
 db = client[mongo_db]
+
+def get_user_weight(username, default_weight=66):
+    app.logger.info(f"DEBUG → get_user_weight() called with username: {repr(username)}")
+
+    """
+    Fetch weight for a given username from the users collection.
+    Returns default_weight if user or weight field not found.
+    """
+    user = db.users.find_one({"username": username}, {"weight": 1, "_id": 0})
+    if user and "weight" in user:
+        return user["weight"]
+    return default_weight
 
 
 @app.route('/')
@@ -157,13 +184,19 @@ def weekly_user_stats():
 
 @app.route('/stats/daily/', methods=['GET'])
 def get_daily_stats():
+    app.logger.info(f"FULL URL HIT ⇒ {request.url}")
     username = request.args.get('user')
+    app.logger.info(f"USERNAME RECEIVED ⇒ {repr(username)}")
+    app.logger.info(f"DEBUG → har called with username: {repr(username)}")
 
     now = datetime.utcnow()
     start_of_day = datetime(now.year, now.month, now.day)
     end_of_day = start_of_day + timedelta(days=1)
 
-    WEIGHT = 66  # default weight in kg
+    # WEIGHT = 66  # default weight in kg
+
+    # Get dynamic weight from users collection
+    WEIGHT = get_user_weight(username, default_weight=66)
 
     # --- Fetch MET values from new collection ---
     met_docs = db.activity_mets_new.find({})
