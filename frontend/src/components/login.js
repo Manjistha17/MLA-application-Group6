@@ -87,6 +87,11 @@ const Login = ({ onLogin }) => {
           <Button variant="primary" type="submit" className="w-100 mt-2">
             Login
           </Button>
+
+            {/* ✅ Forgot password link */}
+          <p className="text-center mt-2 mb-0">
+            <Link to="/forgotPassword">Forgot Password?</Link>
+          </p>
         </Form>
 
         <p className="text-center mt-3 mb-0">
