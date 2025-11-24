@@ -66,3 +66,31 @@
     transform: translateY(0);
   }
 }
+/* Edit Profile Button */
+.edit-profile-btn {
+  position: absolute;
+  right: 30px;
+  bottom: 30px;
+
+  padding: 12px 22px;
+  background-color: #c0247f;
+  color: white;
+  border: none;
+  border-radius: 10px;
+
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transition: all 0.25s ease;
+}
+
+.edit-profile-btn:hover {
+  background-color: #a81f6f;
+  transform: translateY(-3px);
+}
+
+.edit-profile-btn:active {
+  transform: translateY(0px);
+}
