@@ -86,25 +86,36 @@ const DailyStats = ({ currentUser }) => {
       >
         {exercises.length > 0 ? (
           <div className="exercise-cards">
-            {exercises.map((exercise) => (
+            {exercises.map((exercise) => {
+              const sub = exercise.subActivity?.trim();  // normalize empty strings to null/undefined
               // <div key={exercise.exerciseType} className="exercise-card">
-              <div
-                key={`${exercise.exerciseType}-${exercise.subActivity || 'none'}`}
-                className="exercise-card"
-                style={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                  borderRadius: '10px',
-                  padding: '15px',
-                  marginBottom: '15px',
-                  boxShadow: '0 0 10px rgba(0,0,0,0.1)',
-                }}
-              >
-                <h5>{exercise.exerciseType}</h5>
-                <p>🏷 <strong>Sub Activity:</strong> {exercise.subActivity || '—'}</p>
+              return (
+                <div
+                  key={`${exercise.exerciseType}-${exercise.subActivity || 'none'}`}
+                  className="exercise-card"
+                  style={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                    borderRadius: '10px',
+                    padding: '15px',
+                    marginBottom: '15px',
+                    boxShadow: '0 0 10px rgba(0,0,0,0.1)',
+                  }}
+                >
+                  <h5>{exercise.exerciseType}</h5>
+
+                  {sub && (
+                    <p>🏷 <strong>Sub Activity:</strong> {sub}</p>
+                  )}
+
                 <p>⏱ <strong>Duration:</strong> {exercise.totalDuration} minutes</p>
-                <p>🔥 <strong>Energy Burned:</strong> {exercise.totalCalories} kcal</p>
+                {exercise.totalCalories != null && (
+                    <p>🔥 <strong>Energy Burned:</strong> {exercise.totalCalories.toFixed(2)} kcal</p>
+                )}
+                
+                {/* <p>🔥 <strong>Energy Burned:</strong> {exercise.totalCalories} kcal</p> */}
               </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
           <p>🚫 No exercises found for today.</p>
