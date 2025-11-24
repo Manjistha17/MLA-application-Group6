@@ -1,5 +1,5 @@
-// init_activity_mets_mongoose.js
-const mongoose = require('mongoose');
+// init_activity_mets_safe.js
+const mongoose = require("mongoose");
 
 const activity_mets_new = [
   {
@@ -7,8 +7,8 @@ const activity_mets_new = [
     dropdown_label: "Select Intensity",
     sub_activity_options: [
       { name: "Slow", description: "Easy pace, comfortable run", met: 6.0 },
-      { name: "Moderate", description: "Moderate pace, can talk but slightly breathless", met: 8.3 },
-      { name: "Fast", description: "Fast pace, challenging run", met: 11.5 }
+      { name: "Moderate", description: "Moderate pace, slightly breathless", met: 8.3 },
+      { name: "Fast", description: "Fast pace, challenging", met: 11.5 }
     ]
   },
   {
@@ -42,47 +42,46 @@ const activity_mets_new = [
     activity: "Gym",
     dropdown_label: "Select Workout Type",
     sub_activity_options: [
-      { name: "Strength Training", description: "Weightlifting / resistance exercises", met: 6.0 },
-      { name: "Cardio Machines", description: "Treadmill, elliptical, bike", met: 5.5 },
-      { name: "Yoga / Pilates", description: "Flexibility and core exercises", met: 3.0 }
+      { name: "Strength Training", description: "Weightlifting / resistance", met: 6.0 },
+      { name: "Cardio Machines", description: "Treadmill, elliptical", met: 5.5 },
+      { name: "Yoga / Pilates", description: "Flexibility and core", met: 3.0 }
     ]
   },
   {
     activity: "Home",
     dropdown_label: "Select Activity Type",
     sub_activity_options: [
-      { name: "Bodyweight Exercise", description: "Push-ups, squats, lunges, etc.", met: 4.0 },
-      { name: "Stretching / Yoga", description: "Flexibility and relaxation", met: 2.5 },
-      { name: "Household Chores", description: "Cleaning, gardening, moving furniture", met: 3.0 }
+      { name: "Bodyweight Exercise", description: "Push-ups, squats", met: 4.0 },
+      { name: "Stretching / Yoga", description: "Flexibility", met: 2.5 },
+      { name: "Household Chores", description: "Cleaning, gardening", met: 3.0 }
     ]
   }
 ];
 
 async function initActivityMets() {
   try {
-    // await mongoose.connect('mongodb://localhost:27017/test'); // replace with your DB URI
-    await mongoose.connect('mongodb://root:cfgmla23@localhost:27017/test?authSource=admin');
-    console.log('Connected to MongoDB');
+    await mongoose.connect("mongodb://root:cfgmla23@localhost:27017/test?authSource=admin");
+    console.log("Connected to MongoDB");
 
     const db = mongoose.connection.db;
+    const collection = db.collection("activity_mets_new");
 
-    // Drop existing collection if it exists
-    const collections = await db.listCollections({ name: 'activity_mets_new' }).toArray();
-    if (collections.length > 0) {
-      await db.collection('activity_mets_new').drop();
-      console.log('Dropped existing collection: activity_mets_new');
+    for (const activity of activity_mets_new) {
+      const existing = await collection.findOne({ activity: activity.activity });
+
+      if (existing) {
+        console.log(`✔ Already exists → ${activity.activity}`);
+      } else {
+        await collection.insertOne(activity);
+        console.log(`➕ Inserted → ${activity.activity}`);
+      }
     }
 
-    // Insert new activity METs data
-    await db.collection('activity_mets_new').insertMany(activity_mets_new);
-    console.log('✅ activity_mets_new initialized successfully!');
-
-    // Close connection
+    console.log("🎉 Activity MET initialization complete!");
     await mongoose.disconnect();
   } catch (err) {
-    console.error('Error initializing activity METs:', err);
+    console.error("❌ Error initializing activity METs:", err);
   }
 }
 
-// Run the script
 initActivityMets();
