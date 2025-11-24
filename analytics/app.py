@@ -210,30 +210,33 @@ def get_daily_stats():
     # --- Build $switch for calorie computation ---
     branches = []
     for (activity, subActivity), met in met_rates.items():
-        branches.append({
-            "case": {
-                "$and": [
-                    {"$eq": ["$exerciseType", activity]},
-                    {"$eq": ["$subActivity", subActivity]}
-                ]
-            },
-            "then": {
-                "$multiply": [
-                    met,
-                    WEIGHT,
-                    {"$divide": ["$duration", 60]}
-                ]
-            }
-        })
-
-    DEFAULT_MET = 1.0
-    DEFAULT_CALORIES_EXPR = {
-        "$multiply": [
-            DEFAULT_MET,
-            WEIGHT,
-            {"$divide": ["$duration", 60]}
-        ]
-    }
+        if subActivity:  # If subActivity exists in METs
+            branches.append({
+                "case": {
+                    "$and": [
+                        {"$eq": ["$exerciseType", activity]},
+                        {"$eq": ["$subActivity", subActivity]}
+                    ]
+                },
+                "then": {
+                    "$multiply": [
+                        met,
+                        WEIGHT,
+                        {"$divide": ["$duration", 60]}
+                    ]
+                }
+            })
+        else:  # If subActivity is None or missing
+            branches.append({
+                "case": {"$eq": ["$exerciseType", activity]},
+                "then": {
+                    "$multiply": [
+                        met,
+                        WEIGHT,
+                        {"$divide": ["$duration", 60]}
+                    ]
+                }
+            })
 
     # --- Build aggregation ---
     match_stage = {"date": {"$gte": start_of_day, "$lt": end_of_day}}
@@ -247,16 +250,17 @@ def get_daily_stats():
                 "calories": {
                     "$switch": {
                         "branches": branches,
-                        "default": DEFAULT_CALORIES_EXPR
+                        "default": 0
                     }
                 }
             }
         },
         {
             "$group": {
-                "_id": {"exerciseType": "$exerciseType",
-                        "subActivity": "$subActivity"
-                       },
+                "_id": {
+                    "exerciseType": "$exerciseType",
+                    "subActivity": {"$ifNull": ["$subActivity", None]}
+                },
                 "totalDuration": {"$sum": "$duration"},
                 "totalCalories": {"$sum": "$calories"},
                 "count": {"$sum": 1}
@@ -268,7 +272,13 @@ def get_daily_stats():
                 "exerciseType": "$_id.exerciseType",
                 "subActivity": "$_id.subActivity",
                 "totalDuration": 1,
-                "totalCalories": 1,
+                "totalCalories": {
+                    "$cond": [
+                        {"$eq": ["$totalCalories", 0]},
+                        None,
+                        "$totalCalories"
+                    ]
+                },
                 "count": 1
             }
         }
