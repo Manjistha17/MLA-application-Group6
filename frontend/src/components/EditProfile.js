@@ -1,0 +1,136 @@
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import "./EditProfile.css";
+
+const EditProfile = ({ currentUser }) => {
+  const [form, setForm] = useState({
+    contact: "",
+    age: "",
+    gender: "",
+    height: "",
+    weight: "",
+  });
+
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!currentUser) return;
+
+    axios
+      .get(`/api/auth/user/${currentUser}`)
+      .then((res) => {
+        setForm({
+          contact: res.data.contact || "",
+          age: res.data.age || "",
+          gender: res.data.gender || "",
+          height: res.data.height || "",
+          weight: res.data.weight || "",
+        });
+      })
+      .catch((err) => console.error("Error loading profile:", err))
+      .finally(() => setLoading(false));
+  }, [currentUser]);
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSave = () => {
+    axios
+      .put(`/api/auth/user/${currentUser}`, form)
+      .then(() => {
+        window.location.href = "/profile";
+      })
+      .catch((err) => console.error("Update failed:", err));
+  };
+
+  if (loading) {
+    return (
+      <div className="edit-container">
+        <div className="profile-box">
+          <h2>Loading...</h2>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="edit-container"
+      style={{
+        backgroundImage: "url('/login_box.jpg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        minHeight: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <div className="profile-box">
+        <h2>Edit Profile</h2>
+
+        <div className="edit-form">
+
+          <div className="form-row">
+            <label>Contact</label>
+            <input
+              type="text"
+              name="contact"
+              value={form.contact}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="form-row">
+            <label>Age</label>
+            <input
+              type="number"
+              name="age"
+              value={form.age}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="form-row">
+            <label>Gender</label>
+            <select name="gender" value={form.gender} onChange={handleChange}>
+              <option value="">Select</option>
+              <option value="female">Female</option>
+              <option value="male">Male</option>
+              <option value="other">Other</option>
+              <option value="prefer_not_say">Prefer not to say</option>
+            </select>
+          </div>
+
+          <div className="form-row">
+            <label>Height (cm)</label>
+            <input
+              type="number"
+              name="height"
+              value={form.height}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="form-row">
+            <label>Weight (kg)</label>
+            <input
+              type="number"
+              name="weight"
+              value={form.weight}
+              onChange={handleChange}
+            />
+          </div>
+
+          <button className="save-btn" onClick={handleSave}>
+            Save Changes
+          </button>
+
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default EditProfile;

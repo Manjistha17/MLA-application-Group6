@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -15,17 +15,51 @@ import DailyStats from './components/DailyStats';
 import Profile from './components/Profile';
 import ForgotPassword from './components/ForgotPassword';
 import ResetPassword from './components/ResetPassword';
+import EditProfile from './components/EditProfile';
+import Dashboard from './components/Dashboard';
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [currentUser, setCurrentUser] = useState('');
 
+  // -----------------------------------------
+  // Load login state from localStorage
+  // -----------------------------------------
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    localStorage.getItem("isLoggedIn") === "true"
+  );
+
+  const [currentUser, setCurrentUser] = useState(
+    localStorage.getItem("currentUser") || ""
+  );
+
+  // Restore login on refresh
+  useEffect(() => {
+    const storedUser = localStorage.getItem("currentUser");
+    const storedLogin = localStorage.getItem("isLoggedIn") === "true";
+
+    if (storedUser && storedLogin) {
+      setCurrentUser(storedUser);
+      setIsLoggedIn(true);
+    }
+  }, []);
+
+  // -----------------------------------------
+  // LOGOUT
+  // -----------------------------------------
   const handleLogout = () => {
+    localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("currentUser");
+
     setIsLoggedIn(false);
     setCurrentUser('');
   };
 
+  // -----------------------------------------
+  // LOGIN
+  // -----------------------------------------
   const handleLogin = (username) => {
+    localStorage.setItem("isLoggedIn", "true");
+    localStorage.setItem("currentUser", username);
+
     setIsLoggedIn(true);
     setCurrentUser(username);
   };
@@ -44,40 +78,56 @@ function App() {
         <div className="componentContainer">
           <Routes>
 
-            {/* Public routes */}
-            <Route 
-              path="/login" 
+            {/* Public Routes */}
+            <Route
+              path="/login"
               element={
-                isLoggedIn ? <Navigate to="/" /> : <Login onLogin={handleLogin} />
-              } 
+                isLoggedIn ? <Navigate to="/dashboard" /> : <Login onLogin={handleLogin} />
+              }
             />
 
             <Route
               path="/signup"
               element={
                 isLoggedIn ? (
-                  <Navigate to="/" />
+                  <Navigate to="/dashboard" />
                 ) : (
-                  <Signup
-                    onSignup={(username) => {
-                      setIsLoggedIn(true);
-                      setCurrentUser(username);
-                    }}
-                  />
+                  <Signup onSignup={handleLogin} />
                 )
               }
             />
 
-            {/* ✅ Profile */}
             <Route path="/forgotPassword" element={<ForgotPassword />} />
             <Route path="/resetPassword" element={<ResetPassword />} />
 
-            {/* Protected routes */}
+            {/* Protected Routes */}
+            <Route
+              path="/dashboard"
+              element={
+                isLoggedIn ? (
+                  <Dashboard currentUser={currentUser} />
+                ) : (
+                  <Navigate to="/login" />
+                )
+              }
+            />
+
             <Route
               path="/profile"
               element={
                 isLoggedIn ? (
                   <Profile currentUser={currentUser} />
+                ) : (
+                  <Navigate to="/login" />
+                )
+              }
+            />
+
+            <Route
+              path="/edit-profile"
+              element={
+                isLoggedIn ? (
+                  <EditProfile currentUser={currentUser} />
                 ) : (
                   <Navigate to="/login" />
                 )
@@ -128,12 +178,12 @@ function App() {
               }
             />
 
-            {/* Default route */}
+            {/* Default Route */}
             <Route
               path="/"
               element={
                 isLoggedIn ? (
-                  <Navigate to="/profile" />
+                  <Navigate to="/dashboard" />
                 ) : (
                   <Navigate to="/login" />
                 )
