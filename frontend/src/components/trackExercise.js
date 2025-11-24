@@ -25,6 +25,8 @@ const TrackExercise = ({ currentUser }) => {
   const [activities, setActivities] = useState([]);
   const [selectedActivity, setSelectedActivity] = useState(null);
   const [timerSession, setTimerSession] = useState(null);
+  const [trackingMode, setTrackingMode] = useState('timer'); // 'timer' or 'manual'
+  const [manualDuration, setManualDuration] = useState('');
   
 // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
@@ -59,22 +61,36 @@ const TrackExercise = ({ currentUser }) => {
   const onSubmit = async (e) => {
     e.preventDefault();
     
-    // Validate that duration is positive
-    if (!state.duration || state.duration <= 0) {
-      setMessage('❌ Please use the timer to track your exercise duration!');
-      setTimeout(() => setMessage(''), 3000);
-      return;
-    }
+    // Validate duration based on tracking mode
+    let finalDuration = 0;
+    let description = '';
     
-    // Auto-generate description based on exercise type and timer session
-    const autoDescription = timerSession 
-      ? `${state.exerciseType} session for ${Math.floor(timerSession.duration / 60)}m ${timerSession.duration % 60}s`
-      : `${state.exerciseType} exercise session`;
+    if (trackingMode === 'timer') {
+      if (!state.duration || state.duration <= 0) {
+        setMessage('❌ Please use the timer to track your exercise duration!');
+        setTimeout(() => setMessage(''), 3000);
+        return;
+      }
+      finalDuration = state.duration;
+      description = timerSession 
+        ? `${state.exerciseType} session for ${Math.floor(timerSession.duration / 60)}m ${timerSession.duration % 60}s`
+        : `${state.exerciseType} exercise session`;
+    } else {
+      // Manual mode validation
+      if (!manualDuration || parseInt(manualDuration) <= 0) {
+        setMessage('❌ Please enter a valid duration in minutes!');
+        setTimeout(() => setMessage(''), 3000);
+        return;
+      }
+      finalDuration = parseInt(manualDuration);
+      description = `${state.exerciseType} exercise (${finalDuration} minutes) - manually logged`;
+    }
     
     const dataToSubmit = {
       username: currentUser,
       ...state,
-      description: autoDescription,
+      duration: finalDuration,
+      description: description,
     };
 
     try {
@@ -87,8 +103,10 @@ const TrackExercise = ({ currentUser }) => {
         subActivity: '',
         date: new Date(),
       });
+      setManualDuration('');
+      setTimerSession(null);
 
-      setMessage('✅ Activity logged successfully!');
+      setMessage(`✅ Activity logged successfully! (${trackingMode === 'timer' ? 'Timer' : 'Manual'} mode)`);
       setTimeout(() => setMessage(''), 2000);
     } catch (error) {
       console.error('Error logging your activity!', error);
@@ -120,6 +138,35 @@ const TrackExercise = ({ currentUser }) => {
         }}
       >
         <h3 className="text-center mb-4">Track Exercise</h3>
+        
+        {/* Mode Description */}
+        <div style={{ marginBottom: '15px', padding: '10px', backgroundColor: '#f8f9fa', borderRadius: '5px', fontSize: '14px' }}>
+          <div className="text-center">
+            <strong>Choose your tracking method:</strong>
+          </div>
+          <div style={{ marginTop: '5px' }}>
+            <strong>🏃 Timer Mode:</strong> Track live workouts with the built-in timer<br/>
+            <strong>✏️ Manual Log:</strong> Log past activities by entering duration manually
+          </div>
+        </div>
+        
+        {/* Tracking Mode Toggle */}
+        <div style={{ marginBottom: '20px', textAlign: 'center' }}>
+          <Button
+            variant={trackingMode === 'timer' ? 'primary' : 'outline-primary'}
+            onClick={() => setTrackingMode('timer')}
+            style={{ marginRight: '10px' }}
+          >
+            🏃 Timer Mode
+          </Button>
+          <Button
+            variant={trackingMode === 'manual' ? 'success' : 'outline-success'}
+            onClick={() => setTrackingMode('manual')}
+          >
+            ✏️ Manual Log
+          </Button>
+        </div>
+
         <Form onSubmit={onSubmit}>
           <Form.Group controlId="formDate" className="form-margin">
             <Form.Label>Date:</Form.Label>
@@ -170,25 +217,56 @@ const TrackExercise = ({ currentUser }) => {
             </IconButton>
           </div>
 
-          {/* Timer Component */}
-          <div style={{ marginBottom: '20px' }}>
-            <h5 className="text-center">Exercise Timer</h5>
-            <Timer onTimerStop={handleTimerStop} />
-            {timerSession && (
-              <div style={{ marginTop: '10px', padding: '10px', backgroundColor: '#f0f8ff', borderRadius: '5px' }}>
-                <small>
-                  Last session: {Math.floor(timerSession.duration / 60)}m {timerSession.duration % 60}s
-                </small>
-              </div>
-            )}
-            {state.duration > 0 && (
-              <div style={{ marginTop: '10px', padding: '8px', backgroundColor: '#e8f5e8', borderRadius: '5px', textAlign: 'center' }}>
-                <small style={{ color: '#2e7d32', fontWeight: 'bold' }}>
-                  ✅ Duration to save: {state.duration} minutes
-                </small>
-              </div>
-            )}
-          </div>
+          {/* Timer Component - Only show in timer mode */}
+          {trackingMode === 'timer' && (
+            <div style={{ marginBottom: '20px' }}>
+              <h5 className="text-center">Exercise Timer</h5>
+              <Timer onTimerStop={handleTimerStop} />
+              {timerSession && (
+                <div style={{ marginTop: '10px', padding: '10px', backgroundColor: '#f0f8ff', borderRadius: '5px' }}>
+                  <small>
+                    Last session: {Math.floor(timerSession.duration / 60)}m {timerSession.duration % 60}s
+                  </small>
+                </div>
+              )}
+              {state.duration > 0 && (
+                <div style={{ marginTop: '10px', padding: '8px', backgroundColor: '#e8f5e8', borderRadius: '5px', textAlign: 'center' }}>
+                  <small style={{ color: '#2e7d32', fontWeight: 'bold' }}>
+                    ✅ Duration to save: {state.duration} minutes
+                  </small>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Manual Duration Input - Only show in manual mode */}
+          {trackingMode === 'manual' && (
+            <div style={{ marginBottom: '20px' }}>
+              <h5 className="text-center">Manual Duration Entry</h5>
+              <Form.Group controlId="manualDuration">
+                <Form.Label>Duration (minutes):</Form.Label>
+                <Form.Control
+                  type="number"
+                  value={manualDuration}
+                  onChange={(e) => setManualDuration(e.target.value)}
+                  placeholder="Enter duration in minutes"
+                  min="1"
+                  max="600"
+                  required
+                />
+                <Form.Text className="text-muted">
+                  Enter how many minutes you exercised (1-600 minutes)
+                </Form.Text>
+              </Form.Group>
+              {manualDuration && parseInt(manualDuration) > 0 && (
+                <div style={{ marginTop: '10px', padding: '8px', backgroundColor: '#fff3cd', borderRadius: '5px', textAlign: 'center' }}>
+                  <small style={{ color: '#856404', fontWeight: 'bold' }}>
+                    ✏️ Manual entry: {manualDuration} minutes
+                  </small>
+                </div>
+              )}
+            </div>
+          )}
 
           {selectedActivity && (
             <Form.Group controlId="subActivity" style={{ marginBottom: '20px' }}>
@@ -210,7 +288,7 @@ const TrackExercise = ({ currentUser }) => {
           )}
 
           <Button variant="success" type="submit" className="w-100">
-            Save activity
+            {trackingMode === 'timer' ? '⏱️ Save Timed Activity' : '✏️ Save Manual Entry'}
           </Button>
         </Form>
 
