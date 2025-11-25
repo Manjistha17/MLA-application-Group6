@@ -6,7 +6,6 @@ import {
   Alert,
   Spinner,
   ProgressBar,
-  InputGroup,
 } from 'react-bootstrap';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
@@ -87,11 +86,11 @@ const Signup = ({ onSignup }) => {
         : '',
     height: (v) => {
       const n = Number(v);
-      return !v || isNaN(n) || n <= 0 || n > 300 ? 'Enter height in cm.' : '';
+      return !v || isNaN(n) || n <= 0 || n > 300 ? 'Enter height in cm. (1–300 cm)' : '';
     },
     weight: (v) => {
       const n = Number(v);
-      return !v || isNaN(n) || n <= 0 || n > 500 ? 'Enter weight in kg.' : '';
+      return !v || isNaN(n) || n <= 0 || n > 500 ? 'Enter weight in kg. (1–500 kg)' : '';
     },
   };
 
@@ -287,7 +286,6 @@ const Signup = ({ onSignup }) => {
 
         <Form.Group controlId="formContact" className="mb-2">
           <Form.Label>Contact Number</Form.Label>
-          <InputGroup>
             <Form.Control
               type="tel"
               name="contact"
