@@ -45,8 +45,15 @@ public class AuthController {
         if (incoming.getPassword().length() < 6)
             return message(HttpStatus.BAD_REQUEST, "Password must be at least 6 characters");
 
-        if (userRepository.existsByUsername(incoming.getUsername().trim()))
-            return message(HttpStatus.CONFLICT, "User already exists");
+    if (userRepository.existsByUsername(incoming.getUsername().trim()))
+        return message(HttpStatus.CONFLICT, "User already exists");
+
+    // UNIQUE EMAIL CHECK
+    String email = incoming.getEmail();
+    if (email == null || !EMAIL_REGEX.matcher(email).matches())
+        return message(HttpStatus.BAD_REQUEST, "Invalid email");
+    if (userRepository.findByEmail(email) != null)
+        return message(HttpStatus.CONFLICT, "Email already exists");
 
         User u = new User();
         u.setUsername(incoming.getUsername().trim());
