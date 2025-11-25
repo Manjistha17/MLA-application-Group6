@@ -1,5 +1,7 @@
 package com.authservice.auth.model;
 
+import java.time.LocalDateTime;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -19,7 +21,8 @@ public class User {
     private String gender;
     private Double height;
     private Double weight;      
-    private String resetToken;  
+    private String resetToken; 
+    private LocalDateTime resetTokenExpiry; 
 
     public User() {
     }
@@ -114,5 +117,13 @@ public class User {
 
     public void setResetToken(String resetToken) {
         this.resetToken = resetToken;
+    }
+
+    public LocalDateTime getResetTokenExpiry() {
+       return resetTokenExpiry;
+    }
+
+    public void setResetTokenExpiry(LocalDateTime resetTokenExpiry) {
+       this.resetTokenExpiry = resetTokenExpiry;
     }
 }

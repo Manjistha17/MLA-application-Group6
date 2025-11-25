@@ -26,9 +26,14 @@ const ResetPassword = () => {
         token,
         newPassword: password,
       });
-      setMessage(response.data);
+      setMessage(response.data.message);
+
+      // Auto redirect after 3 seconds
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 3000);
     } catch (err) {
-      setError(err.response?.data || 'Failed to reset password');
+      setError(err.response?.data?.message || 'Failed to reset password');
     }
   };
 
