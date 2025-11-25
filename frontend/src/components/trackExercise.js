@@ -67,7 +67,7 @@ const TrackExercise = ({ currentUser }) => {
     
     if (trackingMode === 'timer') {
       if (!state.duration || state.duration <= 0) {
-        setMessage('❌ Please use the timer to track your exercise duration!');
+        setMessage('Please use the timer to track your exercise duration!');
         setTimeout(() => setMessage(''), 3000);
         return;
       }
@@ -78,7 +78,7 @@ const TrackExercise = ({ currentUser }) => {
     } else {
       // Manual mode validation
       if (!manualDuration || parseInt(manualDuration) <= 0) {
-        setMessage('❌ Please enter a valid duration in minutes!');
+        setMessage('Please enter a valid duration in minutes!');
         setTimeout(() => setMessage(''), 3000);
         return;
       }
@@ -106,11 +106,11 @@ const TrackExercise = ({ currentUser }) => {
       setManualDuration('');
       setTimerSession(null);
 
-      setMessage(`✅ Activity logged successfully! (${trackingMode === 'timer' ? 'Timer' : 'Manual'} mode)`);
+      setMessage(`Activity logged successfully! (${trackingMode === 'timer' ? 'Timer' : 'Manual'} mode)`);
       setTimeout(() => setMessage(''), 2000);
     } catch (error) {
       console.error('Error logging your activity!', error);
-      setMessage('❌ Failed to log activity');
+      setMessage('Failed to log activity');
     }
   };
 
@@ -145,8 +145,8 @@ const TrackExercise = ({ currentUser }) => {
             <strong>Choose your tracking method:</strong>
           </div>
           <div style={{ marginTop: '5px' }}>
-            <strong>🏃 Timer Mode:</strong> Track live workouts with the built-in timer<br/>
-            <strong>✏️ Manual Log:</strong> Log past activities by entering duration manually
+            <strong>Timer Mode:</strong> Track live workouts with the built-in timer<br/>
+            <strong>Manual Log:</strong> Log past activities by entering duration manually
           </div>
         </div>
         
@@ -157,13 +157,13 @@ const TrackExercise = ({ currentUser }) => {
             onClick={() => setTrackingMode('timer')}
             style={{ marginRight: '10px' }}
           >
-            🏃 Timer Mode
+            Timer Mode
           </Button>
           <Button
             variant={trackingMode === 'manual' ? 'success' : 'outline-success'}
             onClick={() => setTrackingMode('manual')}
           >
-            ✏️ Manual Log
+            Manual Log
           </Button>
         </div>
 
@@ -232,7 +232,7 @@ const TrackExercise = ({ currentUser }) => {
               {state.duration > 0 && (
                 <div style={{ marginTop: '10px', padding: '8px', backgroundColor: '#e8f5e8', borderRadius: '5px', textAlign: 'center' }}>
                   <small style={{ color: '#2e7d32', fontWeight: 'bold' }}>
-                    ✅ Duration to save: {state.duration} minutes
+                    Duration to save: {state.duration} minutes
                   </small>
                 </div>
               )}
@@ -261,7 +261,7 @@ const TrackExercise = ({ currentUser }) => {
               {manualDuration && parseInt(manualDuration) > 0 && (
                 <div style={{ marginTop: '10px', padding: '8px', backgroundColor: '#fff3cd', borderRadius: '5px', textAlign: 'center' }}>
                   <small style={{ color: '#856404', fontWeight: 'bold' }}>
-                    ✏️ Manual entry: {manualDuration} minutes
+                    Manual entry: {manualDuration} minutes
                   </small>
                 </div>
               )}
@@ -288,7 +288,7 @@ const TrackExercise = ({ currentUser }) => {
           )}
 
           <Button variant="success" type="submit" className="w-100">
-            {trackingMode === 'timer' ? '⏱️ Save Timed Activity' : '✏️ Save Manual Entry'}
+            {trackingMode === 'timer' ? 'Save Timed Activity' : 'Save Manual Entry'}
           </Button>
         </Form>
 
