@@ -1,46 +1,43 @@
-# 🧭 Web Application Architecture Overview
+# MLA Fitness App
 
-This repository documents the reference architecture for a full-stack web application that integrates multiple services across frontend, backend, and data layers. It emphasizes modularity, security, and scalability.
+An interactive fitness tracking application built with a polyglot microservices architecture. Users can log exercises, monitor progress, and view analytics in real time.
 
 ![Screenshot](screenshots/frontpage.png?v=2)
 
-## 📐 System Architecture
+## Architecture Overview
 
-The system is composed of the following layers:
+This app now uses a multi-service architecture with distinct backend services for activity tracking, analytics, and user management. Requests flow through a reverse proxy and SPA frontend, with CORS and security handled uniformly across services.
 
-### 1. User Interaction
-- **User Interface**: React-based Single Page Application (SPA)
-- **Access Point**: Served via Nginx reverse proxy
+## Tech Stack by Layer
 
-### 2. Reverse Proxy Layer
-- **Nginx**: Handles routing, CORS, and SPA serving
-- **Security Layer**: Manages authentication and authorization
-- **Frontend Layer**: React SPA with routing and service calls
-- **Service Layer**: Node.js, Python, and Java microservices
-- **Database Layer**: MongoDB for persistent storage
+| Layer | Technology Used |
+|-------|----------------|
+| Reverse Proxy | Nginx (Routing, Auth, CORS, Error Handling) |
+| Frontend | React SPA served via Nginx |
+| Activity Service | Node.js (Port 5000) |
+| Analytics Service | Python Flask (Port 5050) |
+| User Service | Java + Gradle (Port 8080) |
+| Database | MongoDB |
 
-## 🔐 Security & CORS
+## Features
 
-- **Authentication**: Credential Service (Java + Gradle) on port `8080`
-- **Authorization**: Token-based validation
-- **CORS Handling**:
-  - Browser sends OPTIONS preflight request
-  - Backend must return correct CORS headers
-  - Requests without proper headers are blocked
+- User registration and login via Java-based Auth Service
+- Real-time activity tracking with Node.js
+- Weekly and overall analytics via Python Flask
+- Interactive UI with Material-UI components
+- Centralized CORS and security handling via reverse proxy
+- MongoDB-backed data persistence across services
 
-## 🧩 Microservices
+## Prerequisites
 
-| Service                | Technology     | Port  | Purpose                            |
-|------------------------|----------------|-------|------------------------------------|
-| Activity Tracking      | Node.js        | 5300  | Updates user activity              |
-| Analytics              | Python         | 5050  | Fetches and analyzes activity data |
-| Credential Validation  | Java + Gradle  | 8080  | Authenticates user credentials     |
-| Frontend (Nginx)       | React + Nginx  | 8081  | Serves SPA and handles routing     |
+Ensure the following are installed (already included in devcontainer):
 
-## 🗃️ Database
-
-- **MongoDB**: Stores activity logs and credential data
-- **Schema**: Designed for scalability and fast querying  
+- Node.js v18+
+- MongoDB
+- npm or yarn
+- Python 3.9+
+- Java 8
+- Gradle  
 
 ### Project Setup Instructions
 
@@ -48,219 +45,122 @@ The system is composed of the following layers:
 - Each group member should clone the forked version of the repository to their local environment or GitHub Codespace.
 - All project work should be done in your group's fork.
 
-## 🚀 Setup Instructions
+## Development Setup (GitHub Codespaces)
 
-### Prerequisites
-- Node.js
-- Python 3.x
-- Java (with Gradle)
-- MongoDB
-- Nginx
-
-### Installation
-```bash
-# Clone the repository
-git clone https://github.com/Manjistha17/MLA-application-Group6.git
-cd MLA-application-Group6
-
-# Install Node.js dependencies
-cd activity-tracking
-npm install
-
-# Install Python dependencies
-cd ../analytics
-pip install -r requirements.txt
-
-# Build Java service
-cd ../authservice
-./gradlew clean build
-
-# Install Frontend dependencies
-cd ../frontend
-npm install
-```
-
-## ✨ Current Features
-
-- **User Registration**: Personalized tracking with secure authentication
-- **Dual Exercise Logging**: 
-  - 🏃 **Timer Mode**: Real-time activity tracking with interactive timer
-  - ✏️ **Manual Log**: Enter past activities with custom duration
-- **Exercise Variety**: Running, Cycling, Swimming, Gym, Yoga, and Other activities
-- **Analytics Dashboard**: Weekly and overall statistics with data visualization
-- **Interactive UI**: Material-UI components with responsive design
-- **Real-time Persistence**: MongoDB integration with instant data updates
-- **Comprehensive Testing**: TDD implementation with Jest and React Testing Library
-
-## Development in Github Codespaces
-
-#### Starting a new Devcontainer
-
-1. Click on "Code"
-2. Switch to the "Codespaces" tab
-3. Create new Codespace from main
+1. Fork this repo (one per group)
+2. Clone your fork locally or open in Codespaces
+3. Create a new Codespace from main
+4. Open in VS Code for best experience
 <img src="screenshots/codespaces.png" width="300"/>
 
-
-4. Open Codespace in VS code for best experience:
-<img src="screenshots/codespaces2.png" width="300"/>
-
-
-Walktrough:
-
-https://docs.github.com/en/codespaces/developing-in-a-codespace/using-github-codespaces-in-visual-studio-code
-
-
-#### Check needed packages are installed:
+5. Run installation check:
 ```sh
-sh .devcontainer/check-installation.sh 
+sh .devcontainer/check-installation.sh
 ```
 
-expected output:
 
-```
-Checking installations...
-node is /usr/local/bin/node
-node is installed with version: v18.16.0
-npm is /usr/local/bin/npm
-npm is installed with version: 9.5.1
-python3 is /usr/bin/python3
-python3 is installed with version: Python 3.9.2
-pip3 is /usr/bin/pip3
-pip3 is installed with version: pip 20.3.4 from /usr/lib/python3/dist-packages/pip (python 3.9)
-gradle is /usr/bin/gradle
-gradle is installed with version: 
-------------------------------------------------------------
-Gradle 4.4.1
-------------------------------------------------------------
-......
-Done checking installations.
+## MongoDB Installation & Setup
+
+### For Ubuntu/Debian:
+```sh
+sudo apt update
+sudo apt install -y mongodb
+sudo systemctl start mongodb
+sudo systemctl enable mongodb
 ```
 
-if you're missing any version, please contact your course administrator. 
+### For Windows:
+1. Download MongoDB Community Server
+2. Run the installer with default settings
+3. Start MongoDB service
 
+### For macOS:
+```sh
+brew tap mongodb/brew
+brew install mongodb-community
+brew services start mongodb/brew/mongodb-community
+```
 
-## 🐳 Docker Deployment
+## Running the Application
 
-### Quick Start (Recommended)
-```bash
-# Build and start all services
+### Option 1: Docker (Recommended)
+```sh
 docker-compose up --build
-
-# Access the application at http://localhost:8081
 ```
 
-### Docker Commands
-```bash
-# Start existing containers (no rebuild)
-docker-compose up
+### Option 2: Local Development
+```sh
+# Terminal 1 - Start MongoDB (if not running as service)
+mongod
 
-# Build and start specific service
-docker-compose up --build [servicename]
-
-# Stop all services
-docker-compose down
-
-# View running containers
-docker-compose ps
-```
-
-
-## 🛠️ Development Mode (without Docker)
-
-### Start Individual Services
-
-#### 1. Database
-```bash
-docker run --name mongodb -d -p 27017:27017 -v mongodbdata:/data/db mongo:latest
-```
-
-#### 2. Backend Services
-```bash
-# Activity Tracking Service (Node.js)
+# Terminal 2 - Activity Tracking Service
 cd activity-tracking
 npm install
 npm start
-# Runs on http://localhost:5300
 
-# Analytics Service (Python/Flask)
+# Terminal 3 - Analytics Service  
 cd analytics
 pip install -r requirements.txt
-flask run -h localhost -p 5050
-# Runs on http://localhost:5050
+python app.py
 
-# Authentication Service (Java/Spring Boot)
+# Terminal 4 - Auth Service
 cd authservice
-./gradlew clean build
 ./gradlew bootRun
-# Runs on http://localhost:8080
-```
 
-#### 3. Frontend
-```bash
+# Terminal 5 - Frontend
 cd frontend
 npm install
 npm start
-# Runs on http://localhost:3000
 ```
 
-## 🗄️ Database Operations
+## Access Points
 
-### Connect to MongoDB
-```bash
-mongosh -u root -p cfgmla23 --authenticationDatabase admin --host localhost --port 27017
-```
+- **Frontend**: http://localhost:3000 (development) or http://localhost:80 (Docker)
+- **Activity API**: http://localhost:5000
+- **Analytics API**: http://localhost:5001
+- **Auth API**: http://localhost:8080
 
-### Query Data
-```javascript
-// Show registered activities
-db.exercises.find()
+## Testing
 
-// Show registered users
-db.users.find()
-
-// Show activity statistics
-db.exercises.aggregate([
-  { $group: { _id: "$exerciseType", count: { $sum: 1 } } }
-])
-```
-
-## 🧪 Testing
-
-### Run Frontend Tests
-```bash
+### Unit Tests
+```sh
 cd frontend
 npm test
 ```
 
-### Run Java Tests
-```bash
-cd authservice
-./gradlew test
+### E2E Tests
+```sh
+cd activity-tracking/cypress
+npm install
+npx cypress run
 ```
 
-### Test Coverage
-- **Frontend**: Jest + React Testing Library
-- **Backend**: JUnit for Java services
-- **Integration**: End-to-end testing with Cypress
+## Troubleshooting
 
-## 🚀 Deployment
+### Common Docker Issues
+```sh
+# Clear Docker cache
+docker system prune -a
 
-The application is containerized using Docker and can be deployed on any platform that supports Docker containers:
+# Rebuild without cache
+docker-compose build --no-cache
 
-- **Development**: Local Docker Compose setup
-- **Production**: Kubernetes or cloud container services
-- **CI/CD**: GitHub Actions pipeline for automated testing and deployment
-
-## 📁 Project Structure
-
+# View service logs
+docker-compose logs [service-name]
 ```
-MLA-application-Group6/
-├── frontend/              # React SPA
-├── activity-tracking/     # Node.js microservice
-├── analytics/            # Python Flask service
-├── authservice/          # Java Spring Boot service
-├── mongo-init/           # Database initialization
-├── docker-compose.yml    # Container orchestration
-└── README.md            # This file
-```
+
+### MongoDB Issues
+- Ensure MongoDB is running on port 27017
+- Check database connection strings in config files
+
+### Port Conflicts
+- Frontend: Change port in package.json
+- Backend: Update docker-compose.yml port mappings
+
+## Contributing
+
+1. Fork the repository
+2. Create feature branch: `git checkout -b feature-name`
+3. Commit changes: `git commit -m 'Description'`
+4. Push branch: `git push origin feature-name`
+5. Submit Pull Request
