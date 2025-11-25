@@ -4,6 +4,7 @@ import com.authservice.auth.dto.ResetPasswordRequest;
 import com.authservice.auth.model.User;
 import com.authservice.auth.repository.UserRepository;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -132,6 +133,7 @@ public class AuthController {
 
         String token = UUID.randomUUID().toString();
         u.setResetToken(token);
+        u.setResetTokenExpiry(LocalDateTime.now().plusMinutes(15)); // expires in 15 minutes
         userRepository.save(u);
 
         String resetLink = "http://localhost:8081/resetPassword?token=" + token;
@@ -140,7 +142,16 @@ public class AuthController {
             SimpleMailMessage msg = new SimpleMailMessage();
             msg.setTo(email);
             msg.setSubject("Password Reset Request");
-            msg.setText("Click here to reset your password:\n" + resetLink);
+            msg.setText(
+            "Hello,\n\n" +
+            "We received a request to reset your password.\n" +
+            "Please click the link below to set a new password:\n\n" +
+            resetLink + "\n\n" +
+            "Note: This link will expire in 15 minutes.\n\n" +
+            "If you did not request this, you can ignore this email.\n\n" +
+            "Best regards,\n" +
+            "Your App Team"
+        );
             mailSender.send(msg);
         }
 
