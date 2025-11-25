@@ -34,7 +34,6 @@ const Login = ({ onLogin }) => {
     e.preventDefault();
     setError('');
 
-    // Basic Client-Side Validation
     if (!username.trim() || !password.trim()) {
       setError('Please enter both username and password.');
       return;
@@ -82,7 +81,7 @@ const Login = ({ onLogin }) => {
         // Accessibility: Ensure background content has sufficient contrast
       }}
     >
-      {/* Accessibility: Added role heading for context */}
+      {/* Accessibility: Heading */}
       <h1
         className="text-center mb-3"
         style={{
@@ -90,8 +89,6 @@ const Login = ({ onLogin }) => {
           fontWeight: '700',
           textShadow: '0px 2px 6px rgba(192, 36, 127, 0.69)',
         }}
-        role="heading"
-        aria-level="1"
       >
         Welcome to the MLA Fitness App!
       </h1>
@@ -105,7 +102,6 @@ const Login = ({ onLogin }) => {
           backgroundColor: 'rgba(255, 255, 255, 0.85)',
         }}
       >
-        {/* Accessibility: Added role alert and tabIndex */}
         {error && (
           <Alert
             variant="danger"
@@ -145,7 +141,6 @@ const Login = ({ onLogin }) => {
             />
           </Form.Group>
 
-          {/* Accessibility: Added loading state */}
           <Button
             variant="primary"
             type="submit"
