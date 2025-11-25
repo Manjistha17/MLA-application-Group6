@@ -45,12 +45,11 @@ const loadSaved = () => {
 
 const Signup = ({ onSignup }) => {
   const [formData, setFormData] = useState(loadSaved);
-  const [fieldErrors, setFieldErrors] = useState({}); // per-field inline messages
+  const [fieldErrors, setFieldErrors] = useState({});
   const [globalError, setGlobalError] = useState('');
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // persist form while user types (useful for long forms)
     try {
       localStorage.setItem('signupForm', JSON.stringify(formData));
     } catch {}
@@ -63,7 +62,6 @@ const Signup = ({ onSignup }) => {
     setGlobalError('');
   };
 
-  // inline validators return message or empty string
   const validators = {
     username: (v) =>
       !v || v.trim().length < 3 ? 'Username must be at least 3 characters.' : '',
@@ -119,18 +117,15 @@ const Signup = ({ onSignup }) => {
     if (Object.keys(errors).length) {
       setFieldErrors(errors);
       setGlobalError('Please fix the highlighted fields.');
-      // 💡 Accessibility Improvement: Move focus to the first error field
+
       const firstErrorKey = Object.keys(errors)[0];
       const firstErrorElement = document.querySelector(`[name="${firstErrorKey}"]`);
-      if (firstErrorElement) {
-        firstErrorElement.focus();
-      }
+      if (firstErrorElement) firstErrorElement.focus();
       return;
     }
 
     setLoading(true);
     try {
-      // map client fields to backend shape if needed before sending
       const payload = {
         username: formData.username,
         password: formData.password,
@@ -152,7 +147,6 @@ const Signup = ({ onSignup }) => {
         typeof response.data === 'string' ? response.data : response.data?.message;
 
       if (message && message.toLowerCase().includes('success')) {
-        // clear saved draft on success
         try {
           localStorage.removeItem('signupForm');
         } catch {}
@@ -177,16 +171,19 @@ const Signup = ({ onSignup }) => {
   const progressVariant = ['danger', 'danger', 'warning', 'info', 'success'][
     Math.min(4, pwdStrength.score)
   ];
-  
-  // Helper function to generate an ID for the error message
+
   const getErrorId = (name) => `error-${name}`;
 
   return (
     <div>
       <Form onSubmit={handleSignup} noValidate>
-        {/* Global Error Alert: Added role="alert" for immediate screen reader announcement */}
-        {globalError && <Alert variant="danger" className="mb-3" role="alert">{globalError}</Alert>}
+        {globalError && (
+          <Alert variant="danger" className="mb-3" role="alert">
+            {globalError}
+          </Alert>
+        )}
 
+        {/* USERNAME */}
         <Form.Group controlId="formUsername" className="mb-2">
           <Form.Label>Username</Form.Label>
           <Form.Control
@@ -199,8 +196,9 @@ const Signup = ({ onSignup }) => {
             required
             minLength={3}
             autoFocus
-            // 💡 Accessibility Improvement: aria-describedby links input to its error message
-            aria-describedby={fieldErrors.username ? getErrorId('username') : undefined}
+            aria-describedby={
+              fieldErrors.username ? getErrorId("username") : undefined
+            }
             aria-invalid={!!fieldErrors.username}
           />
           <Form.Control.Feedback type="invalid" id={getErrorId('username')}>
@@ -208,6 +206,7 @@ const Signup = ({ onSignup }) => {
           </Form.Control.Feedback>
         </Form.Group>
 
+        {/* PASSWORD */}
         <Form.Group controlId="formPassword" className="mb-2">
           <Form.Label>Password</Form.Label>
           <Form.Control
@@ -219,15 +218,19 @@ const Signup = ({ onSignup }) => {
             isInvalid={!!fieldErrors.password || !!fieldErrors.confirmPassword}
             required
             minLength={6}
-            // 💡 Accessibility Improvement: Link input to its help text AND error message
-            aria-describedby={`passwordHelp ${fieldErrors.password ? getErrorId('password') : ''}`}
+            aria-describedby={[
+              "passwordHelp",
+              fieldErrors.password ? getErrorId("password") : null,
+            ]
+              .filter(Boolean)
+              .join(" ")}
             aria-invalid={!!fieldErrors.password || !!fieldErrors.confirmPassword}
           />
+
           <Form.Text id="passwordHelp" muted>
             Use at least 8 characters for a stronger password.
           </Form.Text>
 
-          {/* 💡 Accessibility Improvement: Added role="meter" and aria-valuenow to ProgressBar */}
           <div className="mt-2">
             <ProgressBar
               now={(pwdStrength.score / 4) * 100}
@@ -235,7 +238,7 @@ const Signup = ({ onSignup }) => {
               variant={progressVariant}
               animated
               striped
-              role="meter" 
+              role="meter"
               aria-valuenow={pwdStrength.score}
               aria-valuemin="0"
               aria-valuemax="4"
@@ -248,6 +251,7 @@ const Signup = ({ onSignup }) => {
           </Form.Control.Feedback>
         </Form.Group>
 
+        {/* CONFIRM PASSWORD */}
         <Form.Group controlId="formConfirmPassword" className="mb-2">
           <Form.Label>Confirm Password</Form.Label>
           <Form.Control
@@ -259,7 +263,9 @@ const Signup = ({ onSignup }) => {
             isInvalid={!!fieldErrors.confirmPassword}
             required
             minLength={6}
-            aria-describedby={fieldErrors.confirmPassword ? getErrorId('confirmPassword') : undefined}
+            aria-describedby={
+              fieldErrors.confirmPassword ? getErrorId("confirmPassword") : undefined
+            }
             aria-invalid={!!fieldErrors.confirmPassword}
           />
           <Form.Control.Feedback type="invalid" id={getErrorId('confirmPassword')}>
@@ -267,6 +273,7 @@ const Signup = ({ onSignup }) => {
           </Form.Control.Feedback>
         </Form.Group>
 
+        {/* EMAIL */}
         <Form.Group controlId="formEmail" className="mb-2">
           <Form.Label>Email</Form.Label>
           <Form.Control
@@ -277,7 +284,9 @@ const Signup = ({ onSignup }) => {
             onBlur={handleBlurValidate}
             isInvalid={!!fieldErrors.email}
             required
-            aria-describedby={fieldErrors.email ? getErrorId('email') : undefined}
+            aria-describedby={
+              fieldErrors.email ? getErrorId("email") : undefined
+            }
             aria-invalid={!!fieldErrors.email}
           />
           <Form.Control.Feedback type="invalid" id={getErrorId('email')}>
@@ -285,6 +294,7 @@ const Signup = ({ onSignup }) => {
           </Form.Control.Feedback>
         </Form.Group>
 
+        {/* CONTACT */}
         <Form.Group controlId="formContact" className="mb-2">
           <Form.Label>Contact Number</Form.Label>
           <InputGroup>
@@ -297,16 +307,24 @@ const Signup = ({ onSignup }) => {
               isInvalid={!!fieldErrors.contact}
               placeholder="Digits only, e.g. 919876543210"
               required
-              aria-describedby={`contactHelp ${fieldErrors.contact ? getErrorId('contact') : ''}`}
+              aria-describedby={[
+                "contactHelp",
+                fieldErrors.contact ? getErrorId("contact") : null,
+              ]
+                .filter(Boolean)
+                .join(" ")}
               aria-invalid={!!fieldErrors.contact}
             />
           </InputGroup>
           <Form.Control.Feedback type="invalid" id={getErrorId('contact')}>
             {fieldErrors.contact}
           </Form.Control.Feedback>
-          <Form.Text id="contactHelp" muted>Include country code if needed, digits only.</Form.Text>
+          <Form.Text id="contactHelp" muted>
+            Include country code if needed, digits only.
+          </Form.Text>
         </Form.Group>
 
+        {/* AGE */}
         <Form.Group controlId="formAge" className="mb-2">
           <Form.Label>Age</Form.Label>
           <Form.Control
@@ -319,7 +337,9 @@ const Signup = ({ onSignup }) => {
             min={1}
             max={120}
             required
-            aria-describedby={fieldErrors.age ? getErrorId('age') : undefined}
+            aria-describedby={
+              fieldErrors.age ? getErrorId("age") : undefined
+            }
             aria-invalid={!!fieldErrors.age}
           />
           <Form.Control.Feedback type="invalid" id={getErrorId('age')}>
@@ -327,6 +347,7 @@ const Signup = ({ onSignup }) => {
           </Form.Control.Feedback>
         </Form.Group>
 
+        {/* GENDER */}
         <Form.Group controlId="formGender" className="mb-2">
           <Form.Label>Gender</Form.Label>
           <Form.Select
@@ -336,7 +357,9 @@ const Signup = ({ onSignup }) => {
             onBlur={handleBlurValidate}
             isInvalid={!!fieldErrors.gender}
             required
-            aria-describedby={fieldErrors.gender ? getErrorId('gender') : undefined}
+            aria-describedby={
+              fieldErrors.gender ? getErrorId("gender") : undefined
+            }
             aria-invalid={!!fieldErrors.gender}
           >
             <option value="">Select</option>
@@ -350,6 +373,7 @@ const Signup = ({ onSignup }) => {
           </Form.Control.Feedback>
         </Form.Group>
 
+        {/* HEIGHT */}
         <Form.Group controlId="formHeight" className="mb-2">
           <Form.Label>Height (cm)</Form.Label>
           <Form.Control
@@ -362,7 +386,9 @@ const Signup = ({ onSignup }) => {
             min={1}
             max={300}
             required
-            aria-describedby={fieldErrors.height ? getErrorId('height') : undefined}
+            aria-describedby={
+              fieldErrors.height ? getErrorId("height") : undefined
+            }
             aria-invalid={!!fieldErrors.height}
           />
           <Form.Control.Feedback type="invalid" id={getErrorId('height')}>
@@ -370,6 +396,7 @@ const Signup = ({ onSignup }) => {
           </Form.Control.Feedback>
         </Form.Group>
 
+        {/* WEIGHT */}
         <Form.Group controlId="formWeight" className="mb-2">
           <Form.Label>Weight (kg)</Form.Label>
           <Form.Control
@@ -382,7 +409,9 @@ const Signup = ({ onSignup }) => {
             min={1}
             max={500}
             required
-            aria-describedby={fieldErrors.weight ? getErrorId('weight') : undefined}
+            aria-describedby={
+              fieldErrors.weight ? getErrorId("weight") : undefined
+            }
             aria-invalid={!!fieldErrors.weight}
           />
           <Form.Control.Feedback type="invalid" id={getErrorId('weight')}>
@@ -399,8 +428,8 @@ const Signup = ({ onSignup }) => {
                 size="sm"
                 role="status"
                 aria-hidden="true"
-              />
-              {' '}Signing up...
+              />{' '}
+              Signing up...
             </>
           ) : (
             'Signup'
