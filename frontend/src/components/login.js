@@ -8,26 +8,24 @@ const Login = ({ onLogin }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false); // New state for loading/spinner
-  
-  // 💡 Accessibility Improvement: Ref to set initial focus for keyboard users
+  const [loading, setLoading] = useState(false);
+
+  // Accessibility: Ref to set initial focus for keyboard users
   const usernameInputRef = useRef(null);
 
-  // 💡 Accessibility Improvement: Set focus on component mount
+  // Accessibility: Set focus on component mount
   React.useEffect(() => {
     if (usernameInputRef.current) {
       usernameInputRef.current.focus();
     }
   }, []);
 
-  // 💡 Accessibility Improvement: Set focus on error for screen reader users
+  // Accessibility: Set focus on error for screen reader users
   React.useEffect(() => {
     if (error) {
-      // Announce the error immediately
       const errorAlert = document.getElementById('login-error-alert');
       if (errorAlert) {
-        // Optional: Move focus to the global error message for immediate announcement
-        errorAlert.focus(); 
+        errorAlert.focus();
       }
     }
   }, [error]);
@@ -35,11 +33,11 @@ const Login = ({ onLogin }) => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
-    
-    // Basic Client-Side Validation (for cognitive/visual disabilities)
+
+    // Basic Client-Side Validation
     if (!username.trim() || !password.trim()) {
-        setError('Please enter both username and password.');
-        return;
+      setError('Please enter both username and password.');
+      return;
     }
 
     setLoading(true);
@@ -54,14 +52,21 @@ const Login = ({ onLogin }) => {
         onLogin(username);
         navigate('/dashboard');
       } else {
-        // Should ideally be caught by axios error handler unless status is 4xx/5xx but no exception is thrown
         setError('Invalid credentials.');
       }
     } catch (err) {
-        const serverMessage = err?.response?.data?.message || err?.response?.data || 'Failed to login. Please check your credentials.';
-        setError(typeof serverMessage === 'string' ? serverMessage : 'Login error. Please try again.');
+      const serverMessage =
+        err?.response?.data?.message ||
+        err?.response?.data ||
+        'Failed to login. Please check your credentials.';
+
+      setError(
+        typeof serverMessage === 'string'
+          ? serverMessage
+          : 'Login error. Please try again.'
+      );
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   };
 
@@ -74,10 +79,10 @@ const Login = ({ onLogin }) => {
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
-        // 💡 Accessibility Improvement: Ensure background content has sufficient contrast
+        // Accessibility: Ensure background content has sufficient contrast
       }}
     >
-      {/* 💡 Accessibility Improvement: Added role="heading" and aria-level for context */}
+      {/* Accessibility: Added role heading for context */}
       <h1
         className="text-center mb-3"
         style={{
@@ -100,17 +105,17 @@ const Login = ({ onLogin }) => {
           backgroundColor: 'rgba(255, 255, 255, 0.85)',
         }}
       >
-        {/* 💡 Accessibility Improvement: Added role="alert" and tabIndex="-1" to force focus/announce */}
-        {error && 
-          <Alert 
-            variant="danger" 
-            role="alert" 
-            tabIndex="-1" 
+        {/* Accessibility: Added role alert and tabIndex */}
+        {error && (
+          <Alert
+            variant="danger"
+            role="alert"
+            tabIndex="-1"
             id="login-error-alert"
           >
             {error}
           </Alert>
-        }
+        )}
 
         <Form onSubmit={handleLogin} noValidate>
           <Form.Group controlId="formUsername" className="mb-3">
@@ -120,10 +125,10 @@ const Login = ({ onLogin }) => {
               placeholder="Enter your username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              required // 💡 Added native required attribute
-              ref={usernameInputRef} // Set ref for initial focus
-              aria-required="true" // 💡 Added ARIA required
-              autoComplete="username" // 💡 Added autocomplete for cognitive/motor disabilities
+              required
+              ref={usernameInputRef}
+              aria-required="true"
+              autoComplete="username"
             />
           </Form.Group>
 
@@ -134,16 +139,16 @@ const Login = ({ onLogin }) => {
               placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              required // 💡 Added native required attribute
-              aria-required="true" // 💡 Added ARIA required
-              autoComplete="current-password" // 💡 Added autocomplete for cognitive/motor disabilities
+              required
+              aria-required="true"
+              autoComplete="current-password"
             />
           </Form.Group>
 
-          {/* 💡 Accessibility Improvement: Added loading state with ARIA attributes */}
-          <Button 
-            variant="primary" 
-            type="submit" 
+          {/* Accessibility: Added loading state */}
+          <Button
+            variant="primary"
+            type="submit"
             className="w-100 mt-2"
             disabled={loading}
             aria-busy={loading}
@@ -156,15 +161,14 @@ const Login = ({ onLogin }) => {
                   size="sm"
                   role="status"
                   aria-hidden="true"
-                />
-                {' '}Logging in...
+                />{' '}
+                Logging in...
               </>
             ) : (
               'Login'
             )}
           </Button>
 
-            {/* Forgot password link */}
           <p className="text-center mt-2 mb-0">
             <Link to="/forgotPassword">Forgot Password?</Link>
           </p>
