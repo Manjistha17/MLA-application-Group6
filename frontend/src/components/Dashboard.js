@@ -41,12 +41,12 @@ const Dashboard = ({ currentUser }) => {
         ) : (
           <>
             <p className="subtitle">Keep up the good progress!</p>
-            <p className="subtitle">Your fitness journey this week:</p>
+            <p className="subtitle">Your complete fitness journey with us:</p>
 
             <div className="stats-box">
               {exercises.map((ex, index) => (
                 <p key={index}>
-                  <strong>{ex.exerciseType}:</strong> {ex.totalDuration} mins this week!
+                  <strong>{ex.exerciseType}:</strong> {ex.totalDuration} mins!
                 </p>
               ))}
             </div>
