@@ -2,7 +2,7 @@
 
 This repository documents the reference architecture for a full-stack web application that integrates multiple services across frontend, backend, and data layers. It emphasizes modularity, security, and scalability.
 
-![Screenshot](screenshots/frontpage.png)
+![Screenshot](screenshots/frontpage.png?v=2)
 
 ## 📐 System Architecture
 
