@@ -1,17 +1,45 @@
-import React, { useState } from 'react';
-import { Button, Form, Alert, Card, Container } from 'react-bootstrap';
+import React, { useState, useRef } from 'react';
+import { Button, Form, Alert, Card, Container, Spinner } from 'react-bootstrap';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 
 const Login = ({ onLogin }) => {
-  const navigate = useNavigate(); // ✅ must be inside the component
-
+  const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  // Accessibility: Ref to set initial focus for keyboard users
+  const usernameInputRef = useRef(null);
+
+  // Accessibility: Set focus on component mount
+  React.useEffect(() => {
+    if (usernameInputRef.current) {
+      usernameInputRef.current.focus();
+    }
+  }, []);
+
+  // Accessibility: Set focus on error for screen reader users
+  React.useEffect(() => {
+    if (error) {
+      const errorAlert = document.getElementById('login-error-alert');
+      if (errorAlert) {
+        errorAlert.focus();
+      }
+    }
+  }, [error]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setError('');
+
+    if (!username.trim() || !password.trim()) {
+      setError('Please enter both username and password.');
+      return;
+    }
+
+    setLoading(true);
 
     try {
       const response = await axios.post('/api/auth/login', {
@@ -21,12 +49,23 @@ const Login = ({ onLogin }) => {
 
       if (response.status === 200) {
         onLogin(username);
-        navigate('/dashboard'); // use navigate instead of reload
+        navigate('/dashboard');
       } else {
-        setError('Invalid credentials');
+        setError('Invalid credentials.');
       }
     } catch (err) {
-      setError('Failed to login. Please check your credentials.');
+      const serverMessage =
+        err?.response?.data?.message ||
+        err?.response?.data ||
+        'Failed to login. Please check your credentials.';
+
+      setError(
+        typeof serverMessage === 'string'
+          ? serverMessage
+          : 'Login error. Please try again.'
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -39,8 +78,10 @@ const Login = ({ onLogin }) => {
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
+        // Accessibility: Ensure background content has sufficient contrast
       }}
     >
+      {/* Accessibility: Heading */}
       <h1
         className="text-center mb-3"
         style={{
@@ -61,9 +102,18 @@ const Login = ({ onLogin }) => {
           backgroundColor: 'rgba(255, 255, 255, 0.85)',
         }}
       >
-        {error && <Alert variant="danger">{error}</Alert>}
+        {error && (
+          <Alert
+            variant="danger"
+            role="alert"
+            tabIndex="-1"
+            id="login-error-alert"
+          >
+            {error}
+          </Alert>
+        )}
 
-        <Form onSubmit={handleLogin}>
+        <Form onSubmit={handleLogin} noValidate>
           <Form.Group controlId="formUsername" className="mb-3">
             <Form.Label>Username</Form.Label>
             <Form.Control
@@ -71,6 +121,10 @@ const Login = ({ onLogin }) => {
               placeholder="Enter your username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              required
+              ref={usernameInputRef}
+              aria-required="true"
+              autoComplete="username"
             />
           </Form.Group>
 
@@ -81,14 +135,35 @@ const Login = ({ onLogin }) => {
               placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              required
+              aria-required="true"
+              autoComplete="current-password"
             />
           </Form.Group>
 
-          <Button variant="primary" type="submit" className="w-100 mt-2">
-            Login
+          <Button
+            variant="primary"
+            type="submit"
+            className="w-100 mt-2"
+            disabled={loading}
+            aria-busy={loading}
+          >
+            {loading ? (
+              <>
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  role="status"
+                  aria-hidden="true"
+                />{' '}
+                Logging in...
+              </>
+            ) : (
+              'Login'
+            )}
           </Button>
 
-            {/* ✅ Forgot password link */}
           <p className="text-center mt-2 mb-0">
             <Link to="/forgotPassword">Forgot Password?</Link>
           </p>
