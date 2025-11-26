@@ -2,7 +2,7 @@
 
 An interactive fitness tracking application built with a polyglot microservices architecture. Users can log exercises, monitor progress, and view analytics in real time.
 
-![Screenshot](screenshots/frontpage.png?v=2)
+![Screenshot](screenshots/frontpage.png)
 
 ## Architecture Overview
 
