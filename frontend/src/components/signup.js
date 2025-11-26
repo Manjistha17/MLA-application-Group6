@@ -45,7 +45,7 @@ const loadSaved = () => {
 
 const Signup = ({ onSignup }) => {
   const [formData, setFormData] = useState(loadSaved);
-  const [fieldErrors, setFieldErrors] = useState({});
+  const [fieldErrors, setFieldErrors] = useState({}); // per-field inline messages
   const [globalError, setGlobalError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -62,6 +62,7 @@ const Signup = ({ onSignup }) => {
     setGlobalError('');
   };
 
+  // inline validators return message or empty string
   const validators = {
     username: (v) =>
       !v || v.trim().length < 3 ? 'Username must be at least 3 characters.' : '',
@@ -85,11 +86,11 @@ const Signup = ({ onSignup }) => {
         : '',
     height: (v) => {
       const n = Number(v);
-      return !v || isNaN(n) || n <= 0 || n > 300 ? 'Enter height in cm.' : '';
+      return !v || isNaN(n) || n <= 0 || n > 300 ? 'Enter height in cm. (1–300 cm)' : '';
     },
     weight: (v) => {
       const n = Number(v);
-      return !v || isNaN(n) || n <= 0 || n > 500 ? 'Enter weight in kg.' : '';
+      return !v || isNaN(n) || n <= 0 || n > 500 ? 'Enter weight in kg. (1–500 kg)' : '';
     },
   };
 
@@ -126,6 +127,7 @@ const Signup = ({ onSignup }) => {
 
     setLoading(true);
     try {
+      // map client fields to backend shape if needed before sending
       const payload = {
         username: formData.username,
         password: formData.password,
@@ -147,6 +149,7 @@ const Signup = ({ onSignup }) => {
         typeof response.data === 'string' ? response.data : response.data?.message;
 
       if (message && message.toLowerCase().includes('success')) {
+        // clear saved draft on success
         try {
           localStorage.removeItem('signupForm');
         } catch {}
