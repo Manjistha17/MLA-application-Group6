@@ -115,15 +115,21 @@ npm start
 
 ## Access Points
 
-- **Frontend**: http://localhost:3000 (development) or http://localhost:80 (Docker)
-- **Activity API**: http://localhost:5000
-- **Analytics API**: http://localhost:5001
-- **Auth API**: http://localhost:8080
+### When running with Docker Compose (Recommended)
+- **Frontend**: http://localhost:8081 (Nginx proxy)
+- **Services are accessible through the Nginx proxy**
+
+### When running locally in development mode
+- **Frontend**: http://localhost:3000
+- **Activity Tracking Service**: http://localhost:5300
+- **Analytics Service**: http://localhost:5050
+- **Auth Service**: http://localhost:8080
 
 ## API Documentation (Swagger)
 
-Each service now includes interactive Swagger/OpenAPI documentation for easy API exploration and testing:
+Each service includes interactive Swagger/OpenAPI documentation for easy API exploration and testing:
 
+### When running locally in development mode
 - **Activity Tracking Service API Docs**: http://localhost:5300/api-docs
   - Explore all exercise-related endpoints
   - Test CRUD operations for exercises
@@ -139,6 +145,7 @@ Each service now includes interactive Swagger/OpenAPI documentation for easy API
   - Test signup, login, and password reset flows
   - View user profile operations
 
+### Features of Swagger UI
 The Swagger UI provides:
 - Interactive API testing directly from the browser
 - Detailed request/response schemas
