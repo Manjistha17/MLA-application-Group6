@@ -9,10 +9,46 @@ import traceback
 import logging
 import os
 from datetime import datetime, timedelta
+from flasgger import Swagger
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}},
      methods="GET,HEAD,POST,OPTIONS,PUT,PATCH,DELETE")
+
+# Swagger configuration
+swagger_config = {
+    "headers": [],
+    "specs": [
+        {
+            "endpoint": "apispec",
+            "route": "/apispec.json",
+            "rule_filter": lambda rule: True,
+            "model_filter": lambda tag: True,
+        }
+    ],
+    "static_url_path": "/flasgger_static",
+    "swagger_ui": True,
+    "specs_route": "/api-docs/"
+}
+
+swagger_template = {
+    "info": {
+        "title": "Analytics Service API",
+        "description": "API documentation for the Analytics Service. This service provides statistics and analytics for exercise data including daily, weekly, and overall activity metrics.",
+        "version": "1.0.0",
+        "contact": {
+            "name": "MLA Fitness App Team"
+        }
+    },
+    "servers": [
+        {
+            "url": "http://localhost:5050",
+            "description": "Development server"
+        }
+    ]
+}
+
+swagger = Swagger(app, config=swagger_config, template=swagger_template)
 
 # 1. Always have at least one handler
 if not app.logger.handlers:
@@ -51,6 +87,32 @@ def get_user_weight(username, default_weight=66):
 
 @app.route('/')
 def index():
+    """Get all exercises
+    ---
+    tags:
+      - Exercises
+    responses:
+      200:
+        description: List of all exercises
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                  username:
+                    type: string
+                  exerciseType:
+                    type: string
+                  duration:
+                    type: number
+                  date:
+                    type: string
+                    format: date-time
+    """
     exercises = db.exercises.find()
     exercises_list = list(exercises)
     return json_util.dumps(exercises_list)
@@ -58,6 +120,35 @@ def index():
 
 @app.route('/stats')
 def stats():
+    """Get overall exercise statistics
+    ---
+    tags:
+      - Statistics
+    responses:
+      200:
+        description: Statistics grouped by username and exercise type
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                stats:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      username:
+                        type: string
+                      exercises:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            exerciseType:
+                              type: string
+                            totalDuration:
+                              type: number
+    """
     pipeline = [
         {
             "$group": {
@@ -94,6 +185,41 @@ def stats():
 
 @app.route('/stats/<username>', methods=['GET'])
 def user_stats(username):
+    """Get statistics for a specific user
+    ---
+    tags:
+      - Statistics
+    parameters:
+      - name: username
+        in: path
+        type: string
+        required: true
+        description: Username to get statistics for
+    responses:
+      200:
+        description: User statistics by exercise type
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                stats:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      username:
+                        type: string
+                      exercises:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            exerciseType:
+                              type: string
+                            totalDuration:
+                              type: number
+    """
     pipeline = [
         {
             "$match": {"username": username}
@@ -133,6 +259,46 @@ def user_stats(username):
 
 @app.route('/stats/weekly/', methods=['GET'])
 def weekly_user_stats():
+    """Get weekly statistics for a user
+    ---
+    tags:
+      - Statistics
+    parameters:
+      - name: user
+        in: query
+        type: string
+        required: true
+        description: Username
+      - name: start
+        in: query
+        type: string
+        required: true
+        description: Start date (YYYY-MM-DD format)
+      - name: end
+        in: query
+        type: string
+        required: true
+        description: End date (YYYY-MM-DD format)
+    responses:
+      200:
+        description: Weekly statistics for the user
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                stats:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      exerciseType:
+                        type: string
+                      totalDuration:
+                        type: number
+      400:
+        description: Invalid date format
+    """
     username = request.args.get('user')
     start_date_str = request.args.get('start')
     end_date_str = request.args.get('end')
@@ -184,6 +350,43 @@ def weekly_user_stats():
 
 @app.route('/stats/daily/', methods=['GET'])
 def get_daily_stats():
+    """Get daily statistics for a user
+    ---
+    tags:
+      - Statistics
+    parameters:
+      - name: user
+        in: query
+        type: string
+        required: true
+        description: Username to get daily statistics for
+    responses:
+      200:
+        description: Daily statistics including calories burned
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                stats:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      exerciseType:
+                        type: string
+                      subActivity:
+                        type: string
+                      totalDuration:
+                        type: number
+                      totalCalories:
+                        type: number
+                        nullable: true
+                      count:
+                        type: integer
+      500:
+        description: Internal server error
+    """
     app.logger.info(f"FULL URL HIT ⇒ {request.url}")
     username = request.args.get('user')
     app.logger.info(f"USERNAME RECEIVED ⇒ {repr(username)}")
