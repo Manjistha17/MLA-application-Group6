@@ -4,6 +4,14 @@ import com.authservice.auth.dto.ResetPasswordRequest;
 import com.authservice.auth.model.User;
 import com.authservice.auth.repository.UserRepository;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -19,6 +27,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 @RestController
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RequestMapping("/api/auth")
+@Tag(name = "Authentication", description = "Authentication and user management APIs")
 public class AuthController {
 
     @Autowired
@@ -34,6 +43,12 @@ public class AuthController {
 
     // SIGNUP ------------------------------------------------------
     @PostMapping("/signup")
+    @Operation(summary = "Register a new user", description = "Create a new user account with the provided details")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "User registered successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid input data"),
+        @ApiResponse(responseCode = "409", description = "User or email already exists")
+    })
     public ResponseEntity<?> signup(@RequestBody User incoming) {
 
         if (incoming.getUsername() == null || incoming.getPassword() == null)
@@ -72,6 +87,11 @@ public class AuthController {
 
     // LOGIN ------------------------------------------------------
     @PostMapping("/login")
+    @Operation(summary = "User login", description = "Authenticate user with username and password")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "User authenticated successfully"),
+        @ApiResponse(responseCode = "401", description = "Invalid credentials")
+    })
     public ResponseEntity<?> login(@RequestBody User incoming) {
 
         User existing = userRepository.findByUsername(incoming.getUsername()).orElse(null);
@@ -88,7 +108,15 @@ public class AuthController {
 
     // GET USER ---------------------------------------------------
     @GetMapping("/user/{username}")
-    public ResponseEntity<?> getUser(@PathVariable String username) {
+    @Operation(summary = "Get user details", description = "Retrieve user information by username")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "User found", 
+            content = @Content(schema = @Schema(implementation = User.class))),
+        @ApiResponse(responseCode = "404", description = "User not found")
+    })
+    public ResponseEntity<?> getUser(
+            @Parameter(description = "Username of the user to retrieve") 
+            @PathVariable String username) {
 
         User u = userRepository.findByUsername(username).orElse(null);
         if (u == null) return message(HttpStatus.NOT_FOUND, "User not found");
@@ -98,7 +126,16 @@ public class AuthController {
 
     // UPDATE USER ------------------------------------------------
     @PutMapping("/user/{username}")
-    public ResponseEntity<?> updateUser(@PathVariable String username, @RequestBody User updated) {
+    @Operation(summary = "Update user profile", description = "Update user profile information")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "User updated successfully",
+            content = @Content(schema = @Schema(implementation = User.class))),
+        @ApiResponse(responseCode = "404", description = "User not found")
+    })
+    public ResponseEntity<?> updateUser(
+            @Parameter(description = "Username of the user to update")
+            @PathVariable String username, 
+            @RequestBody User updated) {
 
         User u = userRepository.findByUsername(username).orElse(null);
         if (u == null) return message(HttpStatus.NOT_FOUND, "User not found");
@@ -115,6 +152,12 @@ public class AuthController {
 
     // FORGOT PASSWORD -------------------------------------------
     @PostMapping("/forgotPassword")
+    @Operation(summary = "Request password reset", description = "Send password reset link to user's email")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Reset link sent successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid email"),
+        @ApiResponse(responseCode = "404", description = "Email not registered")
+    })
     public ResponseEntity<?> forgotPassword(@RequestBody Map<String,String> body) {
 
         String email = body.get("email");
@@ -149,6 +192,11 @@ public class AuthController {
 
     // RESET PASSWORD ---------------------------------------------
     @PostMapping("/resetPassword")
+    @Operation(summary = "Reset password", description = "Reset user password with a valid token")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Password reset successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid or expired token")
+    })
     public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest req) {
 
         User u = userRepository.findByResetToken(req.getToken());

@@ -3,6 +3,7 @@ from flask import Flask, render_template, jsonify, request
 from pymongo import MongoClient
 from flask_pymongo import PyMongo
 from flask_cors import CORS
+from flasgger import Swagger
 from urllib.parse import quote_plus
 from bson import json_util
 import traceback
@@ -13,6 +14,39 @@ from datetime import datetime, timedelta
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}},
      methods="GET,HEAD,POST,OPTIONS,PUT,PATCH,DELETE")
+
+# Swagger configuration
+swagger_config = {
+    "headers": [],
+    "specs": [
+        {
+            "endpoint": 'apispec',
+            "route": '/apispec.json',
+            "rule_filter": lambda rule: True,
+            "model_filter": lambda tag: True,
+        }
+    ],
+    "static_url_path": "/flasgger_static",
+    "swagger_ui": True,
+    "specs_route": "/apidocs/"
+}
+
+swagger_template = {
+    "swagger": "2.0",
+    "info": {
+        "title": "MLA Fitness App - Analytics API",
+        "description": "API documentation for Analytics Service",
+        "contact": {
+            "name": "MLA Application Group 6"
+        },
+        "version": "1.0.0"
+    },
+    "host": "localhost:5050",
+    "basePath": "/",
+    "schemes": ["http"]
+}
+
+swagger = Swagger(app, config=swagger_config, template=swagger_template)
 
 # 1. Always have at least one handler
 if not app.logger.handlers:
@@ -51,6 +85,19 @@ def get_user_weight(username, default_weight=66):
 
 @app.route('/')
 def index():
+    """
+    Get all exercises
+    ---
+    tags:
+      - Exercises
+    responses:
+      200:
+        description: List of all exercises
+        schema:
+          type: array
+          items:
+            type: object
+    """
     exercises = db.exercises.find()
     exercises_list = list(exercises)
     return json_util.dumps(exercises_list)
@@ -58,6 +105,34 @@ def index():
 
 @app.route('/stats')
 def stats():
+    """
+    Get statistics for all users
+    ---
+    tags:
+      - Statistics
+    responses:
+      200:
+        description: Statistics grouped by user and exercise type
+        schema:
+          type: object
+          properties:
+            stats:
+              type: array
+              items:
+                type: object
+                properties:
+                  username:
+                    type: string
+                  exercises:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        exerciseType:
+                          type: string
+                        totalDuration:
+                          type: number
+    """
     pipeline = [
         {
             "$group": {
@@ -94,6 +169,28 @@ def stats():
 
 @app.route('/stats/<username>', methods=['GET'])
 def user_stats(username):
+    """
+    Get statistics for a specific user
+    ---
+    tags:
+      - Statistics
+    parameters:
+      - name: username
+        in: path
+        type: string
+        required: true
+        description: The username to get statistics for
+    responses:
+      200:
+        description: Statistics for the specified user
+        schema:
+          type: object
+          properties:
+            stats:
+              type: array
+              items:
+                type: object
+    """
     pipeline = [
         {
             "$match": {"username": username}
@@ -133,6 +230,45 @@ def user_stats(username):
 
 @app.route('/stats/weekly/', methods=['GET'])
 def weekly_user_stats():
+    """
+    Get weekly statistics for a user
+    ---
+    tags:
+      - Statistics
+    parameters:
+      - name: user
+        in: query
+        type: string
+        required: true
+        description: Username
+      - name: start
+        in: query
+        type: string
+        required: true
+        description: Start date in YYYY-MM-DD format
+      - name: end
+        in: query
+        type: string
+        required: true
+        description: End date in YYYY-MM-DD format
+    responses:
+      200:
+        description: Weekly statistics for the user
+        schema:
+          type: object
+          properties:
+            stats:
+              type: array
+              items:
+                type: object
+                properties:
+                  exerciseType:
+                    type: string
+                  totalDuration:
+                    type: number
+      400:
+        description: Invalid date format
+    """
     username = request.args.get('user')
     start_date_str = request.args.get('start')
     end_date_str = request.args.get('end')
@@ -184,6 +320,41 @@ def weekly_user_stats():
 
 @app.route('/stats/daily/', methods=['GET'])
 def get_daily_stats():
+    """
+    Get daily statistics with calorie calculation for a user
+    ---
+    tags:
+      - Statistics
+    parameters:
+      - name: user
+        in: query
+        type: string
+        required: true
+        description: Username
+    responses:
+      200:
+        description: Daily statistics with calorie information
+        schema:
+          type: object
+          properties:
+            stats:
+              type: array
+              items:
+                type: object
+                properties:
+                  exerciseType:
+                    type: string
+                  subActivity:
+                    type: string
+                  totalDuration:
+                    type: number
+                  totalCalories:
+                    type: number
+                  count:
+                    type: integer
+      500:
+        description: Internal server error
+    """
     app.logger.info(f"FULL URL HIT ⇒ {request.url}")
     username = request.args.get('user')
     app.logger.info(f"USERNAME RECEIVED ⇒ {repr(username)}")

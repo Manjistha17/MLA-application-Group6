@@ -2,12 +2,39 @@ const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const config = require('./config.json');
+const swaggerUi = require('swagger-ui-express');
+const swaggerJsdoc = require('swagger-jsdoc');
 require('dotenv').config();
 
 const app = express();
 const port = process.env.PORT || 5300;
 const uri = process.env.MONGODB_URI;
 const mongoUri = config.mongoUri;
+
+// Swagger configuration
+const swaggerOptions = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'MLA Fitness App - Activity Tracking API',
+      version: '1.0.0',
+      description: 'API documentation for Activity Tracking Service',
+      contact: {
+        name: 'MLA Application Group 6'
+      }
+    },
+    servers: [
+      {
+        url: `http://localhost:${port}`,
+        description: 'Development server'
+      }
+    ]
+  },
+  apis: ['./routes/*.js', './server.js']
+};
+
+const swaggerSpec = swaggerJsdoc(swaggerOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Middleware setup
 app.use(cors());
