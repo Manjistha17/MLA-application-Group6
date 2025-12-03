@@ -120,6 +120,27 @@ npm start
 - **Analytics API**: http://localhost:5001
 - **Auth API**: http://localhost:8080
 
+## API Documentation (Swagger/OpenAPI)
+
+All backend services now include interactive API documentation via Swagger/OpenAPI:
+
+- **Auth Service API Documentation**: http://localhost:8080/swagger-ui.html
+  - Swagger JSON: http://localhost:8080/v3/api-docs
+  - Interactive UI for testing authentication, user management, and password reset endpoints
+
+- **Analytics Service API Documentation**: http://localhost:5050/api-docs/
+  - Swagger JSON: http://localhost:5050/apispec.json
+  - Interactive UI for testing statistics and analytics endpoints
+
+- **Activity Tracking Service API Documentation**: http://localhost:5300/api-docs/
+  - Interactive UI for testing exercise tracking and activity management endpoints
+
+These interactive documentation interfaces allow you to:
+- Explore all available API endpoints
+- View request/response schemas
+- Test API endpoints directly from the browser
+- Understand parameter requirements and data types
+
 ## Testing
 
 ### Unit Tests

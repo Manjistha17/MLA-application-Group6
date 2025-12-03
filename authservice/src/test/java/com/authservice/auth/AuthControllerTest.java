@@ -42,14 +42,15 @@ class AuthControllerTest {
         user.setEmail("john@example.com");
 
         when(userRepository.existsByUsername("john123")).thenReturn(false);
+        when(userRepository.findByEmail("john@example.com")).thenReturn(null);
         when(passwordEncoder.encode("securePass123")).thenReturn("encodedPass");
 
         // Act
-        ResponseEntity<?> response = authController.registerUser(user);
+        ResponseEntity<?> response = authController.signup(user);
 
         // Assert
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        assertEquals("User registered successfully",
+        assertEquals("User registered",
                 ((Map<?, ?>) response.getBody()).get("message"));
         verify(userRepository, times(1)).save(any(User.class));
     }
@@ -69,7 +70,7 @@ class AuthControllerTest {
         when(passwordEncoder.matches("wrongPass", "encodedPass")).thenReturn(false);
 
         // Act
-        ResponseEntity<?> response = authController.authenticateUser(user);
+        ResponseEntity<?> response = authController.login(user);
 
         // Assert
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
