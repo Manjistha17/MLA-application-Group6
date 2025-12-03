@@ -321,7 +321,6 @@ router.put('/update/:id', async (req, res) => {
       }
   
       exercise.username = username;
-      exercise.exerciseType = exerciseType;
       exercise.description = description;
       exercise.duration = Number(duration);
       exercise.date = new Date(date);
