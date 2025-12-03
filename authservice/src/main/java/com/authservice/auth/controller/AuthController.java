@@ -16,9 +16,17 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+
 @RestController
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RequestMapping("/api/auth")
+@Tag(name = "Authentication", description = "Authentication and user management APIs")
 public class AuthController {
 
     @Autowired
@@ -33,6 +41,12 @@ public class AuthController {
     private static final Pattern EMAIL_REGEX = Pattern.compile("^\\S+@\\S+\\.\\S+$");
 
     // SIGNUP ------------------------------------------------------
+    @Operation(summary = "Register a new user", description = "Create a new user account with username, password, email and profile information")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "User registered successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid input data"),
+        @ApiResponse(responseCode = "409", description = "User already exists")
+    })
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestBody User incoming) {
 
@@ -71,6 +85,11 @@ public class AuthController {
     }
 
     // LOGIN ------------------------------------------------------
+    @Operation(summary = "Authenticate user", description = "Login with username and password to authenticate")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "User authenticated successfully"),
+        @ApiResponse(responseCode = "401", description = "Invalid credentials")
+    })
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody User incoming) {
 
@@ -87,6 +106,11 @@ public class AuthController {
     }
 
     // GET USER ---------------------------------------------------
+    @Operation(summary = "Get user by username", description = "Retrieve user information by username")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "User found", content = @Content(schema = @Schema(implementation = User.class))),
+        @ApiResponse(responseCode = "404", description = "User not found")
+    })
     @GetMapping("/user/{username}")
     public ResponseEntity<?> getUser(@PathVariable String username) {
 
@@ -97,6 +121,11 @@ public class AuthController {
     }
 
     // UPDATE USER ------------------------------------------------
+    @Operation(summary = "Update user profile", description = "Update user profile information (contact, age, gender, height, weight)")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "User updated successfully", content = @Content(schema = @Schema(implementation = User.class))),
+        @ApiResponse(responseCode = "404", description = "User not found")
+    })
     @PutMapping("/user/{username}")
     public ResponseEntity<?> updateUser(@PathVariable String username, @RequestBody User updated) {
 
@@ -114,6 +143,12 @@ public class AuthController {
     }
 
     // FORGOT PASSWORD -------------------------------------------
+    @Operation(summary = "Request password reset", description = "Send a password reset link to the user's email")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Reset link sent successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid email"),
+        @ApiResponse(responseCode = "404", description = "Email not registered")
+    })
     @PostMapping("/forgotPassword")
     public ResponseEntity<?> forgotPassword(@RequestBody Map<String,String> body) {
 
@@ -148,6 +183,11 @@ public class AuthController {
     }
 
     // RESET PASSWORD ---------------------------------------------
+    @Operation(summary = "Reset password", description = "Reset user password using a valid reset token")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Password reset successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid or expired token")
+    })
     @PostMapping("/resetPassword")
     public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest req) {
 

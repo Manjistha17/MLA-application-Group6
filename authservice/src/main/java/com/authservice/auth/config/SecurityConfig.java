@@ -19,6 +19,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 // ✅ Allow *all* /api/auth endpoints (signup, login, user, etc.)
                 .antMatchers("/api/auth/**").permitAll()
+                // ✅ Allow Swagger UI and OpenAPI endpoints
+                .antMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .httpBasic().disable();  // disable login popup for browsers
