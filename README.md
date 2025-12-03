@@ -120,6 +120,31 @@ npm start
 - **Analytics API**: http://localhost:5001
 - **Auth API**: http://localhost:8080
 
+## API Documentation (Swagger)
+
+Each service now includes interactive Swagger/OpenAPI documentation for easy API exploration and testing:
+
+- **Activity Tracking Service API Docs**: http://localhost:5300/api-docs
+  - Explore all exercise-related endpoints
+  - Test CRUD operations for exercises
+  - View activity types and MET values
+
+- **Analytics Service API Docs**: http://localhost:5050/apidocs
+  - Explore statistics and analytics endpoints
+  - Test daily, weekly, and overall stats queries
+  - View calorie calculations and aggregations
+
+- **Auth Service API Docs**: http://localhost:8080/swagger-ui/index.html
+  - Explore authentication and user management endpoints
+  - Test signup, login, and password reset flows
+  - View user profile operations
+
+The Swagger UI provides:
+- Interactive API testing directly from the browser
+- Detailed request/response schemas
+- Example payloads for each endpoint
+- Real-time API exploration without external tools
+
 ## Testing
 
 ### Unit Tests
