@@ -87,13 +87,13 @@ def get_user_weight(username, default_weight=66):
 
 @app.route('/')
 def index():
-    """Get all exercises
+    """List all exercises
     ---
     tags:
       - Exercises
     responses:
       200:
-        description: List of all exercises
+        description: List of all exercises from the database
         content:
           application/json:
             schema:
@@ -107,6 +107,12 @@ def index():
                     type: string
                   exerciseType:
                     type: string
+                  subActivity:
+                    type: string
+                    description: Sub-activity or pace
+                  description:
+                    type: string
+                    description: Additional description
                   duration:
                     type: number
                   date:
