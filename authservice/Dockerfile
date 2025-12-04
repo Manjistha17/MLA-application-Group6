@@ -1,17 +1,11 @@
-FROM gradle:7.2-jdk8 AS build
 
+FROM gradle:7.6.0-jdk17 AS build
 WORKDIR /home/gradle/src
-
 COPY build.gradle.kts .
 COPY src ./src
-
 RUN gradle bootJar --no-daemon
 
-# FROM openjdk:8-jre-slim
-FROM eclipse-temurin:8-jre
-
+FROM eclipse-temurin:17-jre
 EXPOSE 8080
-
 COPY --from=build /home/gradle/src/build/libs/*.jar /app/authservice.jar
-
 CMD ["java", "-jar", "/app/authservice.jar"]
