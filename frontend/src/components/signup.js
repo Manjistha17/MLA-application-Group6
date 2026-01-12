@@ -7,6 +7,9 @@ import {
   Spinner,
   ProgressBar,
   InputGroup,
+  Row,
+  Col,
+  Container,
 } from 'react-bootstrap';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
@@ -45,7 +48,7 @@ const loadSaved = () => {
 
 const Signup = ({ onSignup }) => {
   const [formData, setFormData] = useState(loadSaved);
-  const [fieldErrors, setFieldErrors] = useState({}); // per-field inline messages
+  const [fieldErrors, setFieldErrors] = useState({});
   const [globalError, setGlobalError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -62,7 +65,6 @@ const Signup = ({ onSignup }) => {
     setGlobalError('');
   };
 
-  // inline validators return message or empty string
   const validators = {
     username: (v) =>
       !v || v.trim().length < 3 ? 'Username must be at least 3 characters.' : '',
@@ -118,7 +120,6 @@ const Signup = ({ onSignup }) => {
     if (Object.keys(errors).length) {
       setFieldErrors(errors);
       setGlobalError('Please fix the highlighted fields.');
-
       const firstErrorKey = Object.keys(errors)[0];
       const firstErrorElement = document.querySelector(`[name="${firstErrorKey}"]`);
       if (firstErrorElement) firstErrorElement.focus();
@@ -127,7 +128,6 @@ const Signup = ({ onSignup }) => {
 
     setLoading(true);
     try {
-      // map client fields to backend shape if needed before sending
       const payload = {
         username: formData.username,
         password: formData.password,
@@ -139,17 +139,14 @@ const Signup = ({ onSignup }) => {
         weight: Number(formData.weight),
       };
 
-      const response = await axios.post(
-        '/api/auth/signup',
-        payload,
-        { headers: { 'Content-Type': 'application/json' } }
-      );
+      const response = await axios.post('/api/auth/signup', payload, {
+        headers: { 'Content-Type': 'application/json' },
+      });
 
       const message =
         typeof response.data === 'string' ? response.data : response.data?.message;
 
-      if (message && message.toLowerCase().includes('success')) {
-        // clear saved draft on success
+      if (response.status === 200 || (message && message.toLowerCase().includes('success'))) {
         try {
           localStorage.removeItem('signupForm');
         } catch {}
@@ -161,9 +158,7 @@ const Signup = ({ onSignup }) => {
       const serverMessage =
         err?.response?.data?.message || err?.response?.data || err.message;
       setGlobalError(
-        typeof serverMessage === 'string'
-          ? serverMessage
-          : 'Network error. Please try again.'
+        typeof serverMessage === 'string' ? serverMessage : 'Network error. Please try again.'
       );
     } finally {
       setLoading(false);
@@ -178,272 +173,274 @@ const Signup = ({ onSignup }) => {
   const getErrorId = (name) => `error-${name}`;
 
   return (
-    <div>
+    <Container style={{ maxWidth: '700px' }}>
       <Form onSubmit={handleSignup} noValidate>
         {globalError && (
-          <Alert variant="danger" className="mb-3" role="alert">
+          <Alert variant="danger" className="mb-3" role="alert" aria-live="polite">
             {globalError}
           </Alert>
         )}
 
         {/* USERNAME */}
-        <Form.Group controlId="formUsername" className="mb-2">
-          <Form.Label>Username</Form.Label>
-          <Form.Control
-            type="text"
-            name="username"
-            value={formData.username}
-            onChange={handleInputChange}
-            onBlur={handleBlurValidate}
-            isInvalid={!!fieldErrors.username}
-            required
-            minLength={3}
-            autoFocus
-            aria-describedby={
-              fieldErrors.username ? getErrorId("username") : undefined
-            }
-            aria-invalid={!!fieldErrors.username}
-          />
-          <Form.Control.Feedback type="invalid" id={getErrorId('username')}>
-            {fieldErrors.username}
-          </Form.Control.Feedback>
+        <Form.Group as={Row} className="mb-3" controlId="formUsername">
+          <Form.Label column sm={3}>Username</Form.Label>
+          <Col sm={9}>
+            <Form.Control
+              type="text"
+              name="username"
+              value={formData.username}
+              onChange={handleInputChange}
+              onBlur={handleBlurValidate}
+              isInvalid={!!fieldErrors.username}
+              required
+              minLength={3}
+              autoFocus
+              aria-describedby={fieldErrors.username ? getErrorId('username') : undefined}
+              aria-invalid={!!fieldErrors.username}
+            />
+            <Form.Control.Feedback type="invalid" id={getErrorId('username')}>
+              {fieldErrors.username}
+            </Form.Control.Feedback>
+          </Col>
         </Form.Group>
 
         {/* PASSWORD */}
-        <Form.Group controlId="formPassword" className="mb-2">
-          <Form.Label>Password</Form.Label>
-          <Form.Control
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleInputChange}
-            onBlur={handleBlurValidate}
-            isInvalid={!!fieldErrors.password || !!fieldErrors.confirmPassword}
-            required
-            minLength={6}
-            aria-describedby={[
-              "passwordHelp",
-              fieldErrors.password ? getErrorId("password") : null,
-            ]
-              .filter(Boolean)
-              .join(" ")}
-            aria-invalid={!!fieldErrors.password || !!fieldErrors.confirmPassword}
-          />
-
-          <Form.Text id="passwordHelp" muted>
-            Use at least 8 characters for a stronger password.
-          </Form.Text>
-
-          <div className="mt-2">
+        <Form.Group as={Row} className="mb-3" controlId="formPassword">
+          <Form.Label column sm={3}>Password</Form.Label>
+          <Col sm={9}>
+            <Form.Control
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleInputChange}
+              onBlur={handleBlurValidate}
+              isInvalid={!!fieldErrors.password || !!fieldErrors.confirmPassword}
+              required
+              minLength={6}
+              aria-describedby={[
+                'passwordHelp',
+                fieldErrors.password ? getErrorId('password') : null,
+              ].filter(Boolean).join(' ')}
+              aria-invalid={!!fieldErrors.password || !!fieldErrors.confirmPassword}
+            />
+            <div className="text-start">
+              <Form.Text id="passwordHelp" muted>
+                Use at least 8 characters for a stronger password.
+              </Form.Text>
+            </div>
             <ProgressBar
               now={(pwdStrength.score / 4) * 100}
               label={pwdStrength.label}
               variant={progressVariant}
               animated
               striped
-              role="meter"
-              aria-valuenow={pwdStrength.score}
-              aria-valuemin="0"
-              aria-valuemax="4"
-              aria-valuetext={`Password strength: ${pwdStrength.label}`}
+              className="mt-2"
             />
-          </div>
-
-          <Form.Control.Feedback type="invalid" id={getErrorId('password')}>
-            {fieldErrors.password}
-          </Form.Control.Feedback>
+            <Form.Control.Feedback type="invalid" id={getErrorId('password')}>
+              {fieldErrors.password}
+            </Form.Control.Feedback>
+          </Col>
         </Form.Group>
 
         {/* CONFIRM PASSWORD */}
-        <Form.Group controlId="formConfirmPassword" className="mb-2">
-          <Form.Label>Confirm Password</Form.Label>
-          <Form.Control
-            type="password"
-            name="confirmPassword"
-            value={formData.confirmPassword}
-            onChange={handleInputChange}
-            onBlur={handleBlurValidate}
-            isInvalid={!!fieldErrors.confirmPassword}
-            required
-            minLength={6}
-            aria-describedby={
-              fieldErrors.confirmPassword ? getErrorId("confirmPassword") : undefined
-            }
-            aria-invalid={!!fieldErrors.confirmPassword}
-          />
-          <Form.Control.Feedback type="invalid" id={getErrorId('confirmPassword')}>
-            {fieldErrors.confirmPassword}
-          </Form.Control.Feedback>
+        <Form.Group as={Row} className="mb-3" controlId="formConfirmPassword">
+          <Form.Label column sm={3}>Confirm</Form.Label>
+          <Col sm={9}>
+            <Form.Control
+              type="password"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleInputChange}
+              onBlur={handleBlurValidate}
+              isInvalid={!!fieldErrors.confirmPassword}
+              required
+              minLength={6}
+              placeholder="Re-enter password"
+              aria-describedby={
+                fieldErrors.confirmPassword ? getErrorId('confirmPassword') : undefined
+              }
+              aria-invalid={!!fieldErrors.confirmPassword}
+            />
+            <Form.Control.Feedback type="invalid" id={getErrorId('confirmPassword')}>
+              {fieldErrors.confirmPassword}
+            </Form.Control.Feedback>
+          </Col>
         </Form.Group>
 
         {/* EMAIL */}
-        <Form.Group controlId="formEmail" className="mb-2">
-          <Form.Label>Email</Form.Label>
-          <Form.Control
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleInputChange}
-            onBlur={handleBlurValidate}
-            isInvalid={!!fieldErrors.email}
-            required
-            aria-describedby={
-              fieldErrors.email ? getErrorId("email") : undefined
-            }
-            aria-invalid={!!fieldErrors.email}
-          />
-          <Form.Control.Feedback type="invalid" id={getErrorId('email')}>
-            {fieldErrors.email}
-          </Form.Control.Feedback>
+        <Form.Group as={Row} className="mb-3" controlId="formEmail">
+          <Form.Label column sm={3}>Email</Form.Label>
+          <Col sm={9}>
+            <Form.Control
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleInputChange}
+              onBlur={handleBlurValidate}
+              isInvalid={!!fieldErrors.email}
+              required
+              aria-describedby={fieldErrors.email ? getErrorId('email') : undefined}
+              aria-invalid={!!fieldErrors.email}
+            />
+            <Form.Control.Feedback type="invalid" id={getErrorId('email')}>
+              {fieldErrors.email}
+            </Form.Control.Feedback>
+          </Col>
         </Form.Group>
 
         {/* CONTACT */}
-        <Form.Group controlId="formContact" className="mb-2">
-          <Form.Label>Contact Number</Form.Label>
-          <InputGroup>
-            <Form.Control
-              type="tel"
-              name="contact"
-              value={formData.contact}
-              onChange={handleInputChange}
-              onBlur={handleBlurValidate}
-              isInvalid={!!fieldErrors.contact}
-              placeholder="Digits only, e.g. 919876543210"
-              required
-              aria-describedby={[
-                "contactHelp",
-                fieldErrors.contact ? getErrorId("contact") : null,
-              ]
-                .filter(Boolean)
-                .join(" ")}
-              aria-invalid={!!fieldErrors.contact}
-            />
-          </InputGroup>
-          <Form.Control.Feedback type="invalid" id={getErrorId('contact')}>
-            {fieldErrors.contact}
-          </Form.Control.Feedback>
-          <Form.Text id="contactHelp" muted>
-            Include country code if needed, digits only.
-          </Form.Text>
+        <Form.Group as={Row} className="mb-3" controlId="formContact">
+          <Form.Label column sm={3}>Phone</Form.Label>
+          <Col sm={9}>
+            <InputGroup>
+              <Form.Control
+                type="tel"
+                name="contact"
+                value={formData.contact}
+                onChange={handleInputChange}
+                onBlur={handleBlurValidate}
+                isInvalid={!!fieldErrors.contact}
+                placeholder="Digits only, e.g. 919876543210"
+                required
+                aria-describedby={[
+                  'contactHelp',
+                  fieldErrors.contact ? getErrorId('contact') : null,
+                ].filter(Boolean).join(' ')}
+                aria-invalid={!!fieldErrors.contact}
+              />
+            </InputGroup>
+            <div className="text-start">
+              <Form.Text id="contactHelp" muted>
+                Include country code if needed, digits only.
+              </Form.Text>
+            </div>
+            <Form.Control.Feedback type="invalid" id={getErrorId('contact')}>
+              {fieldErrors.contact}
+            </Form.Control.Feedback>
+          </Col>
         </Form.Group>
 
         {/* AGE */}
-        <Form.Group controlId="formAge" className="mb-2">
-          <Form.Label>Age</Form.Label>
-          <Form.Control
-            type="number"
-            name="age"
-            value={formData.age}
-            onChange={handleInputChange}
-            onBlur={handleBlurValidate}
-            isInvalid={!!fieldErrors.age}
-            min={1}
-            max={120}
-            required
-            aria-describedby={
-              fieldErrors.age ? getErrorId("age") : undefined
-            }
-            aria-invalid={!!fieldErrors.age}
-          />
-          <Form.Control.Feedback type="invalid" id={getErrorId('age')}>
-            {fieldErrors.age}
-          </Form.Control.Feedback>
+        <Form.Group as={Row} className="mb-3" controlId="formAge">
+          <Form.Label column sm={3}>Age</Form.Label>
+          <Col sm={9}>
+            <Form.Control
+              type="number"
+              name="age"
+              value={formData.age}
+              onChange={handleInputChange}
+              onBlur={handleBlurValidate}
+              isInvalid={!!fieldErrors.age}
+              min={1}
+              max={120}
+              required
+              aria-describedby={fieldErrors.age ? getErrorId('age') : undefined}
+              aria-invalid={!!fieldErrors.age}
+            />
+            <Form.Control.Feedback type="invalid" id={getErrorId('age')}>
+              {fieldErrors.age}
+            </Form.Control.Feedback>
+          </Col>
         </Form.Group>
 
         {/* GENDER */}
-        <Form.Group controlId="formGender" className="mb-2">
-          <Form.Label>Gender</Form.Label>
-          <Form.Select
-            name="gender"
-            value={formData.gender}
-            onChange={handleInputChange}
-            onBlur={handleBlurValidate}
-            isInvalid={!!fieldErrors.gender}
-            required
-            aria-describedby={
-              fieldErrors.gender ? getErrorId("gender") : undefined
-            }
-            aria-invalid={!!fieldErrors.gender}
-          >
-            <option value="">Select</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-            <option value="other">Other</option>
-            <option value="prefer_not_say">Prefer not to say</option>
-          </Form.Select>
-          <Form.Control.Feedback type="invalid" id={getErrorId('gender')}>
-            {fieldErrors.gender}
-          </Form.Control.Feedback>
+        <Form.Group as={Row} className="mb-3" controlId="formGender">
+          <Form.Label column sm={3}>Gender</Form.Label>
+          <Col sm={9}>
+            <Form.Select
+              name="gender"
+              value={formData.gender}
+              onChange={handleInputChange}
+              onBlur={handleBlurValidate}
+              isInvalid={!!fieldErrors.gender}
+              required
+              aria-describedby={fieldErrors.gender ? getErrorId('gender') : undefined}
+              aria-invalid={!!fieldErrors.gender}
+            >
+              <option value="">Select</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+              <option value="prefer_not_say">Prefer not to say</option>
+            </Form.Select>
+            <Form.Control.Feedback type="invalid" id={getErrorId('gender')}>
+              {fieldErrors.gender}
+            </Form.Control.Feedback>
+          </Col>
         </Form.Group>
 
         {/* HEIGHT */}
-        <Form.Group controlId="formHeight" className="mb-2">
-          <Form.Label>Height (cm)</Form.Label>
-          <Form.Control
-            type="number"
-            name="height"
-            value={formData.height}
-            onChange={handleInputChange}
-            onBlur={handleBlurValidate}
-            isInvalid={!!fieldErrors.height}
-            min={1}
-            max={300}
-            required
-            aria-describedby={
-              fieldErrors.height ? getErrorId("height") : undefined
-            }
-            aria-invalid={!!fieldErrors.height}
-          />
-          <Form.Control.Feedback type="invalid" id={getErrorId('height')}>
-            {fieldErrors.height}
-          </Form.Control.Feedback>
+        <Form.Group as={Row} className="mb-3" controlId="formHeight">
+          <Form.Label column sm={3}>Height (cm)</Form.Label>
+          <Col sm={9}>
+            <Form.Control
+              type="number"
+              name="height"
+              value={formData.height}
+              onChange={handleInputChange}
+              onBlur={handleBlurValidate}
+              isInvalid={!!fieldErrors.height}
+              min={1}
+              max={300}
+              required
+              aria-describedby={fieldErrors.height ? getErrorId('height') : undefined}
+              aria-invalid={!!fieldErrors.height}
+            />
+            <Form.Control.Feedback type="invalid" id={getErrorId('height')}>
+              {fieldErrors.height}
+            </Form.Control.Feedback>
+          </Col>
         </Form.Group>
 
         {/* WEIGHT */}
-        <Form.Group controlId="formWeight" className="mb-2">
-          <Form.Label>Weight (kg)</Form.Label>
-          <Form.Control
-            type="number"
-            name="weight"
-            value={formData.weight}
-            onChange={handleInputChange}
-            onBlur={handleBlurValidate}
-            isInvalid={!!fieldErrors.weight}
-            min={1}
-            max={500}
-            required
-            aria-describedby={
-              fieldErrors.weight ? getErrorId("weight") : undefined
-            }
-            aria-invalid={!!fieldErrors.weight}
-          />
-          <Form.Control.Feedback type="invalid" id={getErrorId('weight')}>
-            {fieldErrors.weight}
-          </Form.Control.Feedback>
+        <Form.Group as={Row} className="mb-3" controlId="formWeight">
+          <Form.Label column sm={3}>Weight (kg)</Form.Label>
+          <Col sm={9}>
+            <Form.Control
+              type="number"
+              name="weight"
+              value={formData.weight}
+              onChange={handleInputChange}
+              onBlur={handleBlurValidate}
+              isInvalid={!!fieldErrors.weight}
+              min={1}
+              max={500}
+              required
+              aria-describedby={fieldErrors.weight ? getErrorId('weight') : undefined}
+              aria-invalid={!!fieldErrors.weight}
+            />
+            <Form.Control.Feedback type="invalid" id={getErrorId('weight')}>
+              {fieldErrors.weight}
+            </Form.Control.Feedback>
+          </Col>
         </Form.Group>
 
-        <Button variant="primary" type="submit" disabled={loading} className="mt-4">
-          {loading ? (
-            <>
-              <Spinner
-                as="span"
-                animation="border"
-                size="sm"
-                role="status"
-                aria-hidden="true"
-              />{' '}
-              Signing up...
-            </>
-          ) : (
-            'Signup'
-          )}
-        </Button>
+        <Row>
+          <Col sm={{ span: 9, offset: 3 }}>
+            <Button variant="primary" type="submit" disabled={loading} className="mt-2">
+              {loading ? (
+                <>
+                  <Spinner
+                    as="span"
+                    animation="border"
+                    size="sm"
+                    role="status"
+                    aria-hidden="true"
+                  />{' '}
+                  Signing up...
+                </>
+              ) : (
+                'Signup'
+              )}
+            </Button>
+          </Col>
+        </Row>
       </Form>
 
       <p className="mt-3">
         Already have an account? <Link to="/login">Login</Link>
       </p>
-    </div>
+    </Container>
   );
 };
 
