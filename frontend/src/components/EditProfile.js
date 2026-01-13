@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import "./EditProfile.css";
+import "../styles/components/EditProfile.css";
 
 const EditProfile = ({ currentUser }) => {
   const [form, setForm] = useState({
@@ -44,35 +44,32 @@ const EditProfile = ({ currentUser }) => {
       .catch((err) => console.error("Update failed:", err));
   };
 
+  const handleCancel = () => {
+    window.location.href = "/profile";
+  };
+
   if (loading) {
     return (
-      <div className="edit-container">
-        <div className="profile-box">
-          <h2>Loading...</h2>
+      <div className="editProfilePage">
+        <div className="editProfileCard">
+          <h2>Loading profile…</h2>
         </div>
       </div>
     );
   }
 
   return (
-    <div
-      className="edit-container"
-      style={{
-        backgroundImage: "url('/login_box.jpg')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        minHeight: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <div className="profile-box">
-        <h2>Edit Profile</h2>
+    <div className="editProfilePage">
+      <div className="editProfileCard">
+        <div className="editProfileHeader">
+          <h2>Edit Profile</h2>
+          <p className="editProfileSubtitle">
+            Update your personal and fitness details
+          </p>
+        </div>
 
-        <div className="edit-form">
-
-          <div className="form-row">
+        <div className="editFormGrid">
+          <div className="formField">
             <label>Contact</label>
             <input
               type="text"
@@ -82,7 +79,7 @@ const EditProfile = ({ currentUser }) => {
             />
           </div>
 
-          <div className="form-row">
+          <div className="formField">
             <label>Age</label>
             <input
               type="number"
@@ -92,7 +89,7 @@ const EditProfile = ({ currentUser }) => {
             />
           </div>
 
-          <div className="form-row">
+          <div className="formField">
             <label>Gender</label>
             <select name="gender" value={form.gender} onChange={handleChange}>
               <option value="">Select</option>
@@ -103,7 +100,7 @@ const EditProfile = ({ currentUser }) => {
             </select>
           </div>
 
-          <div className="form-row">
+          <div className="formField">
             <label>Height (cm)</label>
             <input
               type="number"
@@ -113,7 +110,7 @@ const EditProfile = ({ currentUser }) => {
             />
           </div>
 
-          <div className="form-row">
+          <div className="formField">
             <label>Weight (kg)</label>
             <input
               type="number"
@@ -122,11 +119,17 @@ const EditProfile = ({ currentUser }) => {
               onChange={handleChange}
             />
           </div>
+        </div>
 
-          <button className="save-btn" onClick={handleSave}>
-            Save Changes
+        {/* Actions */}
+        <div className="editProfileActions">
+          <button className="cancelBtn" onClick={handleCancel}>
+            Cancel
           </button>
 
+          <button className="saveBtn" onClick={handleSave}>
+            Save Changes
+          </button>
         </div>
       </div>
     </div>

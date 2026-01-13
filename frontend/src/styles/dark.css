@@ -1,0 +1,13 @@
+/* dark.css */
+
+:root[data-theme="dark"] {
+  --color-bg-main: #0f172a;
+  --color-bg-surface: #020617;
+  --color-bg-muted: #020617;
+
+  --color-text-primary: #f8fafc;
+  --color-text-secondary: #cbd5f5;
+  --color-text-muted: #94a3b8;
+
+  --color-border-subtle: #1e293b;
+}

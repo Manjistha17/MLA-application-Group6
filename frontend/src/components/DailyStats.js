@@ -8,7 +8,7 @@ const DailyStats = ({ currentUser }) => {
   useEffect(() => {
     const fetchExercises = async () => {
       try {
-        const url = `/stats/daily/?user=${currentUser}`;
+        const url = `/api/stats/daily/?user=${currentUser}`;
         const response = await axios.get(url);
 
         if (response.data.stats && Array.isArray(response.data.stats)) {

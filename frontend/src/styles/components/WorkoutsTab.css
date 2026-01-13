@@ -1,0 +1,35 @@
+.workoutsLayout {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: var(--space-xl);
+  align-items: start;
+}
+
+/* Mobile fallback */
+@media (max-width: 900px) {
+  .workoutsLayout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.workoutSideCard {
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.sideItem {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: var(--space-sm);
+}
+
+.sideHint {
+  margin-top: var(--space-lg);
+  padding: var(--space-sm);
+  background: var(--color-primary-soft);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+}
+

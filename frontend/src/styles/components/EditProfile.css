@@ -1,0 +1,101 @@
+.editProfilePage {
+  min-height: calc(100vh - 64px);
+  background-color: var(--color-bg-default);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: var(--space-xl);
+}
+
+.editProfileCard {
+  width: 100%;
+  max-width: 720px;
+  background-color: var(--color-bg-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Header */
+.editProfileHeader h2 {
+  margin: 0;
+}
+
+.editProfileSubtitle {
+  margin-top: 4px;
+  color: var(--color-gray-500);
+  font-size: 14px;
+}
+
+/* Form grid */
+.editFormGrid {
+  margin-top: var(--space-lg);
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-lg);
+}
+
+.formField {
+  display: flex;
+  flex-direction: column;
+}
+
+.formField label {
+  font-size: 13px;
+  color: var(--color-gray-500);
+  margin-bottom: 4px;
+}
+
+.formField input,
+.formField select {
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-subtle);
+  font-size: 14px;
+}
+
+.formField input:focus,
+.formField select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+/* Actions */
+.editProfileActions {
+  margin-top: var(--space-xl);
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+}
+
+.cancelBtn {
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  background-color: transparent;
+  border: 1px solid var(--color-border-subtle);
+  cursor: pointer;
+}
+
+.cancelBtn:hover {
+  background-color: var(--color-bg-muted);
+}
+
+.saveBtn {
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.saveBtn:hover {
+  background-color: var(--color-primary-hover);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .editFormGrid {
+    grid-template-columns: 1fr;
+  }
+}
