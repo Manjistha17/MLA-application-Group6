@@ -1,22 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import './App.css';
-import 'bootstrap/dist/css/bootstrap.min.css';
+//import './App.css';
+//import 'bootstrap/dist/css/bootstrap.min.css';
 
 import NavbarComponent from './components/navbar';
 import TrackExercise from './components/trackExercise';
 import Statistics from './components/statistics';
 import Footer from './components/footer';
-import Login from './components/login';
+//import Login from './components/login';
 import Signup from './components/signup';
 import Journal from './components/journal';
 import logo from './img/CFG_logo.png';
 import DailyStats from './components/DailyStats';
-import Profile from './components/Profile';
+//import Profile from './components/Profile';
 import ForgotPassword from './components/ForgotPassword';
 import ResetPassword from './components/ResetPassword';
 import EditProfile from './components/EditProfile';
 import Dashboard from './components/Dashboard';
+import PublicLayout from './components/layout/PublicLayout';
+import HeroBanner from './components/HeroBanner';
+import AppHeader from './components/layout/AppHeader';
+import Profile from './components/UserProfile'
+
 
 function App() {
 
@@ -33,6 +38,9 @@ function App() {
 
   // Restore login on refresh
   useEffect(() => {
+    const savedTheme = localStorage.getItem("theme") || "light";
+    document.documentElement.setAttribute("data-theme", savedTheme);
+
     const storedUser = localStorage.getItem("currentUser");
     const storedLogin = localStorage.getItem("isLoggedIn") === "true";
 
@@ -68,12 +76,15 @@ function App() {
     <div className="App">
       <Router>
 
-        <div className="appTitle">
+        {/* <div className="appTitle">
           <h1>MLA Fitness App</h1>
           <img src={logo} alt="CFG Fitness App Logo" id="appLogo" />
-        </div>
+        </div> */}
 
-        {isLoggedIn && <NavbarComponent onLogout={handleLogout} />}
+        {isLoggedIn && <AppHeader
+          currentUser={currentUser}
+          onLogout={handleLogout}
+        />}
 
         <div className="componentContainer">
           <Routes>
@@ -82,7 +93,9 @@ function App() {
             <Route
               path="/login"
               element={
-                isLoggedIn ? <Navigate to="/dashboard" /> : <Login onLogin={handleLogin} />
+                isLoggedIn ? <Navigate to="/dashboard" /> : <PublicLayout>
+                  <HeroBanner onLogin={handleLogin} />
+                </PublicLayout>
               }
             />
 

@@ -8,7 +8,7 @@ const Statistics = ({ currentUser }) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    const url = `/stats/${currentUser}`;
+    const url = `/api/stats/${currentUser}`;
 
     axios.get(url)
       .then(response => {

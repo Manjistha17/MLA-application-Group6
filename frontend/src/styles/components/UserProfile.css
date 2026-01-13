@@ -1,0 +1,89 @@
+.profilePage {
+  min-height: calc(100vh - 64px);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: var(--space-xl);
+  background-color: var(--color-bg-default);
+}
+
+.profileCard {
+  width: 100%;
+  max-width: 720px;
+  background-color: var(--color-bg-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Header */
+.profileHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+}
+
+.profileAvatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background-color: var(--color-primary-soft);
+  color: var(--color-primary);
+  font-size: 24px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profileHeaderText h2 {
+  margin: 0;
+}
+
+.profileMuted {
+  color: var(--color-gray-500);
+  font-size: 14px;
+}
+
+.editProfileBtn {
+  margin-left: auto;
+ /*  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-subtle);
+  background-color: transparent;
+  cursor: pointer;
+  font-weight: 500; */
+}
+
+.editProfileBtn:hover {
+  background-color: var(--color-bg-muted);
+}
+
+/* Divider */
+.profileDivider {
+  height: 1px;
+  background-color: var(--color-border-subtle);
+  margin: var(--space-lg) 0;
+}
+
+/* Details grid */
+.profileDetailsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-lg);
+}
+
+.profileDetailsGrid div {
+  display: flex;
+  flex-direction: column;
+}
+
+.profileDetailsGrid span {
+  font-size: 13px;
+  color: var(--color-gray-500);
+}
+
+.profileDetailsGrid strong {
+  font-size: 16px;
+  color: var(--color-text-primary);
+}

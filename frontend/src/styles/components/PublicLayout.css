@@ -1,0 +1,22 @@
+/* PublicLayout.css */
+
+.publicLayout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+
+  /* Apply new design system font ONLY here */
+  font-family: var(--font-family-base);
+
+  /* Page background */
+  background-color: var(--color-bg-main);
+}
+
+/* Main content area below header */
+.publicContent {
+  flex: 1;
+  display: flex;
+
+  /* Prevent Bootstrap container constraints */
+  width: 100%;
+}

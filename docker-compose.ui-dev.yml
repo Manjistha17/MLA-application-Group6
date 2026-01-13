@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  ui-dev:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.ui.dev
+    container_name: ui-dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
