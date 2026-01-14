@@ -11,7 +11,7 @@ const Journal = ({ currentUser }) => {
 
   const fetchExercises = async () => {
     try {
-      const url = `/stats/weekly/?user=${currentUser}&start=${moment(startDate).format('YYYY-MM-DD')}&end=${moment(endDate).format('YYYY-MM-DD')}`;
+      const url = `/api/stats/weekly/?user=${currentUser}&start=${moment(startDate).format('YYYY-MM-DD')}&end=${moment(endDate).format('YYYY-MM-DD')}`;
       const response = await axios.get(url);
       console.log('API Response:', response.data);
       if (response.data.stats && Array.isArray(response.data.stats)) {

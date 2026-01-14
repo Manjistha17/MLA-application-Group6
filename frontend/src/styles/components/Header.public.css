@@ -1,0 +1,15 @@
+.publicHeader {
+  position: sticky;
+  top: 0;
+  z-index: 1100;
+
+  height: 64px;
+  padding: 0 var(--space-xl);
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  background-color: var(--color-bg-surface);
+  border-bottom: 1px solid var(--color-border-subtle);
+}

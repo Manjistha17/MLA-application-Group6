@@ -1,0 +1,73 @@
+.trackExercisePage {
+  min-height: calc(100vh - 64px);
+  background-color: var(--color-bg-default);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: var(--space-xl);
+}
+
+.trackExerciseCard {
+  width: 100%;
+  max-width: 520px;
+  background-color: var(--color-bg-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Header */
+.trackExerciseHeader h2 {
+  margin: 0;
+}
+
+.trackExerciseSubtitle {
+  color: var(--color-gray-500);
+  font-size: 14px;
+  margin-bottom: var(--space-lg);
+}
+
+/* Mode toggle */
+.trackingModeToggle {
+  display: flex;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
+}
+
+/* Sections */
+.formSection {
+  margin-bottom: var(--space-lg);
+}
+
+.sectionTitle {
+  font-size: 15px;
+  margin-bottom: var(--space-sm);
+}
+
+/* Icons */
+.exerciseIconGrid {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--space-sm);
+}
+
+/* Info boxes */
+.infoBox {
+  margin-top: var(--space-sm);
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+}
+
+.infoBox.success {
+  background-color: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+/* Status message */
+.statusMessage {
+  margin-top: var(--space-md);
+  text-align: center;
+  color: var(--color-primary);
+  font-weight: 500;
+}
