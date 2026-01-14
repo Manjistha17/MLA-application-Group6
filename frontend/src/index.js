@@ -1,13 +1,22 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
+import { ThemeProvider,CssBaseline } from "@mui/material";
+//import './index.css';
+import muiTheme from "./theme/muiTheme";
+import "./styles/tokens.css";
+import "./styles/light.css";
+import "./styles/dark.css";
+import "./styles/base.css";
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <App />
+    <ThemeProvider theme={muiTheme}>
+      <CssBaseline />
+      <App />
+    </ThemeProvider>
   </React.StrictMode>
 );
 
