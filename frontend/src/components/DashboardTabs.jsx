@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Tabs, Tab, Box } from "@mui/material";
 import Overview from "./OverviewTab";
-import Workouts from './WorkoutsTab'
-// import Progress from "./Progress";
+import Workouts from "./WorkoutsTab";
+import GoalSettingPage from "./GoalSettingPage"; // <-- import your new component
 
 const DashboardTabs = () => {
   const [activeTab, setActiveTab] = useState(0); // Overview default
@@ -29,11 +29,13 @@ const DashboardTabs = () => {
         <Tab label="Overview" />
         <Tab label="Workouts" />
         <Tab label="Progress" />
+        <Tab label="Goals" /> {/* <-- new tab */}
       </Tabs>
 
       {activeTab === 0 && <Overview />}
-      {activeTab === 1 && <div><Workouts/></div>}
+      {activeTab === 1 && <Workouts />}
       {activeTab === 2 && <div>Progress coming soon</div>}
+      {activeTab === 3 && <GoalSettingPage />} {/* <-- render goals page */}
     </Box>
   );
 };

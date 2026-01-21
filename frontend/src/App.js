@@ -3,14 +3,14 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 //import './App.css';
 //import 'bootstrap/dist/css/bootstrap.min.css';
 
-import NavbarComponent from './components/navbar';
+//import NavbarComponent from './components/navbar';
 import TrackExercise from './components/trackExercise';
 import Statistics from './components/statistics';
 import Footer from './components/footer';
 //import Login from './components/login';
 import Signup from './components/signup';
 import Journal from './components/journal';
-import logo from './img/CFG_logo.png';
+//import logo from './img/CFG_logo.png';
 import DailyStats from './components/DailyStats';
 //import Profile from './components/Profile';
 import ForgotPassword from './components/ForgotPassword';
