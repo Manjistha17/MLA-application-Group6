@@ -3,14 +3,14 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 //import './App.css';
 //import 'bootstrap/dist/css/bootstrap.min.css';
 
-import NavbarComponent from './components/navbar';
+//import NavbarComponent from './components/navbar';
 import TrackExercise from './components/trackExercise';
 import Statistics from './components/statistics';
 import Footer from './components/footer';
 //import Login from './components/login';
 import Signup from './components/signup';
 import Journal from './components/journal';
-import logo from './img/CFG_logo.png';
+//import logo from './img/CFG_logo.png';
 import DailyStats from './components/DailyStats';
 //import Profile from './components/Profile';
 import ForgotPassword from './components/ForgotPassword';
@@ -20,7 +20,6 @@ import Dashboard from './components/Dashboard';
 import PublicLayout from './components/layout/PublicLayout';
 import HeroBanner from './components/HeroBanner';
 import AppHeader from './components/layout/AppHeader';
-import GoalSettingPage from './components/GoalSettingPage';
 import Profile from './components/UserProfile'
 
 
@@ -177,17 +176,6 @@ function App() {
                   <Journal currentUser={currentUser} />
                 ) : (
                   <Navigate to="/login" />
-                )
-              }
-            />
-
-            <Route
-              path="/goal-setting"
-              element={
-              isLoggedIn ? (
-                <GoalSettingPage currentUser={currentUser} />
-                ) : (
-                <Navigate to="/login" />
                 )
               }
             />
