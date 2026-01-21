@@ -20,6 +20,7 @@ import Dashboard from './components/Dashboard';
 import PublicLayout from './components/layout/PublicLayout';
 import HeroBanner from './components/HeroBanner';
 import AppHeader from './components/layout/AppHeader';
+import GoalSettingPage from './components/GoalSettingPage';
 import Profile from './components/UserProfile'
 
 
@@ -176,6 +177,17 @@ function App() {
                   <Journal currentUser={currentUser} />
                 ) : (
                   <Navigate to="/login" />
+                )
+              }
+            />
+
+            <Route
+              path="/goal-setting"
+              element={
+              isLoggedIn ? (
+                <GoalSettingPage currentUser={currentUser} />
+                ) : (
+                <Navigate to="/login" />
                 )
               }
             />
