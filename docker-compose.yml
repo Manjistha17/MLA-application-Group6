@@ -1,13 +1,89 @@
+# # version: '3.8'
+
+# services:
+#   nginx:
+#     build:
+#       context: ./frontend  # path to the folder with Dockerfile & nginx.conf
+#       dockerfile: Dockerfile
+#     container_name: nginx-proxy
+#     ports:
+#       - "8081:80"  # Map host port 8081 to container port 80
+#     depends_on:
+#       - authservice
+#       - activity-tracking
+#       - analytics
+#     networks:
+#       - app-network
+
+#   activity-tracking:
+#     build:
+#       context: ./activity-tracking
+#       dockerfile: Dockerfile
+#     environment:
+#       - NODE_ENV=development
+#     expose:
+#       - "5300"
+#     depends_on:
+#       - mongodb
+#     networks:
+#       - app-network
+
+#   analytics:
+#     build:
+#       context: ./analytics
+#       dockerfile: Dockerfile
+#     environment:
+#       - NODE_ENV=development
+#       - MONGO_URI=mongodb://root:cfgmla23@mongodb:27017
+#     expose:
+#       - "5050"
+#     depends_on:
+#       - mongodb
+#     networks:
+#       - app-network
+
+#   authservice:
+#     build:
+#       context: ./authservice
+#       dockerfile: Dockerfile
+#     environment:
+#       - SPRING_DATA_MONGODB_DATABASE=test
+#       - SPRING_DATA_MONGODB_URI=mongodb://root:cfgmla23@mongodb:27017
+#     expose:
+#       - "8080"
+#     depends_on:
+#       - mongodb
+#     networks:
+#       - app-network
+
+#   mongodb:
+#     image: mongo:latest
+#     environment:
+#       - MONGO_INITDB_ROOT_USERNAME=root
+#       - MONGO_INITDB_ROOT_PASSWORD=cfgmla23
+#     ports:
+#      - "27017:27017"
+#     volumes:
+#       - mongodbdata:/data/db
+#     networks:
+#       - app-network
+
+# networks:
+#   app-network:
+#     driver: bridge
+
+# volumes:
+#   mongodbdata:
 version: '3.8'
 
 services:
   nginx:
     build:
-      context: ./frontend  # path to the folder with Dockerfile & nginx.conf
+      context: ./frontend
       dockerfile: Dockerfile
     container_name: nginx-proxy
     ports:
-      - "8081:80"  # Map host port 8081 to container port 80
+      - "8081:80"
     depends_on:
       - authservice
       - activity-tracking
@@ -21,10 +97,9 @@ services:
       dockerfile: Dockerfile
     environment:
       - NODE_ENV=development
+      - MONGO_URI=mongodb+srv://mlagroup6_db_user1:Mlagrp6%402026@mlagroup6datacluster.ms0cuuq.mongodb.net/mlagrp6db
     expose:
       - "5300"
-    depends_on:
-      - mongodb
     networks:
       - app-network
 
@@ -34,11 +109,9 @@ services:
       dockerfile: Dockerfile
     environment:
       - NODE_ENV=development
-      - MONGO_URI=mongodb://root:cfgmla23@mongodb:27017
+      - MONGO_URI=mongodb+srv://mlagroup6_db_user1:Mlagrp6%402026@mlagroup6datacluster.ms0cuuq.mongodb.net/mlagrp6db
     expose:
       - "5050"
-    depends_on:
-      - mongodb
     networks:
       - app-network
 
@@ -47,30 +120,52 @@ services:
       context: ./authservice
       dockerfile: Dockerfile
     environment:
-      - SPRING_DATA_MONGODB_DATABASE=test
-      - SPRING_DATA_MONGODB_URI=mongodb://root:cfgmla23@mongodb:27017
+      - SPRING_DATA_MONGODB_DATABASE=mlagrp6db
+      - SPRING_DATA_MONGODB_URI=mongodb+srv://mlagroup6_db_user1:Mlagrp6%402026@mlagroup6datacluster.ms0cuuq.mongodb.net/mlagrp6db
     expose:
       - "8080"
-    depends_on:
-      - mongodb
+    networks:
+      - app-network
+    
+  workout-api:
+    build:
+      context: ./workout-api   # folder with FastAPI Dockerfile
+      dockerfile: Dockerfile
+    container_name: workout-api
+    environment:
+      - MONGO_URI=mongodb+srv://mlagroup6_db_user1:Mlagrp6%402026@mlagroup6datacluster.ms0cuuq.mongodb.net/mlagrp6db
+    ports:
+      - "8000:8000"
     networks:
       - app-network
 
-  mongodb:
-    image: mongo:latest
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=root
-      - MONGO_INITDB_ROOT_PASSWORD=cfgmla23
-    ports:
-     - "27017:27017"
-    volumes:
-      - mongodbdata:/data/db
-    networks:
-      - app-network
+  # loki:
+  #   image: grafana/loki:2.9.0
+  #   ports:
+  #     - "3100:3100"
+
+  # promtail:
+  #  image: grafana/promtail:2.9.0
+  #  volumes:
+  #   - /var/run/docker.sock:/var/run/docker.sock
+  #   - ./promtail-config.yaml:/etc/promtail/config.yaml
+  #  command: -config.file=/etc/promtail/config.yaml
+
+  # prometheus:
+  #   image: prom/prometheus:latest
+  #   volumes:
+  #     - ./prometheus:/etc/prometheus
+  #   ports:
+  #     - "9090:9090"
+  #   networks:
+  #     - app-network
+
+  # grafana:
+  #   image: grafana/grafana:10.3.0
+  #   ports:
+  #     - "3000:3000"
+
 
 networks:
   app-network:
     driver: bridge
-
-volumes:
-  mongodbdata:

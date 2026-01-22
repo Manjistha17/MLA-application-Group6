@@ -2,10 +2,11 @@ import React, { useState } from "react";
 import { Tabs, Tab, Box } from "@mui/material";
 import Overview from "./OverviewTab";
 import Workouts from "./WorkoutsTab";
-import GoalSettingPage from "./GoalSettingPage"; // <-- import your new component
+import GoalSettingPage from "./GoalSettingPage";
+import WorkoutPlan from "./WorkoutPlan";
 
-const DashboardTabs = () => {
-  const [activeTab, setActiveTab] = useState(0); // Overview default
+const DashboardTabs = ({ currentUser }) => {
+  const [activeTab, setActiveTab] = useState(0);
 
   return (
     <Box sx={{ width: "100%" }}>
@@ -29,13 +30,15 @@ const DashboardTabs = () => {
         <Tab label="Overview" />
         <Tab label="Workouts" />
         <Tab label="Progress" />
-        <Tab label="Goals" /> {/* <-- new tab */}
+        <Tab label="Goals" />
+        <Tab label="Track Workout" />
       </Tabs>
 
-      {activeTab === 0 && <Overview />}
-      {activeTab === 1 && <Workouts />}
+      {activeTab === 0 && <Overview currentUser={currentUser} />}
+      {activeTab === 1 && <Workouts currentUser={currentUser} />}
       {activeTab === 2 && <div>Progress coming soon</div>}
-      {activeTab === 3 && <GoalSettingPage />} {/* <-- render goals page */}
+      {activeTab === 3 && <GoalSettingPage currentUser={currentUser} />}
+      {activeTab === 4 && <WorkoutPlan currentUser={currentUser} />}
     </Box>
   );
 };

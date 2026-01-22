@@ -1,5 +1,5 @@
 import "../styles/components/WorkoutsTab.css";
-const WorkoutSidePanel = () => {
+const WorkoutSidePanel = ({ currentUser }) => {
     return (
         <div className="workoutSideCard">
             <h3>Today</h3>

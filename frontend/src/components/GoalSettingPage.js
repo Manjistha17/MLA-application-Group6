@@ -1,28 +1,39 @@
 import React, { useState } from "react";
-import "../styles/GoalSettingPage.css"; // optional if you want custom styles
+import axios from "axios";
+import "../styles/GoalSettingPage.css";
 
-function GoalSettingPage() {
+function GoalSettingPage({ currentUser }) {
   const [goalType, setGoalType] = useState("weight_loss");
   const [level, setLevel] = useState("beginner");
   const [numberOfWeeks, setNumberOfWeeks] = useState(4);
   const [plan, setPlan] = useState(null);
+  const [error, setError] = useState(null);
+
+  console.log("GoalSettingPage component rendered with currentUser:", currentUser);
 
   const handleCreatePlan = async () => {
+    console.log("Create Plan button clicked");
+    setError(null);
     try {
-      const response = await fetch("http://localhost:8000/api/createWorkoutPlan", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          goal_type: goalType,
-          level,
-          number_of_weeks: numberOfWeeks,
-        }),
+      const userId = currentUser.username ?? currentUser._id ?? currentUser;
+      console.log("Creating plan for userId:", userId);
+
+      const response = await axios.post("/workouts/create/user-workout-plan", {
+        user_id: userId,
+        goal_type: goalType,
+        level,
+        number_of_weeks: parseInt(numberOfWeeks),
       });
 
-      const data = await response.json();
-      setPlan(data);
+      console.log("Workout plan created:", response.data);
+      setPlan(response.data);
     } catch (error) {
       console.error("Error creating workout plan:", error);
+      if (error.response?.status === 409) {
+        setError("A workout plan with these settings already exists for you.");
+      } else {
+        setError("Error creating workout plan. Please try again.");
+      }
     }
   };
 
@@ -54,6 +65,12 @@ function GoalSettingPage() {
       </div>
 
       <button onClick={handleCreatePlan}>Create Workout Plan</button>
+
+      {error && (
+        <div className="error-message" style={{ color: "red", marginTop: "10px" }}>
+          {error}
+        </div>
+      )}
 
       {plan && (
         <div className="plan">
