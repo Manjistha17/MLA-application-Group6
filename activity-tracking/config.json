@@ -1,4 +1,6 @@
 {
-    "mongoUri": "mongodb://root:cfgmla23@mongodb:27017"
-  }
+    
+    "mongoUri": "mongodb+srv://mlagroup6_db_user1:Mlagrp6%402026@mlagroup6datacluster.ms0cuuq.mongodb.net/mlagrp6db"
+    
+}
   

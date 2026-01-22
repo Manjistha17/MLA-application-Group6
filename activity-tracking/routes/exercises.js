@@ -36,20 +36,35 @@ router.get('/', async (req, res) => {
 
 const mongoose = require('mongoose');
 
-// GET: Retrieve all activities from activity_mets_new
+// // GET: Retrieve all activities from activity_mets_new
+// router.get('/activities/', async (req, res) => {
+//   try {
+//     const activities = await mongoose.connection.db
+//       .collection('activity_mets_new')
+//       .find({})
+//       .toArray();
+
+//     res.json(activities);
+//   } catch (err) {
+//     console.error('Failed to fetch activities', err);
+//     res.status(500).json({ error: err.message });
+//   }
+// });
+
 router.get('/activities/', async (req, res) => {
   try {
-    const activities = await mongoose.connection.db
-      .collection('activity_mets_new')
-      .find({})
-      .toArray();
-
+    const db = mongoose.connection.db;
+    if (!db) {
+      return res.status(500).json({ error: 'Database not connected yet' });
+    }
+    const activities = await db.collection('activity_mets_new').find({}).toArray();
     res.json(activities);
   } catch (err) {
     console.error('Failed to fetch activities', err);
     res.status(500).json({ error: err.message });
   }
 });
+
 
 // POST: Add a new exercise
 router.post('/add', async (req, res) => {

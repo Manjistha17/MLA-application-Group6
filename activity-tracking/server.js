@@ -6,7 +6,7 @@ require('dotenv').config();
 
 const app = express();
 const port = process.env.PORT || 5300;
-const uri = process.env.MONGODB_URI;
+// const uri = process.env.MONGODB_URI;
 const mongoUri = config.mongoUri;
 
 // Middleware setup
@@ -20,6 +20,15 @@ mongoose
   .catch((error) => console.error("MongoDB connection error:", error));
 
 const connection = mongoose.connection;
+
+const initActivityMets = require('./init_activity_mets');
+
+// Initialize static activity METs
+connection.once('open', async () => {
+  console.log("MongoDB connected. Initializing activity METs...");
+  await initActivityMets();  // safe insert
+});
+
 
 // Event listener for MongoDB connection errors
 connection.on('error', (error) => {
