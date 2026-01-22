@@ -3,18 +3,18 @@ import "../styles/components/WorkoutsTab.css";
 import TrackExercise from "./trackExercise";
 import WorkoutSidePanel from "./WorkoutSidePanel";
 
-const WorkoutsTab = () => {
+const WorkoutsTab = ({currentUser}) => {
   return (
     <div className="workoutsLayout">
       {/* LEFT: Primary action */}
       <div className="workoutsMain">
-        <TrackExercise />
+        <TrackExercise currentUser={currentUser} />
       </div>
 
       {/* RIGHT: Context / support */}
-      <div className="workoutsSide">
+      {/* <div className="workoutsSide">
         <WorkoutSidePanel />
-      </div>
+      </div> */}
     </div>
   );
 };

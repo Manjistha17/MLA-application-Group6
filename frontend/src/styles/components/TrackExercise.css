@@ -71,3 +71,79 @@
   color: var(--color-primary);
   font-weight: 500;
 }
+
+.trackWorkspace {
+  display: grid;
+  grid-template-columns: 0.9fr 1.4fr;
+  gap: var(--space-xl);
+  margin-top: var(--space-lg);
+}
+
+/* SETUP PANEL */
+.setupPanel {
+  background-color: var(--color-bg-muted);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  border: 1px solid var(--color-border-subtle);
+}
+
+.setupSection {
+  margin-bottom: var(--space-md);
+}
+
+.setupSection label {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin-bottom: 4px;
+}
+
+/* ACTION PANEL */
+.actionPanel {
+  background-color: var(--color-bg-surface);
+  border-radius: var(--radius-md);
+  padding: var(--space-xl);
+  box-shadow: var(--shadow-sm);
+}
+
+.panelTitle {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: var(--space-md);
+  color: var(--color-text-secondary);
+}
+
+/* SAVE BAR */
+.saveBar {
+  margin-top: var(--space-xl);
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+/* Gradient ONLY behind the time display */
+.timer-display {
+  background: linear-gradient(135deg, #4f46e5, #6366f1);
+  border-radius: 16px;
+  padding: 32px 24px;
+  margin-bottom: 16px;
+
+  color: #ffffff;
+  font-size: 48px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-align: center;
+}
+
+/* Optional helper text */
+.timer-status {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+
+/* Mobile */
+@media (max-width: 900px) {
+  .trackWorkspace {
+    grid-template-columns: 1fr;
+  }
+}

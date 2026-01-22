@@ -51,7 +51,7 @@ const Dashboard = ({ currentUser }) => {
         <h1 className="dashboardTitle">Welcome back, {currentUser}</h1>
       </div>
 
-      <DashboardTabs />
+      <DashboardTabs currentUser={currentUser} />
     </div>
   );
 };

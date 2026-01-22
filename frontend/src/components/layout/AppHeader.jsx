@@ -73,7 +73,7 @@ const AppHeader = ({ currentUser, onLogout }) => {
               <ListItemIcon>
                 <EditIcon fontSize="small" />
               </ListItemIcon>
-              Edit Profile
+              Profile
             </MenuItem>
 
             <MenuItem>

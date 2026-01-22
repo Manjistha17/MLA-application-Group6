@@ -1,53 +1,72 @@
-import React, { useState, useEffect } from 'react';
-import { Button, Form } from 'react-bootstrap';
-import { trackExercise } from '../api';
-import axios from 'axios';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import {
+  Container,
+  Typography,
+  Box,
+  Card,
+  CardContent,
+  CardActionArea,
+  ToggleButton,
+  ToggleButtonGroup,
+  TextField,
+  Button,
+} from "@mui/material";
 
-import IconButton from '@mui/material/IconButton';
-import DirectionsRunIcon from '@mui/icons-material/DirectionsRun';
-import BikeIcon from '@mui/icons-material/DirectionsBike';
-import PoolIcon from '@mui/icons-material/Pool';
-import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
-import OtherIcon from '@mui/icons-material/HelpOutline';
-import SelfImprovementIcon from '@mui/icons-material/SelfImprovement';
+import DirectionsRunIcon from "@mui/icons-material/DirectionsRun";
+import DirectionsBikeIcon from "@mui/icons-material/DirectionsBike";
+import PoolIcon from "@mui/icons-material/Pool";
+import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
+import SelfImprovementIcon from "@mui/icons-material/SelfImprovement";
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
+import { trackExercise } from "../api";
+import Timer from "./Timer";
 
-import Timer from './Timer';
-import '../styles/components/TrackExercise.css';
+const activitiesConfig = [
+  { key: "Running", label: "Running", icon: <DirectionsRunIcon fontSize="large" /> },
+  { key: "Swimming", label: "Swimming", icon: <PoolIcon fontSize="large" /> },
+  { key: "Cycling", label: "Cycling", icon: <DirectionsBikeIcon fontSize="large" /> },
+  { key: "Yoga", label: "Yoga", icon: <SelfImprovementIcon fontSize="large" /> },
+  { key: "Gym", label: "Weights", icon: <FitnessCenterIcon fontSize="large" /> },
+  { key: "Other", label: "Others", icon: <HelpOutlineIcon fontSize="large" /> },
+];
 
-const TrackExercise = ({ currentUser }) => {
+const TrackExercise = (props) => {
+  console.log("ALL PROPS:", props);
+  const { currentUser } = props;
   const [state, setState] = useState({
-    exerciseType: '',
+    exerciseType: "",
     duration: 0,
-    subActivity: '',
+    subActivity: "",
     date: new Date(),
   });
 
-  const [message, setMessage] = useState('');
+  const [trackingMode, setTrackingMode] = useState("timer");
+  const [manualDuration, setManualDuration] = useState("");
   const [activities, setActivities] = useState([]);
   const [selectedActivity, setSelectedActivity] = useState(null);
   const [timerSession, setTimerSession] = useState(null);
-  const [trackingMode, setTrackingMode] = useState('timer');
-  const [manualDuration, setManualDuration] = useState('');
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState("success"); // success | error
 
+  /* -------------------------------
+     Fetch activities (once)
+  -------------------------------- */
   useEffect(() => {
-    const fetchActivities = async () => {
-      try {
-        const response = await axios.get('/exercises/activities/');
-        setActivities(response.data);
-      } catch (error) {
-        console.error('Error fetching activities', error);
-      }
-    };
-    fetchActivities();
+    axios
+      .get("/exercises/activities/")
+      .then((res) => setActivities(res.data))
+      .catch(() => {
+        setMessageType("error");
+        setMessage("Failed to load activities.");
+      });
   }, []);
+
 
   const handleExerciseTypeSelect = (type) => {
     const activity = activities.find((a) => a.activity === type);
-    setState({ ...state, exerciseType: type, subActivity: '' });
+    setState((prev) => ({ ...prev, exerciseType: type, subActivity: "" }));
     setSelectedActivity(activity || null);
   };
 
@@ -61,216 +80,180 @@ const TrackExercise = ({ currentUser }) => {
     }
   };
 
-  const onSubmit = async (e) => {
-    e.preventDefault();
 
-    let finalDuration = 0;
-    let description = '';
+  const onSubmit = async () => {
+    setMessage("");
 
-    if (trackingMode === 'timer') {
+    if (!currentUser) {
+      setMessageType("error");
+      setMessage("User session is still loading. Please try again.");
+      return;
+    }
+
+    if (!state.exerciseType) {
+      setMessageType("error");
+      setMessage("Please select an activity type.");
+      return;
+    }
+
+    let finalDuration;
+    let description;
+
+    if (trackingMode === "timer") {
       if (!state.duration || state.duration <= 0) {
-        setMessage('Please use the timer to track your exercise duration!');
-        setTimeout(() => setMessage(''), 3000);
+        setMessageType("error");
+        setMessage("Please track your workout using the timer.");
         return;
       }
       finalDuration = state.duration;
-      description = timerSession
-        ? `${state.exerciseType} session for ${Math.floor(
-            timerSession.duration / 60
-          )}m ${timerSession.duration % 60}s`
-        : `${state.exerciseType} exercise session`;
+      description = `${state.exerciseType} session`;
     } else {
-      if (!manualDuration || parseInt(manualDuration) <= 0) {
-        setMessage('Please enter a valid duration in minutes!');
-        setTimeout(() => setMessage(''), 3000);
+      const parsedDuration = Number(manualDuration);
+
+      if (!Number.isInteger(parsedDuration) || parsedDuration <= 0) {
+        setMessageType("error");
+        setMessage("Please enter a valid duration in minutes.");
         return;
       }
-      finalDuration = parseInt(manualDuration);
-      description = `${state.exerciseType} exercise (${finalDuration} minutes) - manually logged`;
+
+      finalDuration = parsedDuration;
+      description = `${state.exerciseType} manual entry`;
     }
 
-    const dataToSubmit = {
-      username: currentUser,
-      ...state,
-      duration: finalDuration,
-      description,
-    };
-
     try {
-      await trackExercise(dataToSubmit);
-
-      setState({
-        exerciseType: '',
-        duration: 0,
-        subActivity: '',
-        date: new Date(),
+      await trackExercise({
+        username: currentUser,
+        ...state,
+        date: state.date.toISOString(),
+        duration: finalDuration,
+        description,
       });
-      setManualDuration('');
-      setTimerSession(null);
 
+      setMessageType("success");
+      setMessage("Exercise logged successfully!");
+      setManualDuration("");
+      setTimerSession(null);
+    } catch (err) {
+      console.error(err);
+      setMessageType("error");
       setMessage(
-        `Activity logged successfully! (${
-          trackingMode === 'timer' ? 'Timer' : 'Manual'
-        } mode)`
+        err?.response?.data?.error ||
+          err?.response?.data?.message ||
+          "Failed to log exercise."
       );
-      setTimeout(() => setMessage(''), 2000);
-    } catch (error) {
-      console.error('Error logging your activity!', error);
-      setMessage('Failed to log activity');
     }
   };
 
   return (
-    <div className="trackExercisePage">
-      <div className="trackExerciseCard">
-        {/* Header */}
-        <div className="trackExerciseHeader">
-          <h2>Track Exercise</h2>
-          <p className="trackExerciseSubtitle">
-            Log your workout using a timer or manual entry
-          </p>
-        </div>
+    <Container maxWidth="md" sx={{ py: 4 }}>
+      <Card variant="outlined" sx={{ borderRadius: 2 }}>
+        <CardContent sx={{ p: { xs: 3, md: 4 } }}>
+          <Typography variant="h4" fontWeight={600} gutterBottom>
+            Track Exercise
+          </Typography>
 
-        {/* Mode + Date */}
-        <div className="trackTopRow">
-          <div className="trackingModeToggle">
-            <Button
-              variant={trackingMode === 'timer' ? 'primary' : 'outline-primary'}
-              onClick={() => setTrackingMode('timer')}
-            >
-              Timer
-            </Button>
-            <Button
-              variant={trackingMode === 'manual' ? 'secondary' : 'outline-secondary'}
-              onClick={() => setTrackingMode('manual')}
-            >
-              Manual
-            </Button>
-          </div>
+          <ToggleButtonGroup
+            fullWidth
+            value={trackingMode}
+            exclusive
+            onChange={(e, v) => v && setTrackingMode(v)}
+            sx={{ mb: 4 }}
+          >
+            <ToggleButton value="manual">Manual Entry</ToggleButton>
+            <ToggleButton value="timer">Timer Mode</ToggleButton>
+          </ToggleButtonGroup>
 
-          <div className="dateBlock">
-            <Form.Label>Date</Form.Label>
-            <DatePicker
-              selected={state.date}
-              onChange={(date) => setState({ ...state, date })}
-              dateFormat="yyyy/MM/dd"
-              className="datePicker"
-            />
-          </div>
-        </div>
+          <Typography fontWeight={500} mb={1.5}>
+            Select Activity
+          </Typography>
 
-        <Form onSubmit={onSubmit}>
-          {/* Exercise Type */}
-          <div className="formSection">
-            <Form.Label>Exercise Type</Form.Label>
-            <div className="exerciseIconGrid">
-              <IconButton
-                onClick={() => handleExerciseTypeSelect('Running')}
-                color={state.exerciseType === 'Running' ? 'primary' : 'default'}
-              >
-                <DirectionsRunIcon />
-              </IconButton>
-              <IconButton
-                onClick={() => handleExerciseTypeSelect('Cycling')}
-                color={state.exerciseType === 'Cycling' ? 'primary' : 'default'}
-              >
-                <BikeIcon />
-              </IconButton>
-              <IconButton
-                onClick={() => handleExerciseTypeSelect('Swimming')}
-                color={state.exerciseType === 'Swimming' ? 'primary' : 'default'}
-              >
-                <PoolIcon />
-              </IconButton>
-              <IconButton
-                onClick={() => handleExerciseTypeSelect('Gym')}
-                color={state.exerciseType === 'Gym' ? 'primary' : 'default'}
-              >
-                <FitnessCenterIcon />
-              </IconButton>
-              <IconButton
-                onClick={() => handleExerciseTypeSelect('Yoga')}
-                color={state.exerciseType === 'Yoga' ? 'primary' : 'default'}
-              >
-                <SelfImprovementIcon />
-              </IconButton>
-              <IconButton
-                onClick={() =>
-                  setState({ ...state, exerciseType: 'Other' })
-                }
-                color={state.exerciseType === 'Other' ? 'primary' : 'default'}
-              >
-                <OtherIcon />
-              </IconButton>
-            </div>
-          </div>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: 2,
+              mb: 4,
+            }}
+          >
+            {activitiesConfig.map((item) => {
+              const selected = state.exerciseType === item.key;
 
-          {/* Sub Activity */}
-          {selectedActivity && (
-            <Form.Group className="formSection">
-              <Form.Label>{selectedActivity.dropdown_label}</Form.Label>
-              <Form.Control
-                as="select"
-                value={state.subActivity}
-                onChange={(e) =>
-                  setState({ ...state, subActivity: e.target.value })
-                }
-                required
-              >
-                <option value="">-- Select --</option>
-                {selectedActivity.sub_activity_options.map((opt) => (
-                  <option key={opt.name} value={opt.name}>
-                    {opt.name}
-                  </option>
-                ))}
-              </Form.Control>
-            </Form.Group>
+              return (
+                <Card
+                  key={item.key}
+                  variant="outlined"
+                  sx={{
+                    borderRadius: 2,
+                    borderColor: selected ? "primary.main" : "divider",
+                  }}
+                >
+                  <CardActionArea onClick={() => handleExerciseTypeSelect(item.key)}>
+                    <CardContent sx={{ textAlign: "center", py: 3 }}>
+                      {item.icon}
+                      <Typography variant="body2" fontWeight={500}>
+                        {item.label}
+                      </Typography>
+                    </CardContent>
+                  </CardActionArea>
+                </Card>
+              );
+            })}
+          </Box>
+
+          {trackingMode === "timer" && (
+            <Box mb={4}>
+              <Timer onTimerStop={handleTimerStop} />
+            </Box>
           )}
 
-          {/* Timer / Manual (HERO SECTION) */}
-          <div className="timerSection">
-            {trackingMode === 'timer' && (
-              <>
-                <h5 className="sectionTitle">Timer</h5>
-                <Timer onTimerStop={handleTimerStop} />
+          {trackingMode === "manual" && (
+            <TextField
+              fullWidth
+              label="Duration (minutes)"
+              type="number"
+              value={manualDuration}
+              onChange={(e) => setManualDuration(e.target.value)}
+              sx={{ mb: 4 }}
+            />
+          )}
 
-                {state.duration > 0 && (
-                  <div className="infoBox success">
-                    Duration to save: {state.duration} minutes
-                  </div>
-                )}
-              </>
-            )}
+          {selectedActivity && (
+            <TextField
+              fullWidth
+              select
+              label={selectedActivity.dropdown_label}
+              value={state.subActivity}
+              onChange={(e) =>
+                setState({ ...state, subActivity: e.target.value })
+              }
+              SelectProps={{ native: true }}
+              sx={{ mb: 4 }}
+            >
+              <option value=""></option>
+              {selectedActivity.sub_activity_options.map((opt) => (
+                <option key={opt.name} value={opt.name}>
+                  {opt.name}
+                </option>
+              ))}
+            </TextField>
+          )}
 
-            {trackingMode === 'manual' && (
-              <>
-                <h5 className="sectionTitle">Manual Duration</h5>
-                <Form.Control
-                  type="number"
-                  value={manualDuration}
-                  onChange={(e) => setManualDuration(e.target.value)}
-                  placeholder="Duration in minutes"
-                  min="1"
-                  max="600"
-                  required
-                />
-              </>
-            )}
-          </div>
+          <Button fullWidth size="large" variant="contained" onClick={onSubmit}>
+            Save Exercise
+          </Button>
 
-          {/* Save */}
-          <div className="saveBlock">
-            <Button type="submit" variant="primary" className="w-100">
-              {trackingMode === 'timer'
-                ? 'Save Activity'
-                : 'Save Manual Entry'}
-            </Button>
-          </div>
-        </Form>
-
-        {message && <div className="statusMessage">{message}</div>}
-      </div>
-    </div>
+          {message && (
+            <Typography
+              mt={2}
+              textAlign="center"
+              color={messageType === "success" ? "success.main" : "error.main"}
+            >
+              {message}
+            </Typography>
+          )}
+        </CardContent>
+      </Card>
+    </Container>
   );
 };
 
