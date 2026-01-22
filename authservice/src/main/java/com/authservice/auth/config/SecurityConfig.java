@@ -17,6 +17,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .cors().and()
                 .csrf().disable()
                 .authorizeRequests()
+                .antMatchers("/actuator/prometheus").permitAll()
                 // ✅ Allow *all* /api/auth endpoints (signup, login, user, etc.)
                 .antMatchers("/api/auth/**").permitAll()
                 .anyRequest().authenticated()
