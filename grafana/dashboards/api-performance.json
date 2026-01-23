@@ -89,11 +89,11 @@
       },
       "targets": [
         {
-          "expr": "rate(http_requests_total[5m])",
+          "expr": "rate(process_cpu_usage[5m]) * 100",
           "refId": "A"
         }
       ],
-      "title": "Request Rate (5min avg)",
+      "title": "CPU Usage Rate",
       "type": "timeseries"
     },
     {
@@ -150,7 +150,7 @@
           "refId": "A"
         }
       ],
-      "title": "Total Requests",
+      "title": "Uptime (Services)",
       "type": "stat"
     },
     {
@@ -238,12 +238,12 @@
           "refId": "A"
         },
         {
-          "expr": "histogram_quantile(0.99, rate(http_request_duration_seconds_bucket[5m]))",
-          "legendFormat": "p99",
+          "expr": "rate(process_cpu_usage[1m]) * 100",
+          "legendFormat": "CPU Usage",
           "refId": "B"
         }
       ],
-      "title": "Response Time Percentiles",
+      "title": "System Metrics",
       "type": "timeseries"
     },
     {
@@ -311,7 +311,7 @@
           "refId": "A"
         }
       ],
-      "title": "Service Status",
+      "title": "Service Health Status",
       "transformations": [
         {
           "id": "organize",
