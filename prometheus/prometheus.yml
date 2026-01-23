@@ -1,0 +1,30 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'mla-application'
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'authservice'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['authservice:8080']
+
+  - job_name: 'activity-tracking'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['activity-tracking:5300']
+
+  - job_name: 'analytics'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['analytics:5050']
+
+  - job_name: 'workout-api'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['workout-api:8000']
