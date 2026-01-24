@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   TextField,
@@ -16,7 +16,7 @@ const FoodHydration = () => {
   const [food, setFood] = useState("");
   const [calories, setCalories] = useState("");
   const [water, setWater] = useState("");
-  const [msg, setMsg] = useState("");
+  const [, setMsg] = useState("");
   const [summary, setSummary] = useState({ calories: 0, water: 0 });
   const [logs, setLogs] = useState([]);
 
@@ -30,7 +30,7 @@ const FoodHydration = () => {
   const today = new Date().toISOString().split("T")[0];
   const username = localStorage.getItem("currentUser");
 
-  const fetchSummary = async () => {
+  const fetchSummary = useCallback(async () => {
     if (!username) return;
 
     try {
@@ -54,11 +54,11 @@ const FoodHydration = () => {
     } catch (err) {
       console.error("Failed to fetch summary", err);
     }
-  };
+  }, [today, username]);
 
   useEffect(() => {
     fetchSummary();
-  }, [username]);
+  }, [fetchSummary]);
 
   const saveGoals = () => {
     localStorage.setItem("dailyCaloriesGoal", calorieGoal);
@@ -118,19 +118,19 @@ const FoodHydration = () => {
     }
   };
 
+  const deleteLog = async (id) => {
+    try {
+      await axios.delete(`http://localhost:5005/nutrition/${id}`);
+      fetchSummary();
+    } catch (err) {
+      console.error("Delete failed", err);
+    }
+  };
+
   const caloriePercent = Math.min(
     (summary.calories / calorieGoal) * 100,
     100
   );
-
-  const deleteLog = async (id) => {
-  try {
-    await axios.delete(`http://localhost:5005/nutrition/${id}`);
-    fetchSummary();
-  } catch (err) {
-    console.error("Delete failed", err);
-  }
-};
 
   const hydrationPercent = Math.min(
     (summary.water / waterGoal) * 100,
@@ -335,7 +335,6 @@ const FoodHydration = () => {
             </Stack>
           </CardContent>
         </Card>
-
 
         {/* Goals */}
         <Card sx={{ borderRadius: 3 }}>
