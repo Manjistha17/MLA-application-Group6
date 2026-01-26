@@ -123,8 +123,29 @@ public class UserService {
         user.setHeight(req.height());
         user.setWeight(req.weight());
 
+        
+    // -----------------------------
+    // Update email if changed
+    // -----------------------------
+    if (req.email() != null && !req.email().equalsIgnoreCase(user.getEmail())) {
+
+        // Check if the new email already exists
+        if (userRepository.findByEmail(req.email()).isPresent()) {
+            throw new UserAlreadyExistsException("Email already exists");
+        }
+
+        user.setEmail(req.email());
+        user.setEmailVerified(false); // Reset verification
+        String token = UUID.randomUUID().toString();
+        user.setEmailVerificationToken(token);
+        user.setEmailVerificationExpiry(LocalDateTime.now().plusHours(24));
+        user = userRepository.save(user);
         log.info("User updated: {}", username);
-        return userRepository.save(user);
+
+        // Send verification email asynchronously
+        emailService.sendVerificationEmail(user.getEmail(), token);
+    }
+    return user;
     }
 
     // -----------------------------
@@ -216,5 +237,27 @@ public class UserService {
 
     userRepository.save(user);
 }
+
+public void sendVerificationEmailToUser(String username) {
+    User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+    if (Boolean.TRUE.equals(user.isEmailVerified())) {
+        throw new IllegalStateException("Email is already verified.");
+    }
+
+    // Generate new token
+    String token = UUID.randomUUID().toString();
+    user.setEmailVerificationToken(token);
+    user.setEmailVerificationExpiry(LocalDateTime.now().plusHours(24));
+
+    userRepository.save(user);
+
+    // Send verification email
+    emailService.sendVerificationEmail(user.getEmail(), token);
+
+    log.info("Verification email sent to {}", user.getEmail());
+}
+
 
 }
