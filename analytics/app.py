@@ -58,7 +58,9 @@ def record_metrics(response):
 
 @app.route('/metrics', methods=['GET'])
 def metrics():
-    return generate_latest(REGISTRY)
+    from prometheus_client import CONTENT_TYPE_LATEST
+    from flask import Response
+    return Response(generate_latest(REGISTRY), mimetype=CONTENT_TYPE_LATEST)
 
 load_dotenv()
 mongo_uri = os.getenv('MONGO_URI')
