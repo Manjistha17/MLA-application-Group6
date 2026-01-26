@@ -62,7 +62,7 @@
 #       - MONGO_INITDB_ROOT_USERNAME=root
 #       - MONGO_INITDB_ROOT_PASSWORD=cfgmla23
 #     ports:
-#      - "27017:27017"
+#       - "27017:27017"
 #     volumes:
 #       - mongodbdata:/data/db
 #     networks:
@@ -74,6 +74,7 @@
 
 # volumes:
 #   mongodbdata:
+
 version: '3.8'
 
 services:
@@ -126,7 +127,7 @@ services:
       - "8080"
     networks:
       - app-network
-    
+
   workout-api:
     build:
       context: ./workout-api   # folder with FastAPI Dockerfile
@@ -160,6 +161,20 @@ services:
       - analytics
       - workout-api
 
+  nutrition-api:
+    build: ./nutrition-api
+    ports:
+      - "5005:5005"
+    environment:
+      - MONGO_URI=mongodb+srv://mlagroup6_db_user1:Mlagrp6%402026@mlagroup6datacluster.ms0cuuq.mongodb.net/mlagrp6db
+    networks:
+      - app-network
+
+  # loki:
+  #   image: grafana/loki:2.9.0
+  #   ports:
+  #     - "3100:3100"
+
   grafana:
     image: grafana/grafana:10.3.0
     container_name: grafana
@@ -176,7 +191,6 @@ services:
       - app-network
     depends_on:
       - prometheus
-
 
 networks:
   app-network:
