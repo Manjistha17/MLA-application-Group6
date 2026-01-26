@@ -5,10 +5,46 @@ from typing import List, Optional
 from dotenv import load_dotenv
 from datetime import datetime
 import os
+from prometheus_client import Counter, Histogram, REGISTRY
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.responses import Response
+from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
+import time
 
 load_dotenv()
 
 app = FastAPI(title="Fitness App API")
+
+# ============================================================
+# Prometheus metrics setup
+# ============================================================
+request_count = Counter('fastapi_requests_total', 'Total requests', ['method', 'endpoint', 'status'])
+request_duration = Histogram('fastapi_request_duration_seconds', 'Request duration', ['method', 'endpoint'])
+
+class PrometheusMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        start = time.time()
+        response = await call_next(request)
+        duration = time.time() - start
+        
+        request_count.labels(
+            method=request.method,
+            endpoint=request.url.path,
+            status=response.status_code
+        ).inc()
+        request_duration.labels(
+            method=request.method,
+            endpoint=request.url.path
+        ).observe(duration)
+        
+        return response
+
+app.add_middleware(PrometheusMiddleware)
+
+# Metrics endpoint
+@app.get("/metrics")
+async def metrics():
+    return Response(generate_latest(REGISTRY), media_type=CONTENT_TYPE_LATEST)
 
 # ============================================================
 # MongoDB connection
