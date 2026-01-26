@@ -19,7 +19,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .authorizeRequests()
             
             // ✅ Prometheus and auth endpoints
-            .antMatchers("/actuator/prometheus").permitAll()
+            .antMatchers("/actuator/**").permitAll()
             .antMatchers("/api/auth/**").permitAll()
             
             // ✅ Swagger UI & API docs
