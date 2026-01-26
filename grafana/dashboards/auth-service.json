@@ -64,11 +64,11 @@
       "pluginVersion": "8.0.0",
       "targets": [
         {
-          "expr": "sum(rate(http_requests_total{job=\"authservice\"}[5m]))",
+          "expr": "sum(rate(fastapi_requests_total{job=\"workout-api\"}[5m]))",
           "refId": "A"
         }
       ],
-      "title": "Requests/sec",
+      "title": "API Requests/sec",
       "type": "stat"
     },
     {
@@ -117,7 +117,7 @@
       "pluginVersion": "8.0.0",
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job=\"authservice\"}[5m]))",
+          "expr": "histogram_quantile(0.95, rate(fastapi_request_duration_seconds_bucket{job=\"workout-api\"}[5m]))",
           "refId": "A"
         }
       ],
