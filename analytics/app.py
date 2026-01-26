@@ -9,6 +9,9 @@ import traceback
 import logging
 import os
 from datetime import datetime, timedelta
+from prometheus_client import Counter, Histogram, generate_latest, REGISTRY
+from functools import wraps
+import time
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}},
@@ -28,6 +31,36 @@ if gunicorn_error_logger.handlers:
 # 3. Set level
 app.logger.setLevel(logging.INFO)
 
+# ============================================================
+# Prometheus metrics setup
+# ============================================================
+request_count = Counter('flask_requests_total', 'Total requests', ['method', 'endpoint', 'status'])
+request_duration = Histogram('flask_request_duration_seconds', 'Request duration', ['method', 'endpoint'])
+
+@app.before_request
+def start_timer():
+    request.start_time = time.time()
+
+@app.after_request
+def record_metrics(response):
+    if request.start_time:
+        duration = time.time() - request.start_time
+        request_count.labels(
+            method=request.method,
+            endpoint=request.endpoint or 'unknown',
+            status=response.status_code
+        ).inc()
+        request_duration.labels(
+            method=request.method,
+            endpoint=request.endpoint or 'unknown'
+        ).observe(duration)
+    return response
+
+@app.route('/metrics', methods=['GET'])
+def metrics():
+    from prometheus_client import CONTENT_TYPE_LATEST
+    from flask import Response
+    return Response(generate_latest(REGISTRY), mimetype=CONTENT_TYPE_LATEST)
 
 load_dotenv()
 mongo_uri = os.getenv('MONGO_URI')
