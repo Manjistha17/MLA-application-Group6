@@ -28,7 +28,7 @@ public class EmailService {
         }
 
         try {
-            String link = "http://localhost:8081/verify-email?token=" + token;
+            String link = "http://localhost:8081/api/auth/verify-email?token=" + token;
 
             SimpleMailMessage msg = new SimpleMailMessage();
             msg.setTo(email);
