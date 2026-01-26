@@ -4,6 +4,7 @@ import "../styles/components/EditProfile.css";
 
 const EditProfile = ({ currentUser }) => {
   const [form, setForm] = useState({
+    email: "",
     contact: "",
     age: "",
     gender: "",
@@ -20,6 +21,7 @@ const EditProfile = ({ currentUser }) => {
       .get(`/api/auth/user/${currentUser}`)
       .then((res) => {
         setForm({
+          email: res.data.email || "",
           contact: res.data.contact || "",
           age: res.data.age || "",
           gender: res.data.gender || "",
@@ -67,6 +69,17 @@ const EditProfile = ({ currentUser }) => {
             Update your personal and fitness details
           </p>
         </div>
+
+        <div className="formField">
+  <label>Email</label>
+  <input
+    type="email"
+    name="email"
+    value={form.email}
+    onChange={handleChange}
+  />
+</div>
+
 
         <div className="editFormGrid">
           <div className="formField">
