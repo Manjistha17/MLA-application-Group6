@@ -14,15 +14,26 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .cors().and()
-                .csrf().disable()
-                .authorizeRequests()
-                .antMatchers("/actuator/prometheus").permitAll()
-                // ✅ Allow *all* /api/auth endpoints (signup, login, user, etc.)
-                .antMatchers("/api/auth/**").permitAll()
-                .anyRequest().authenticated()
-                .and()
-                .httpBasic().disable();  // disable login popup for browsers
+            .cors().and()
+            .csrf().disable()
+            .authorizeRequests()
+            
+            // ✅ Prometheus and auth endpoints
+            .antMatchers("/actuator/prometheus").permitAll()
+            .antMatchers("/api/auth/**").permitAll()
+            
+            // ✅ Swagger UI & API docs
+            .antMatchers(
+                "/swagger-ui.html",
+                "/swagger-ui/**",
+                "/v3/api-docs/**"
+            ).permitAll()
+            
+            // All other requests require authentication
+            .anyRequest().authenticated()
+            
+            // Disable browser login popup
+            .and().httpBasic().disable();
     }
 
     @Bean
