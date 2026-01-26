@@ -89,11 +89,11 @@
       },
       "targets": [
         {
-          "expr": "rate(process_cpu_usage[5m]) * 100",
+          "expr": "rate(fastapi_requests_total{job=\"workout-api\"}[5m])",
           "refId": "A"
         }
       ],
-      "title": "CPU Usage Rate",
+      "title": "Request Rate (req/sec)",
       "type": "timeseries"
     },
     {
@@ -146,11 +146,11 @@
       "pluginVersion": "8.0.0",
       "targets": [
         {
-          "expr": "http_requests_total",
+          "expr": "count(fastapi_requests_total{job=\"workout-api\"})",
           "refId": "A"
         }
       ],
-      "title": "Uptime (Services)",
+      "title": "Total Requests",
       "type": "stat"
     },
     {
@@ -233,17 +233,12 @@
       "pluginVersion": "8.0.0",
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))",
-          "legendFormat": "p95",
+          "expr": "histogram_quantile(0.95, rate(fastapi_request_duration_seconds_bucket{job=\"workout-api\"}[5m]))",
+          "legendFormat": "p95 Latency",
           "refId": "A"
-        },
-        {
-          "expr": "rate(process_cpu_usage[1m]) * 100",
-          "legendFormat": "CPU Usage",
-          "refId": "B"
         }
       ],
-      "title": "System Metrics",
+      "title": "Request Latency (p95)",
       "type": "timeseries"
     },
     {

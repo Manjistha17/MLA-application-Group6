@@ -75,8 +75,6 @@
 # volumes:
 #   mongodbdata:
 
-version: '3.8'
-
 services:
   nginx:
     build:
