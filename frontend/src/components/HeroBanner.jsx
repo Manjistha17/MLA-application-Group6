@@ -122,7 +122,11 @@ const HeroBanner = ({ onLogin }) => {
       </div>
 
       <div className="heroRight">
-        <div className="illustrationPlaceholder" />
+        <img
+          src="/wmremove-transformed.jpeg"
+          alt="Gym fitness concept illustration"
+          className="heroIllustration"
+        />
       </div>
     </section>
   );
