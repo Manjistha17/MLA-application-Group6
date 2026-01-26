@@ -72,12 +72,12 @@
       "pluginVersion": "8.0.0",
       "targets": [
         {
-          "expr": "process_cpu_usage * 100",
-          "legendFormat": "CPU Usage",
+          "expr": "rate(fastapi_requests_total{job=\"workout-api\",status=\"200\"}[5m]) * 100",
+          "legendFormat": "Success Rate",
           "refId": "A"
         }
       ],
-      "title": "CPU Usage (%)",
+      "title": "Request Success Rate (%)",
       "type": "gauge"
     },
     {
@@ -134,12 +134,12 @@
       "pluginVersion": "8.0.0",
       "targets": [
         {
-          "expr": "(process_resident_memory_bytes / 1024 / 1024) / 256 * 100",
-          "legendFormat": "Memory Usage",
+          "expr": "count(fastapi_requests_total{job=\"workout-api\",status=~\"4..|5..\"}[5m])",
+          "legendFormat": "Error Count",
           "refId": "A"
         }
       ],
-      "title": "Memory Usage (%)",
+      "title": "HTTP Error Count",
       "type": "gauge"
     },
     {
