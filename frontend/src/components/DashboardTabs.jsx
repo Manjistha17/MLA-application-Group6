@@ -4,6 +4,7 @@ import Overview from "./OverviewTab";
 import Workouts from "./WorkoutsTab";
 import GoalSettingPage from "./GoalSettingPage";
 import WorkoutPlan from "./WorkoutPlan";
+import FoodHydration from "./FoodHydration";
 
 const DashboardTabs = ({ currentUser }) => {
   const [activeTab, setActiveTab] = useState(0);
@@ -32,6 +33,7 @@ const DashboardTabs = ({ currentUser }) => {
         <Tab label="Progress" />
         <Tab label="Goals" />
         <Tab label="Track Workout" />
+        <Tab label="Food & Hydration" />
       </Tabs>
 
       {activeTab === 0 && <Overview currentUser={currentUser} />}
@@ -39,6 +41,7 @@ const DashboardTabs = ({ currentUser }) => {
       {activeTab === 2 && <div>Progress coming soon</div>}
       {activeTab === 3 && <GoalSettingPage currentUser={currentUser} />}
       {activeTab === 4 && <WorkoutPlan currentUser={currentUser} />}
+      {activeTab === 5 && <FoodHydration currentUser={currentUser} />}
     </Box>
   );
 };

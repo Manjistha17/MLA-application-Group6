@@ -62,7 +62,7 @@
 #       - MONGO_INITDB_ROOT_USERNAME=root
 #       - MONGO_INITDB_ROOT_PASSWORD=cfgmla23
 #     ports:
-#      - "27017:27017"
+#       - "27017:27017"
 #     volumes:
 #       - mongodbdata:/data/db
 #     networks:
@@ -74,7 +74,6 @@
 
 # volumes:
 #   mongodbdata:
-version: '3.8'
 
 services:
   nginx:
@@ -126,7 +125,7 @@ services:
       - "8080"
     networks:
       - app-network
-    
+
   workout-api:
     build:
       context: ./workout-api   # folder with FastAPI Dockerfile
@@ -139,33 +138,63 @@ services:
     networks:
       - app-network
 
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./prometheus:/etc/prometheus
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    networks:
+      - app-network
+    depends_on:
+      - authservice
+      - activity-tracking
+      - analytics
+      - workout-api
+
+  nutrition-api:
+    build: ./nutrition-api
+    ports:
+      - "5005:5005"
+    environment:
+      - MONGO_URI=mongodb+srv://mlagroup6_db_user1:Mlagrp6%402026@mlagroup6datacluster.ms0cuuq.mongodb.net/mlagrp6db
+    networks:
+      - app-network
+
   # loki:
   #   image: grafana/loki:2.9.0
   #   ports:
   #     - "3100:3100"
 
-  # promtail:
-  #  image: grafana/promtail:2.9.0
-  #  volumes:
-  #   - /var/run/docker.sock:/var/run/docker.sock
-  #   - ./promtail-config.yaml:/etc/promtail/config.yaml
-  #  command: -config.file=/etc/promtail/config.yaml
-
-  # prometheus:
-  #   image: prom/prometheus:latest
-  #   volumes:
-  #     - ./prometheus:/etc/prometheus
-  #   ports:
-  #     - "9090:9090"
-  #   networks:
-  #     - app-network
-
-  # grafana:
-  #   image: grafana/grafana:10.3.0
-  #   ports:
-  #     - "3000:3000"
-
+  grafana:
+    image: grafana/grafana:10.3.0
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_INSTALL_PLUGINS=
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/etc/grafana/dashboards
+    networks:
+      - app-network
+    depends_on:
+      - prometheus
 
 networks:
   app-network:
     driver: bridge
+
+volumes:
+  prometheus_data:
+  grafana_data:
