@@ -30,18 +30,18 @@ const DashboardTabs = ({ currentUser }) => {
         }}
       >
         <Tab label="Overview" />
+        <Tab label="Goals" />
+        <Tab label="Workout Plan" />
         <Tab label="Workouts" />
         <Tab label="Progress" />
-        <Tab label="Goals" />
-        <Tab label="Track Workout" />
         <Tab label="Food & Hydration" />
       </Tabs>
 
       {activeTab === 0 && <Overview currentUser={currentUser} />}
-      {activeTab === 1 && <Workouts currentUser={currentUser} />}
-      {activeTab === 2 && <ProgressTab />}
-      {activeTab === 3 && <GoalSettingPage currentUser={currentUser} />}
-      {activeTab === 4 && <WorkoutPlan currentUser={currentUser} />}
+      {activeTab === 3 && <Workouts currentUser={currentUser} />}
+      {activeTab === 4 && <ProgressTab />}
+      {activeTab === 1 && <GoalSettingPage currentUser={currentUser} />}
+      {activeTab === 2 && <WorkoutPlan currentUser={currentUser} />}
       {activeTab === 5 && <FoodHydration currentUser={currentUser} />}
     </Box>
   );
