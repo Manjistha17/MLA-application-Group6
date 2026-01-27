@@ -319,7 +319,20 @@ def get_daily_stats():
 
     try:
         stats = list(db.exercises.aggregate(pipeline))
-        return jsonify(stats=stats), 200
+        def calculate_streak(username):
+            dates = db.exercises.distinct("date", {"username": username})
+            date_set = set(date.date() for date in dates)
+
+            streak = 0
+            current_date = datetime.utcnow().date()
+
+            while current_date in date_set:
+                streak += 1
+                current_date -= timedelta(days=1)
+
+            return streak
+        streak = calculate_streak(username)
+        return jsonify(stats=stats,streak=streak), 200
     except Exception as e:
         app.logger.error(f"Error fetching daily stats: {e}")
         return jsonify(error="Internal server error"), 500

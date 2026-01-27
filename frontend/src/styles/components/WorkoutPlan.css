@@ -1,4 +1,4 @@
-.workout-plan-wrapper {
+/* .workout-plan-wrapper {
   padding: 20px;
 }
 
@@ -75,6 +75,147 @@
 
 .mark-complete-btn:disabled {
   background-color: #ccc;
+  cursor: not-allowed;
+}
+ */
+
+ /* Page wrapper */
+.workout-plan-wrapper {
+  padding: 20px;
+  background: #f7f9fc;
+}
+
+/* Plan card */
+.plan-container {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 18px;
+  margin-bottom: 28px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+/* Header */
+.plan-title {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.plan-meta {
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin-top: 4px;
+  margin-bottom: 16px;
+}
+
+/* Week tabs */
+.week-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.week-tab {
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  background: #f1f5ff;
+  color: #2f6df6;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.week-tab:hover {
+  background: #e8eeff;
+}
+
+.week-tab.active {
+  background: #2f6df6;
+  color: #ffffff;
+  border-color: #2f6df6;
+}
+
+/* Week content */
+.week-content {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Day section */
+.day-section {
+  background: #fafafa;
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.day-section h4 {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+/* Exercise row */
+.exercise-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-top: 1px solid #e5e7eb;
+}
+
+.exercise-item:first-child {
+  border-top: none;
+}
+
+/* Completed state */
+.exercise-item.completed {
+  background: #e8f5ee;
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
+.exercise-item.completed span {
+  color: #1f9d55;
+  text-decoration: line-through;
+}
+
+/* Exercise info */
+.exercise-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.exercise-info span:first-child {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.exercise-info span:last-child {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+/* Button */
+.exercise-item button {
+  background: #2f6df6;
+  color: #ffffff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.exercise-item button:hover {
+  background: #245ad8;
+}
+
+.exercise-item button:disabled {
+  background: #c7d2fe;
   cursor: not-allowed;
 }
 
