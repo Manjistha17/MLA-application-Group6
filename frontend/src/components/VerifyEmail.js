@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+// import React, { useEffect, useState } from "react";
 import { Container, Card, Alert, Spinner, Button } from "react-bootstrap";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -8,7 +8,7 @@ const VerifyEmail = () => {
   const navigate = useNavigate();
   const token = searchParams.get("token");
 
-  const [status, setStatus] = useState("loading");
+  const [status, setStatus] = useState("loading"); // loading | success | error
   const [message, setMessage] = useState("");
 
   useEffect(() => {
@@ -20,17 +20,24 @@ const VerifyEmail = () => {
       }
 
       try {
-        const response = await axios.get(
-          `/api/auth/verify-email?token=${token}`
+        await axios.get(
+          `/api/auth/verify-email?token=${encodeURIComponent(token)}`
         );
+
         setStatus("success");
-        setMessage(response.data.message || "Email verified successfully!");
+        setMessage("Your email has been verified successfully!");
       } catch (err) {
+        const data = err.response?.data;
+
+        const backendMessage =
+          data?.message?.[0] ||
+          data?.message ||
+          data?.error ||
+          data?.msg ||
+          "Verification failed. Token may be expired.";
+
         setStatus("error");
-        setMessage(
-          err.response?.data?.message ||
-            "Verification failed. Token may be expired."
-        );
+        setMessage(backendMessage);
       }
     };
 
@@ -49,23 +56,23 @@ const VerifyEmail = () => {
           </div>
         )}
 
-        {status === "success" && (
-          <>
-            <Alert variant="success" className="text-center">
-              ✅ {message}
-            </Alert>
-            <div className="d-grid">
-              <Button variant="success" onClick={() => navigate("/login")}>
-                Go to Login
-              </Button>
-            </div>
-          </>
+        {status !== "loading" && message && (
+          <Alert
+            variant={status === "success" ? "success" : "danger"}
+            className="text-center"
+          >
+            {status === "success" && "🎉 "}
+            {status === "error" && "❌ "}
+            {message}
+          </Alert>
         )}
 
-        {status === "error" && (
-          <Alert variant="danger" className="text-center">
-            ❌ {message}
-          </Alert>
+        {status === "success" && (
+          <div className="d-grid mt-3">
+            <Button variant="success" onClick={() => navigate("/login")}>
+              Go to Login
+            </Button>
+          </div>
         )}
       </Card>
     </Container>
