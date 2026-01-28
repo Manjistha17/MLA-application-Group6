@@ -12,7 +12,7 @@
 
   color: var(--color-white);
   width: calc(100% - (var(--space-xl) * 2));
-  max-height: calc(100vh - 200px);
+  max-height: calc(100vh);
   overflow: hidden;
 }
 
@@ -112,9 +112,7 @@
   height: auto;
   max-width: 100%;
   max-height: 100%;
-
   border-radius: var(--radius-lg);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   object-fit: contain;
   object-position: center;
   display: block;
