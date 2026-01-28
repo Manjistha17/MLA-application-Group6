@@ -141,7 +141,7 @@ const Signup = ({ onSignup }) => {
         weight: Number(formData.weight),
       };
 
-      const res = await axios.post('/api/auth/signup', payload);
+      await axios.post('/api/auth/signup', payload);
       localStorage.removeItem('signupForm');
       onSignup(formData.username);
     } catch (err) {
