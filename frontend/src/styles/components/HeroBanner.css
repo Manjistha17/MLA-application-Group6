@@ -12,7 +12,7 @@
 
   color: var(--color-white);
   width: calc(100% - (var(--space-xl) * 2));
-  max-height: calc(100vh - 200px);
+  max-height: calc(100vh);
   overflow: hidden;
 }
 
