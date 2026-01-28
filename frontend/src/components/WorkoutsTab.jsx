@@ -1,7 +1,5 @@
-import React from "react";
 import "../styles/components/WorkoutsTab.css";
 import TrackExercise from "./trackExercise";
-import WorkoutSidePanel from "./WorkoutSidePanel";
 
 const WorkoutsTab = ({ currentUser }) => {
   return (
@@ -12,9 +10,9 @@ const WorkoutsTab = ({ currentUser }) => {
       </div>
 
       {/* RIGHT: Context / support */}
-      <div className="workoutsSide">
-        <WorkoutSidePanel currentUser={currentUser} />
-      </div>
+     {/*  <div className="workoutsSide">
+        <WorkoutSidePanel currentUser={currentUser} /> 
+      </div> */}
     </div>
   );
 };

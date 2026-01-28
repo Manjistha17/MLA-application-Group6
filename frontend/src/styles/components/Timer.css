@@ -1,0 +1,85 @@
+.timer-container {
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+/* ---------- Gradient panel ---------- */
+.timer-panel {
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  border-radius: 18px;
+  padding: 28px 20px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.timer-display {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 48px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 2px;
+}
+
+.timer-status {
+  margin-top: 8px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* ---------- Controls ---------- */
+.timer-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Primary buttons */
+.timer-btn {
+  border: none;
+  border-radius: 12px;
+  padding: 14px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.timer-btn.start {
+  background-color: #22c55e;
+  color: #ffffff;
+}
+
+.timer-btn.pause {
+  background-color: #f59e0b;
+  color: #ffffff;
+}
+
+.timer-btn.stop {
+  background-color: #ef4444;
+  color: #ffffff;
+}
+
+/* Secondary row */
+.timer-secondary {
+  display: flex;
+  gap: 12px;
+}
+
+.timer-btn.save {
+  flex: 1;
+  background-color: #4f46e5;
+  color: #ffffff;
+}
+
+.timer-btn.reset {
+  flex: 1;
+  background-color: #4b5563;
+  color: #ffffff;
+}
+
+/* Error */
+.error-message {
+  color: #dc2626;
+  font-size: 13px;
+  text-align: center;
+  margin-bottom: 8px;
+}
