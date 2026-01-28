@@ -3,9 +3,9 @@ import axios from "axios";
 import "../styles/GoalSettingPage.css";
 
 function GoalSettingPage({ currentUser }) {
-  const [goalType, setGoalType] = useState("weight_loss");
+  const [goalType, setGoalType] = useState("weight loss");
   const [level, setLevel] = useState("beginner");
-  const [numberOfWeeks, setNumberOfWeeks] = useState(4);
+  const [numberOfWeeks, setNumberOfWeeks] = useState(2);
   const [plan, setPlan] = useState(null);
   const [error, setError] = useState(null);
 
@@ -44,8 +44,8 @@ function GoalSettingPage({ currentUser }) {
       <div className="form-group">
         <label>Goal Type:</label>
         <select value={goalType} onChange={(e) => setGoalType(e.target.value)}>
-          <option value="weight_loss">Weight Loss</option>
-          <option value="muscle_gain">Muscle Gain</option>
+          <option value="weight loss">Weight Loss</option>
+          <option value="muscle gain">Muscle Gain</option>
           <option value="endurance">Endurance</option>
         </select>
 
