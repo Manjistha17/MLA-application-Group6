@@ -129,7 +129,7 @@ const HeroBanner = ({ onLogin }) => {
 
       <div className="heroRight">
         <img
-          src="/wmremove-transformed.jpeg"
+          src="/login-illustration.png"
           alt="Gym fitness concept illustration"
           className="heroIllustration"
         />
