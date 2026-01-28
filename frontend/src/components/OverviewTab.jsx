@@ -118,6 +118,7 @@ const OverviewTab = ({ currentUser }) => {
 
         if (Array.isArray(response.data?.stats)) {
           const exercises = response.data.stats;
+          const streak = response.data?.streak || 0; 
 
           const totalCalories = exercises.reduce(
             (sum, ex) => sum + (ex.totalCalories || 0),
@@ -134,11 +135,12 @@ const OverviewTab = ({ currentUser }) => {
             subActivity: ex.subActivity || "",
           }));
 
+
           setStats({
             caloriesBurned: totalCalories.toFixed(0),
             activeMinutes: totalMinutes,
             workoutCount: exercises.length,
-            streak: 0,
+            streak,
             activities,
           });
         }
