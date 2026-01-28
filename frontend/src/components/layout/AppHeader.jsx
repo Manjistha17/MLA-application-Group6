@@ -13,8 +13,7 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import LogoutIcon from "@mui/icons-material/Logout";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
-import PersonSharpIcon from '@mui/icons-material/PersonSharp';
-
+import PersonSharpIcon from "@mui/icons-material/PersonSharp";
 
 import { useNavigate } from "react-router-dom";
 import "../../styles/components/Header.loggedIn.css";
@@ -36,30 +35,33 @@ const AppHeader = ({ currentUser, onLogout }) => {
     <AppBar
       position="sticky"
       elevation={0}
-      color="transparent"
+      color="inherit"   
       className="appHeader"
       sx={{
-        backgroundColor: "#ffffff",   
+        backgroundColor: '#ffffff', 
+        borderBottom: '1px solid var(--color-border-subtle)',
       }}
     >
-      <Toolbar disableGutters>
+      <Toolbar className="loggedHeader__toolbar" disableGutters>
 
-        {/* LEFT */}
-        <div className="headerLeft" onClick={() => navigate("/login")}>
-          <span className="appName">Shakti 360</span>
+        {/* LEFT: LOGO + NAME */}
+        <div
+          className="loggedHeader__left"
+          onClick={() => navigate("/")}
+        >
+          <span className="loggedHeader__logo">
+            <img src="/logo.png" alt="Shakti 360 Logo" />
+          </span>
+          <span className="loggedHeader__name">Shakti 360</span>
         </div>
 
-        {/* RIGHT */}
-        <div className="headerRight">
+        {/* RIGHT: AVATAR */}
+        <div className="loggedHeader__right">
           <Avatar
-            className="userAvatar"
+            className="loggedHeader__avatar"
             onClick={(e) => setAnchorEl(e.currentTarget)}
           >
-            {currentUser ? (
-              <PersonSharpIcon color="primary" />
-            ) : (
-              <PersonSharpIcon color="primary" />
-            )}
+            <PersonSharpIcon color="primary" />
           </Avatar>
 
           <Menu

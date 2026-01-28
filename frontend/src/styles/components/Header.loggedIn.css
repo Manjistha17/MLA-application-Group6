@@ -1,46 +1,57 @@
-.appHeader {
-  position: sticky;
-  top: 0;
-  z-index: 1100;
+/* ================================
+   LOGGED-IN HEADER (ISOLATED)
+   ================================ */
 
+.loggedHeader {
   background-color: var(--color-white);
   border-bottom: 1px solid var(--color-border-subtle);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  z-index: 1100;
 }
 
-/* MUI controls layout here */
-.appHeader .MuiToolbar-root {
+/* Toolbar */
+.loggedHeader__toolbar {
   height: 64px;
-  padding: 0 var(--space-xl);
+  padding: 0 24px;
 
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: center;
 }
 
-/* Left section (logo / app name) */
-.headerLeft {
+/* LEFT: logo + app name */
+.loggedHeader__left {
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
+  gap: 8px;
   cursor: pointer;
+  min-width: 0; /* prevents weird flex overflow */
 }
 
-/* Right section (avatar, menu) */
-.headerRight {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
+/* Logo */
+.loggedHeader__logo img {
+  height: 52px;        /* IMPORTANT: was too big before */
+  width: auto;
+  display: block;
 }
 
 /* App name */
-.appName {
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-bold);
+.loggedHeader__name {
+  font-size: 18px;
+  font-weight: 600;
   color: var(--color-text-primary);
+  white-space: nowrap;
+  line-height: 1;
+}
+
+/* RIGHT: avatar */
+.loggedHeader__right {
+  display: flex;
+  align-items: center;
+  margin-left: auto; /* hard-push avatar to extreme right */
 }
 
 /* Avatar */
-.userAvatar {
+.loggedHeader__avatar {
   cursor: pointer;
 }
