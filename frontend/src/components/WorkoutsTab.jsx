@@ -12,9 +12,9 @@ const WorkoutsTab = ({ currentUser }) => {
       </div>
 
       {/* RIGHT: Context / support */}
-      <div className="workoutsSide">
-        <WorkoutSidePanel currentUser={currentUser} />
-      </div>
+     {/*  <div className="workoutsSide">
+        <WorkoutSidePanel currentUser={currentUser} /> 
+      </div> */}
     </div>
   );
 };
