@@ -9,12 +9,24 @@ import {
   CardContent,
   LinearProgress,
   Divider,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  IconButton,
+  Paper,
+  MenuItem,
 } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import SaveIcon from "@mui/icons-material/Save";
 import axios from "axios";
 
 const FoodHydration = () => {
   const [food, setFood] = useState("");
   const [calories, setCalories] = useState("");
+  const [mealType, setMealType] = useState("Breakfast");
   const [water, setWater] = useState("");
   const [, setMsg] = useState("");
   const [summary, setSummary] = useState({ calories: 0, water: 0 });
@@ -75,12 +87,14 @@ const FoodHydration = () => {
         userId: username,
         food,
         calories,
+        mealType,
         water: 0,
         date: today,
       });
 
       setFood("");
       setCalories("");
+      setMealType("Breakfast");
       fetchSummary();
       setMsg("Food logged");
     } catch (err) {
@@ -97,6 +111,7 @@ const FoodHydration = () => {
         userId: username,
         food: "",
         calories: 0,
+        mealType: "",
         water: amount,
         date: today,
       });
@@ -200,6 +215,19 @@ const FoodHydration = () => {
             <form onSubmit={saveFood}>
               <Stack spacing={2}>
                 <TextField
+                  select
+                  label="Meal Type"
+                  value={mealType}
+                  onChange={(e) => setMealType(e.target.value)}
+                  fullWidth
+                >
+                  <MenuItem value="Breakfast">Breakfast</MenuItem>
+                  <MenuItem value="Lunch">Lunch</MenuItem>
+                  <MenuItem value="Dinner">Dinner</MenuItem>
+                  <MenuItem value="Snack">Snack</MenuItem>
+                </TextField>
+
+                <TextField
                   label="Food"
                   value={food}
                   onChange={(e) => setFood(e.target.value)}
@@ -277,62 +305,97 @@ const FoodHydration = () => {
               Today’s Food Log
             </Typography>
 
-            <Stack spacing={2}>
-              {logs.map((item) => (
-                <Box
-                  key={item._id}
-                  sx={{
-                    display: "grid",
-                    gridTemplateColumns: "2fr 1fr auto auto",
-                    gap: 2,
-                    alignItems: "center",
-                  }}
-                >
-                  <TextField
-                    value={item.food}
-                    onChange={(e) =>
-                      setLogs((prev) =>
-                        prev.map((l) =>
-                          l._id === item._id
-                            ? { ...l, food: e.target.value }
-                            : l
-                        )
-                      )
-                    }
-                  />
+            <TableContainer component={Paper} variant="outlined">
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell><b>Meal</b></TableCell>
+                    <TableCell><b>Food Item</b></TableCell>
+                    <TableCell><b>Calories</b></TableCell>
+                    <TableCell align="center"><b>Actions</b></TableCell>
+                  </TableRow>
+                </TableHead>
 
-                  <TextField
-                    type="number"
-                    value={item.calories}
-                    onChange={(e) =>
-                      setLogs((prev) =>
-                        prev.map((l) =>
-                          l._id === item._id
-                            ? { ...l, calories: e.target.value }
-                            : l
-                        )
-                      )
-                    }
-                  />
+                <TableBody>
+                  {logs.map((item) => (
+                    <TableRow key={item._id} hover>
+                      <TableCell width="20%">
+                        <TextField
+                          select
+                          variant="standard"
+                          value={item.mealType || "Breakfast"}
+                          onChange={(e) =>
+                            setLogs((prev) =>
+                              prev.map((l) =>
+                                l._id === item._id
+                                  ? { ...l, mealType: e.target.value }
+                                  : l
+                              )
+                            )
+                          }
+                        >
+                          <MenuItem value="Breakfast">Breakfast</MenuItem>
+                          <MenuItem value="Lunch">Lunch</MenuItem>
+                          <MenuItem value="Dinner">Dinner</MenuItem>
+                          <MenuItem value="Snack">Snack</MenuItem>
+                        </TextField>
+                      </TableCell>
 
-                  <Button
-                    size="small"
-                    variant="outlined"
-                    onClick={() => updateFood(item._id, item)}
-                  >
-                    Save
-                  </Button>
+                      <TableCell width="35%">
+                        <TextField
+                          variant="standard"
+                          fullWidth
+                          value={item.food}
+                          onChange={(e) =>
+                            setLogs((prev) =>
+                              prev.map((l) =>
+                                l._id === item._id
+                                  ? { ...l, food: e.target.value }
+                                  : l
+                              )
+                            )
+                          }
+                        />
+                      </TableCell>
 
-                  <Button
-                    size="small"
-                    color="error"
-                    onClick={() => deleteLog(item._id)}
-                  >
-                    Delete
-                  </Button>
-                </Box>
-              ))}
-            </Stack>
+                      <TableCell width="20%">
+                        <TextField
+                          variant="standard"
+                          type="number"
+                          fullWidth
+                          value={item.calories}
+                          onChange={(e) =>
+                            setLogs((prev) =>
+                              prev.map((l) =>
+                                l._id === item._id
+                                  ? { ...l, calories: e.target.value }
+                                  : l
+                              )
+                            )
+                          }
+                        />
+                      </TableCell>
+
+                      <TableCell align="center">
+                        <IconButton
+                          color="primary"
+                          onClick={() => updateFood(item._id, item)}
+                        >
+                          <SaveIcon />
+                        </IconButton>
+
+                        <IconButton
+                          color="error"
+                          onClick={() => deleteLog(item._id)}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
           </CardContent>
         </Card>
 
