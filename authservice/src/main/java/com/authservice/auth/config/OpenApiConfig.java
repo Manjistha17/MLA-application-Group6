@@ -14,10 +14,21 @@ public class OpenApiConfig {
 
     @Bean
     public OpenAPI authServiceOpenAPI() {
-        return new OpenAPI()
-                .info(new Info()
-                        .title("Auth Service API")
-                        .version("1.0")
-                        .description("API documentation for the Authentication and User Management Service."));
+        // Base URL that browser uses via Nginx
+        Server nginxServer = new Server();
+        nginxServer.setUrl("http://localhost:8081"); // <-- important
+        nginxServer.setDescription("Auth Service via Nginx on 8081");
+
+        Contact contact = new Contact();
+        contact.setName("MLA Fitness App Team");
+
+        Info info = new Info()
+                .title("Auth Service API")
+                .version("1.0")
+                .contact(contact)
+                .description("API documentation for the Authentication and User Management Service. " +
+                        "This service handles user registration, login, profile management, and password reset functionality.");
+
+        return new OpenAPI().info(info).servers(List.of(nginxServer));
     }
 }
