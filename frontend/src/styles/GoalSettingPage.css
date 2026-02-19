@@ -1,9 +1,20 @@
+/* .goal-page {
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+} */
+
+/* Only the goal box is white */
 .goal-page {
   max-width: 600px;
   margin: 20px auto;
   padding: 16px;
   border: 1px solid #ddd;
   border-radius: 8px;
+  background-color: #ffffff; /* White background */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* subtle shadow for depth */
 }
 
 .form-group {

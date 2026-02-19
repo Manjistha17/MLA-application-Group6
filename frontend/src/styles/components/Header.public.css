@@ -1,3 +1,7 @@
+/* ================================
+   PUBLIC HEADER (ISOLATED)
+   ================================ */
+
 .publicHeader {
   position: sticky;
   top: 0;
@@ -12,4 +16,32 @@
 
   background-color: var(--color-bg-surface);
   border-bottom: 1px solid var(--color-border-subtle);
+}
+
+/* LEFT: logo + name */
+.publicHeader__left {
+  display: flex;
+  align-items: center;
+ 
+}
+
+/* Logo */
+.publicHeader__logo img {
+  height: 60px;          /* stable, predictable */
+  width: auto;
+  display: block;
+}
+
+/* App name */
+.publicHeader__name {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  white-space: nowrap;
+}
+
+/* RIGHT: reserved for future controls */
+.publicHeader__right {
+  display: flex;
+  align-items: center;
 }
