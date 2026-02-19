@@ -1,16 +1,85 @@
+/* OverviewTab.css */
+
+/* Grid layout */
 .overviewGrid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--space-lg);
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+}
+
+/* Card styles */
+.statCard {
+  background-color: #fff;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  padding: 1rem;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.statCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Header with icon and title */
+.statHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.iconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: #bbdefb; /* light blue background */
+  color: #2563eb;           /* dark blue icon */
+}
+
+/* Main stat value */
+.statValue {
+  margin-top: 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #2563eb; /* unified blue */
+}
+
+/* Smaller text for 'No workouts today' */
+.smallText {
+  font-size: 0.875rem;
+  color: #555;
+  font-weight: normal;
+}
+
+/* Activities chips */
+.activitiesWrapper {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.activityChip {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  border-radius: 4px;
+  border: 1px solid #2563eb;
+  color: #2563eb;
+  background-color: #bbdefb;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Responsive */
-@media (max-width: 1200px) {
-  .overviewGrid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
 @media (max-width: 600px) {
   .overviewGrid {
     grid-template-columns: 1fr;

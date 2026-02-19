@@ -13,7 +13,6 @@ const HeroBanner = ({ onLogin }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Accessibility: focus username on load
   const usernameRef = useRef(null);
 
   useEffect(() => {
@@ -68,11 +67,7 @@ const HeroBanner = ({ onLogin }) => {
 
         <div className="loginForm">
           {error && (
-            <Alert
-              severity="error"
-              className="loginError"
-              role="alert"
-            >
+            <Alert severity="error" className="loginError" role="alert">
               {error}
             </Alert>
           )}
@@ -96,7 +91,8 @@ const HeroBanner = ({ onLogin }) => {
             fullWidth
             autoComplete="current-password"
           />
-          <br/>
+          <br />
+
           <Button
             variant="contained"
             fullWidth
@@ -108,6 +104,16 @@ const HeroBanner = ({ onLogin }) => {
           >
             {loading ? "Signing in..." : "Sign In"}
           </Button>
+
+          {/* ✅ Forgot Password (same style as Get Started) */}
+          <div className="forgotPasswordCTA">
+            <button
+              className="getStartedBtn"
+              onClick={() => navigate("/ForgotPassword")}
+            >
+              Forgot password?
+            </button>
+          </div>
         </div>
 
         <div className="signupCTA">
@@ -123,7 +129,7 @@ const HeroBanner = ({ onLogin }) => {
 
       <div className="heroRight">
         <img
-          src="/wmremove-transformed.jpeg"
+          src="/login-illustration.png"
           alt="Gym fitness concept illustration"
           className="heroIllustration"
         />

@@ -150,4 +150,47 @@ router.put('/update/:id', async (req, res) => {
     }
   });
   
+  // GET: Weekly workout summary for graph
+router.get('/weekly/:username', async (req, res) => {
+  try {
+    const { username } = req.params;
+
+    const today = new Date();
+    const last7Days = [...Array(7)].map((_, i) => {
+      const d = new Date();
+      d.setDate(today.getDate() - (6 - i));
+      return d.toISOString().split("T")[0];
+    });
+
+    const data = await Exercise.find({
+      username,
+      date: {
+        $gte: new Date(last7Days[0]),
+        $lte: new Date()
+      }
+    });
+
+    const weekly = last7Days.map((day) => {
+      const dayData = data.filter(
+        d => new Date(d.date).toISOString().split("T")[0] === day
+      );
+
+      const totalDuration = dayData.reduce(
+        (sum, d) => sum + Number(d.duration || 0),
+        0
+      );
+
+      return {
+        day: new Date(day).toLocaleDateString("en-US", { weekday: "short" }),
+        value: totalDuration
+      };
+    });
+
+    res.json(weekly);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to fetch weekly summary" });
+  }
+});
+
   module.exports = router;

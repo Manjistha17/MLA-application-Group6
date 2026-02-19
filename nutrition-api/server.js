@@ -18,9 +18,14 @@ const NutritionSchema = new mongoose.Schema({
   userId: String,
   food: String,
   calories: Number,
+  mealType: {
+    type: String,
+    required: true,
+  },
   water: Number,
   date: String,
 });
+
 
 const Nutrition = mongoose.model("Nutrition", NutritionSchema);
 
