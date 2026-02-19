@@ -1,0 +1,131 @@
+groups:
+  - name: service_health
+    interval: 30s
+    rules:
+      - alert: ServiceDown
+        expr: up{job!="prometheus"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service {{ $labels.job }} is DOWN"
+          description: "Service {{ $labels.job }} has been down for more than 1 minute"
+          value: "{{ $value }}"
+
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) > 0.05
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High error rate on {{ $labels.job }}"
+          description: "Error rate is {{ $value | humanizePercentage }} on {{ $labels.job }}"
+          value: "{{ $value }}"
+
+  - name: performance
+    interval: 30s
+    rules:
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High response time on {{ $labels.job }}"
+          description: "95th percentile response time is {{ $value }}s on {{ $labels.job }}"
+          value: "{{ $value }}"
+
+      - alert: HighLatency
+        expr: rate(http_request_duration_seconds_sum[5m]) / rate(http_request_duration_seconds_count[5m]) > 1
+        for: 3m
+        labels:
+          severity: info
+        annotations:
+          summary: "Elevated latency detected on {{ $labels.job }}"
+          description: "Average latency is {{ $value }}s on {{ $labels.job }}"
+          value: "{{ $value }}"
+
+  - name: resource_usage
+    interval: 30s
+    rules:
+      - alert: HighMemoryUsage
+        expr: container_memory_usage_bytes{name!=""} / container_spec_memory_limit_bytes > 0.85
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage in container {{ $labels.name }}"
+          description: "Memory usage is at {{ $value | humanizePercentage }}"
+          value: "{{ $value }}"
+
+      - alert: HighCPUUsage
+        expr: rate(container_cpu_usage_seconds_total[5m]) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage in {{ $labels.name }}"
+          description: "CPU usage is at {{ $value | humanizePercentage }}"
+          value: "{{ $value }}"
+
+  - name: auth_service
+    interval: 30s
+    rules:
+      - alert: AuthServiceDown
+        expr: up{job="authservice"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Auth Service is DOWN - Critical!"
+          description: "Auth Service is unreachable. User authentication may be affected."
+          value: "{{ $value }}"
+
+      - alert: HighAuthFailureRate
+        expr: rate(auth_failures_total[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High auth failure rate detected"
+          description: "Authentication failure rate is {{ $value | humanizePercentage }}"
+          value: "{{ $value }}"
+
+  - name: activity_tracking
+    interval: 30s
+    rules:
+      - alert: ActivityTrackingDown
+        expr: up{job="activity-tracking"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Activity Tracking Service is DOWN"
+          description: "Activity tracking data collection is not functioning"
+          value: "{{ $value }}"
+
+  - name: analytics
+    interval: 30s
+    rules:
+      - alert: AnalyticsDown
+        expr: up{job="analytics"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Analytics Service is DOWN"
+          description: "Analytics API is not responding"
+          value: "{{ $value }}"
+
+  - name: workout_api
+    interval: 30s
+    rules:
+      - alert: WorkoutAPIDown
+        expr: up{job="workout-api"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Workout API is DOWN"
+          description: "Workout API service is not responding to requests"
+          value: "{{ $value }}"
