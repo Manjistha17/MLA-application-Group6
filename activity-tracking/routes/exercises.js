@@ -5,6 +5,10 @@ const { LambdaClient, InvokeCommand } = require("@aws-sdk/client-lambda");
 
 // Initialize Lambda client
 const lambdaClient = new LambdaClient({ region: "eu-north-1" }); // replace region if needed
+const { LambdaClient, InvokeCommand } = require("@aws-sdk/client-lambda");
+
+// Initialize Lambda client
+const lambdaClient = new LambdaClient({ region: "eu-north-1" }); // replace region if needed
 
 
 // GET: Retrieve all exercises
