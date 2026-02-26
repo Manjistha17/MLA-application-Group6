@@ -54,13 +54,15 @@ const TrackExercise = (props) => {
      Fetch activities (once)
   -------------------------------- */
   useEffect(() => {
-    axios
-      .get("/exercises/activities/")
-      .then((res) => setActivities(res.data))
-      .catch(() => {
-        setMessageType("error");
-        setMessage("Failed to load activities.");
-      });
+    const fetchActivities = async () => {
+      try {
+        const response = await axios.get('http://16.171.162.5:5300/exercises/activities/');
+        setActivities(response.data);
+      } catch (error) {
+        console.error('Error fetching activities', error);
+      }
+    };
+    fetchActivities();
   }, []);
 
 

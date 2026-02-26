@@ -1,11 +1,18 @@
-# ---- Build stage ----
+# # ---- Build stage ----
 FROM gradle:7.2-jdk17 AS build
 
 WORKDIR /home/gradle/src
 
-COPY build.gradle.kts .
+# Copy only Gradle files first to cache dependencies
+COPY build.gradle.kts settings.gradle.kts ./
+
+# Download dependencies only
+RUN gradle build --no-daemon -x test || true
+
+# Copy the source code
 COPY src ./src
 
+# Build the JAR
 RUN gradle bootJar --no-daemon
 
 # ---- Runtime stage ----
