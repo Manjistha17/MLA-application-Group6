@@ -5,6 +5,7 @@ import Workouts from "./WorkoutsTab";
 import GoalSettingPage from "./GoalSettingPage";
 import WorkoutPlan from "./WorkoutPlan";
 import FoodHydration from "./FoodHydration";
+import GroupFeed from "./GroupFeed";
 import ProgressTab from "./ProgressTab";
 import AdminPanel from "./AdminPanel";
 
@@ -47,10 +48,12 @@ const DashboardTabs = ({ currentUser, role }) => {
         {tabs.map((t, i) => (
           <Tab key={i} label={t.label} />
         ))}
+        <Tab label="Group Feed" />
       </Tabs>
 
       {/* Render the active tab’s content */}
       {tabs[activeTab].component}
+      {activeTab === 6 && <GroupFeed currentUser={currentUser} />}
     </Box>
   );
 };
