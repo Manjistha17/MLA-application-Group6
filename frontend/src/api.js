@@ -5,4 +5,4 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
   });
 
-export const trackExercise = (payload) => api.post('exercises/add/', payload);
+export const trackExercise = (payload) => api.post('http://16.171.162.5:5300/exercises/add/', payload);

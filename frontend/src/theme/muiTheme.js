@@ -4,14 +4,14 @@ const muiTheme = createTheme({
   palette: {
     mode: "light",
     primary: {
-      main: "#2563eb",
+      main: "#eb7e25d6",
     },
     secondary: {
       main: "#00A8A8",
     },
     background: {
-      default: "#F7F8FD",
-      paper: "#FFFFFF",
+      default: "#01030cff",
+      paper: "#0c0101ff",
     },
     text: {
       primary: "#1F2937",
