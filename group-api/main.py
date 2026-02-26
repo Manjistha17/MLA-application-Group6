@@ -1,261 +1,86 @@
-from fastapi import FastAPI, HTTPException, Query
-from pydantic import BaseModel, Field
+from fastapi import FastAPI, HTTPException, Query, Path
+from typing import List
+from bson import ObjectId
+from pydantic import BaseModel
 from motor.motor_asyncio import AsyncIOMotorClient
-from typing import List, Optional
+import os
 from dotenv import load_dotenv
 from datetime import datetime
-import os
-from prometheus_client import Counter, Histogram, REGISTRY
-from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.responses import Response
-from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
-import time
 
 load_dotenv()
 
-app = FastAPI(title="Fitness App API")
+app = FastAPI(title="Group Feed & Leaderboard API")
 
-# ============================================================
-# Prometheus metrics setup
-# ============================================================
-request_count = Counter('fastapi_requests_total', 'Total requests', ['method', 'endpoint', 'status'])
-request_duration = Histogram('fastapi_request_duration_seconds', 'Request duration', ['method', 'endpoint'])
-
-class PrometheusMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request, call_next):
-        start = time.time()
-        response = await call_next(request)
-        duration = time.time() - start
-        
-        request_count.labels(
-            method=request.method,
-            endpoint=request.url.path,
-            status=response.status_code
-        ).inc()
-        request_duration.labels(
-            method=request.method,
-            endpoint=request.url.path
-        ).observe(duration)
-        
-        return response
-
-app.add_middleware(PrometheusMiddleware)
-
-# Metrics endpoint
-@app.get("/metrics")
-async def metrics():
-    return Response(generate_latest(REGISTRY), media_type=CONTENT_TYPE_LATEST)
-
-# ============================================================
-# MongoDB connection
-# ============================================================
+# ===================== MongoDB Setup =====================
 MONGO_URI = os.getenv("MONGO_URI")
 MONGO_DB = os.getenv("MONGO_DB")
-
 client = AsyncIOMotorClient(MONGO_URI)
 db = client[MONGO_DB]
 
-# ============================================================
-# Pydantic models (MASTER WORKOUT PLAN)
-# ============================================================
-class MasterWorkout(BaseModel):
-    day_index: int = Field(..., ge=1)
-    activity: str
-    sub_activity: str
-    minutes: int = Field(..., ge=0)
+# ===================== Response Models =====================
+class GroupFeedItem(BaseModel):
+    feed_id: str
+    userId: str
+    type: str  # EXERCISE_LOG or AWARDED_BADGE
+    title: str
+    description: str
+    relatedId: str = None
+    createdAt: datetime
 
-class MasterWorkoutPlanResponse(BaseModel):
-    plan_id: str
-    goal_type: str
-    level: str
-    number_of_weeks: int
-    total_days: int
-    workouts: List[MasterWorkout]
+class LeaderboardItem(BaseModel):
+    rank: int
+    userId: str
+    totalMinutes: int = 0
+    totalCalories: int = 0
+    completed: bool = False
 
-# ============================================================
-# Fetch master workout plan
-# ============================================================
-@app.get("/workout-plan", response_model=MasterWorkoutPlanResponse)
-async def get_master_workout_plan(
-    goal_type: str = Query(...),
-    level: str = Query(...),
-    number_of_weeks: int = Query(..., gt=0),
+# ===================== Group Feed Endpoint =====================
+@app.get("/groups/{group_id}/feed", response_model=List[GroupFeedItem])
+async def get_group_feed(
+    group_id: str = Path(..., description="ID of the group"),
+    limit: int = Query(50, gt=0, le=200, description="Number of feed items to return")
 ):
-    plan = await db.workout_plans.find_one({
-        "goal_type": goal_type,
-        "level": level,
-        "number_of_weeks": number_of_weeks
-    })
+    # Convert to ObjectId if possible
+    try:
+        group_obj_id = ObjectId(group_id)
+    except:
+        group_obj_id = group_id
 
-    if not plan:
-        raise HTTPException(status_code=404, detail="Workout plan not found")
-
-    workouts = [
-        {
-            "day_index": w["day_index"],
-            "activity": w["activity"],
-            "sub_activity": w["sub_activity"],
-            "minutes": w["minutes"]
-        }
-        for w in plan.get("workouts", [])
-    ]
-
-    return {
-        "plan_id": str(plan["_id"]),
-        "goal_type": plan["goal_type"],
-        "level": plan["level"],
-        "number_of_weeks": plan["number_of_weeks"],
-        "total_days": plan.get("total_days", len(workouts)),
-        "workouts": workouts
-    }
-
-# ============================================================
-# Pydantic models (USER WORKOUT PLAN)
-# ============================================================
-class UserWorkout(BaseModel):
-    exercise_id: str  # Changed from _id to exercise_id
-    day_index: int
-    activity: str
-    sub_activity: str
-    minutes: int
-    completed: Optional[bool] = False
-    completed_at: Optional[datetime] = None
-
-class UserWorkoutPlanCreate(BaseModel):
-    user_id: str
-    goal_type: str
-    level: str
-    number_of_weeks: int
-
-class UserWorkoutPlanResponse(BaseModel):
-    _id: str  # Mongo ID for the user plan
-    user_id: str
-    plan_id: str
-    goal_type: str
-    level: str
-    number_of_weeks: int
-    total_days: int
-    workouts: List[UserWorkout]
-
-# ============================================================
-# Create user workout plan
-# ============================================================
-@app.post("/workouts/create/user-workout-plan", response_model=UserWorkoutPlanResponse)
-async def create_user_workout_plan(payload: UserWorkoutPlanCreate):
-    # Check if user already has a plan with same goal_type, level, and number_of_weeks
-    existing_plan = await db.user_workout_plans.find_one({
-        "user_id": payload.user_id,
-        "goal_type": payload.goal_type,
-        "level": payload.level,
-        "number_of_weeks": payload.number_of_weeks
-    })
-
-    if existing_plan:
-        raise HTTPException(status_code=409, detail="A workout plan with these settings already exists for this user")
-
-    master_plan = await db.workout_plans.find_one({
-        "goal_type": payload.goal_type,
-        "level": payload.level,
-        "number_of_weeks": payload.number_of_weeks
-    })
-
-    if not master_plan:
-        raise HTTPException(status_code=404, detail="Master workout plan not found")
-
-    workouts = []
-    for i, w in enumerate(master_plan.get("workouts", [])):
-        workouts.append({
-            "exercise_id": f"ex_{i+1:03}",  # directly use exercise_id
-            "day_index": w["day_index"],
-            "activity": w["activity"],
-            "sub_activity": w["sub_activity"],
-            "minutes": w["minutes"],
-            "completed": False,
-            "completed_at": None
+    cursor = db.group_feed.find({"groupId": group_obj_id}).sort("createdAt", -1).limit(limit)
+    feed = []
+    async for event in cursor:
+        feed.append({
+            "feed_id": event.get("feed_id"),
+            "userId": event.get("userId"),
+            "type": event.get("type"),
+            "title": event.get("title"),
+            "description": event.get("description"),
+            "relatedId": event.get("relatedId"),
+            "createdAt": event.get("createdAt")
         })
+    return feed
 
-    user_plan_doc = {
-        "user_id": payload.user_id,
-        "plan_id": str(master_plan["_id"]),
-        "goal_type": master_plan["goal_type"],
-        "level": master_plan["level"],
-        "number_of_weeks": master_plan["number_of_weeks"],
-        "total_days": master_plan.get("total_days", len(workouts)),
-        "workouts": workouts
-    }
+# ===================== Group Leaderboard Endpoint =====================
+@app.get("/groups/{group_id}/leaderboard", response_model=List[LeaderboardItem])
+async def get_group_leaderboard(
+    group_id: str = Path(..., description="ID of the group"),
+    metric: str = Query("totalMinutes", regex="^(totalMinutes|totalCalories)$"),
+    top_n: int = Query(10, gt=0, le=50)
+):
+    # Convert to ObjectId if possible
+    try:
+        group_obj_id = ObjectId(group_id)
+    except:
+        group_obj_id = group_id
 
-    result = await db.user_workout_plans.insert_one(user_plan_doc)
-    return {**user_plan_doc, "_id": str(result.inserted_id)}
-
-# ============================================================
-# Fetch all user workout plans
-# ============================================================
-@app.get("/workouts/user-workout-plan/all", response_model=List[UserWorkoutPlanResponse])
-async def get_all_user_workout_plans(user_id: str = Query(...)):
-    cursor = db.user_workout_plans.find({"user_id": user_id})
-    plans = []
-
-    async for plan in cursor:
-        plan["_id"] = str(plan["_id"])
-        plans.append(plan)
-
-    return plans
-
-# ============================================================
-# Mark exercise as completed
-# ============================================================
-class MarkExerciseComplete(BaseModel):
-    username: str
-    plan_id: str
-    exercise_id: str
-    day_index: int
-    exerciseType: str
-    subActivity: Optional[str] = ""
-    description: Optional[str] = ""
-    duration: int
-
-@app.post("/workouts/exercises/mark-complete")
-async def mark_exercise_complete(payload: MarkExerciseComplete):
-    now = datetime.utcnow()
-
-    # Log exercise in exercises collection
-    await db.exercises.insert_one({
-        "username": payload.username,
-        "exerciseType": payload.exerciseType,
-        "subActivity": payload.subActivity or "",
-        "description": payload.description or "",
-        "duration": payload.duration,
-        "date": now
-    })
-
-    # Update user workout plan exercise completion
-    result = await db.user_workout_plans.update_one(
-        {
-            "user_id": payload.username,
-            "plan_id": payload.plan_id,
-            "workouts": {
-                "$elemMatch": {
-                    "exercise_id": payload.exercise_id,
-                    "day_index": payload.day_index
-                }
-            }
-        },
-        {
-            "$set": {
-                "workouts.$.completed": True,
-                "workouts.$.completed_at": now
-            }
-        }
-    )
-
-    if result.matched_count == 0:
-        raise HTTPException(
-            status_code=404,
-            detail="Exercise not found"
-        )
-
-    return {
-        "message": "Workout marked as completed",
-        "exercise_id": payload.exercise_id,
-        "completed_at": now
-    }
+    cursor = db.group_challenge_progress.find({"groupId": group_obj_id}).sort(metric, -1).limit(top_n)
+    leaderboard = []
+    async for rank, record in enumerate(cursor, start=1):
+        leaderboard.append({
+            "rank": rank,
+            "userId": record.get("userId"),
+            "totalMinutes": record.get("totalMinutes", 0),
+            "totalCalories": record.get("totalCalories", 0),
+            "completed": record.get("completed", False)
+        })
+    return leaderboard
