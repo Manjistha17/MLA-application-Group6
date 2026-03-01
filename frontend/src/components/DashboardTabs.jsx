@@ -6,6 +6,7 @@ import GoalSettingPage from "./GoalSettingPage";
 import WorkoutPlan from "./WorkoutPlan";
 import FoodHydration from "./FoodHydration";
 import GroupFeed from "./GroupFeed";
+import Leaderboard from "./Leaderboard";
 import ProgressTab from "./ProgressTab";
 import AdminPanel from "./AdminPanel";
 
@@ -49,11 +50,13 @@ const DashboardTabs = ({ currentUser, role }) => {
           <Tab key={i} label={t.label} />
         ))}
         <Tab label="Group Feed" />
+        <Tab label="Leaderboard" />
       </Tabs>
 
       {/* Render the active tab’s content */}
       {tabs[activeTab].component}
       {activeTab === 6 && <GroupFeed currentUser={currentUser} />}
+      {activeTab === 7 && <Leaderboard currentUser={currentUser} />}
     </Box>
   );
 };
