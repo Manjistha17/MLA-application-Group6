@@ -139,7 +139,7 @@ const Signup = ({ onSignup }) => {
         weight: Number(formData.weight),
       };
 
-      const response = await axios.post('/api/auth/signup', payload, {
+      const response = await axios.post('http://16.171.162.5:8080/api/auth/signup', payload, {
         headers: { 'Content-Type': 'application/json' },
       });
 
