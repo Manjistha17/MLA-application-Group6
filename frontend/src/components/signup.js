@@ -141,19 +141,21 @@ const Signup = ({ onSignup }) => {
         weight: Number(formData.weight),
       };
 
-      const response = await axios.post("/api/auth/signup", payload, {
-  withCredentials: true,
-});
+      const response = await axios.post('http://16.171.162.5:8080/api/auth/signup', payload, {
+        headers: { 'Content-Type': 'application/json' },
+      });
 
-  const { role, username: responseUsername, email } = response.data;
+      const message =
+        typeof response.data === 'string' ? response.data : response.data?.message;
 
-  localStorage.removeItem("signupForm");
-  localStorage.setItem("role", role);
-  localStorage.setItem("username", responseUsername);
-  localStorage.setItem("email", email);
-
-  onSignup(responseUsername, role);
-  navigate("/dashboard");
+      if (response.status === 200 || (message && message.toLowerCase().includes('success'))) {
+        try {
+          localStorage.removeItem('signupForm');
+        } catch {}
+        onSignup(formData.username);
+      } else {
+        setGlobalError(message || 'Signup failed. Please try again.');
+      }
     } catch (err) {
       setGlobalError(
         err?.response?.data?.message || 'Signup failed. Please try again.'
