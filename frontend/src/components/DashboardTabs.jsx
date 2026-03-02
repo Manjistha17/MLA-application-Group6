@@ -6,9 +6,25 @@ import GoalSettingPage from "./GoalSettingPage";
 import WorkoutPlan from "./WorkoutPlan";
 import FoodHydration from "./FoodHydration";
 import ProgressTab from "./ProgressTab";
+import AdminPanel from "./AdminPanel";
 
-const DashboardTabs = ({ currentUser }) => {
+const DashboardTabs = ({ currentUser, role }) => {
   const [activeTab, setActiveTab] = useState(0);
+
+  // Define base tabs
+  const tabs = [
+    { label: "Overview", component: <Overview currentUser={currentUser} /> },
+    { label: "Goals", component: <GoalSettingPage currentUser={currentUser} /> },
+    { label: "Workout Plan", component: <WorkoutPlan currentUser={currentUser} /> },
+    { label: "Workouts", component: <Workouts currentUser={currentUser} /> },
+    { label: "Progress", component: <ProgressTab /> },
+    { label: "Food & Hydration", component: <FoodHydration currentUser={currentUser} /> },
+  ];
+
+  // Add admin tab if role is admin
+  if (role === "admin") {
+    tabs.push({ label: "Admin Panel", component: <AdminPanel currentUser={currentUser} /> });
+  }
 
   return (
     <Box sx={{ width: "100%" }}>
@@ -20,7 +36,6 @@ const DashboardTabs = ({ currentUser }) => {
         sx={{
           borderBottom: "1px solid var(--color-border-subtle)",
           mb: 3,
-
           "& .MuiTab-root": {
             textTransform: "none",
             fontWeight: 500,
@@ -29,20 +44,13 @@ const DashboardTabs = ({ currentUser }) => {
           },
         }}
       >
-        <Tab label="Overview" />
-        <Tab label="Goals" />
-        <Tab label="Workout Plan" />
-        <Tab label="Workouts" />
-        <Tab label="Progress" />
-        <Tab label="Food & Hydration" />
+        {tabs.map((t, i) => (
+          <Tab key={i} label={t.label} />
+        ))}
       </Tabs>
 
-      {activeTab === 0 && <Overview currentUser={currentUser} />}
-      {activeTab === 3 && <Workouts currentUser={currentUser} />}
-      {activeTab === 4 && <ProgressTab />}
-      {activeTab === 1 && <GoalSettingPage currentUser={currentUser} />}
-      {activeTab === 2 && <WorkoutPlan currentUser={currentUser} />}
-      {activeTab === 5 && <FoodHydration currentUser={currentUser} />}
+      {/* Render the active tab’s content */}
+      {tabs[activeTab].component}
     </Box>
   );
 };

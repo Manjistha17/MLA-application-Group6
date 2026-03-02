@@ -1,29 +1,28 @@
-import React, { useState, useRef } from 'react';
-import { Button, Form, Alert, Card, Container, Spinner } from 'react-bootstrap';
-import axios from 'axios';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useRef, useEffect } from "react";
+import { Button, Form, Alert, Card, Container, Spinner } from "react-bootstrap";
+import axios from "axios";
+import { Link, useNavigate } from "react-router-dom";
 
 const Login = ({ onLogin }) => {
   const navigate = useNavigate();
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   // Accessibility: Ref to set initial focus for keyboard users
   const usernameInputRef = useRef(null);
 
-  // Accessibility: Set focus on component mount
-  React.useEffect(() => {
+  useEffect(() => {
     if (usernameInputRef.current) {
       usernameInputRef.current.focus();
     }
   }, []);
 
-  // Accessibility: Set focus on error for screen reader users
-  React.useEffect(() => {
+  useEffect(() => {
     if (error) {
-      const errorAlert = document.getElementById('login-error-alert');
+      const errorAlert = document.getElementById("login-error-alert");
       if (errorAlert) {
         errorAlert.focus();
       }
@@ -32,37 +31,48 @@ const Login = ({ onLogin }) => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     if (!username.trim() || !password.trim()) {
-      setError('Please enter both username and password.');
+      setError("Please enter both username and password.");
       return;
     }
 
     setLoading(true);
 
     try {
-      const response = await axios.post('/api/auth/login', {
-        username,
-        password,
-      });
+      const response = await axios.post(
+        "/api/auth/login",
+        { username, password },
+        { withCredentials: true } // ✅ ensure session cookie is sent
+      );
 
       if (response.status === 200) {
-        onLogin(username);
-        navigate('/dashboard');
+        const { role, username: responseUsername, email } = response.data;
+
+        // Save role and username in localStorage
+        localStorage.setItem("role", role);
+        localStorage.setItem("username", responseUsername);
+        localStorage.setItem("email", email);
+
+        // Pass role to parent if needed
+        onLogin(responseUsername, role);
+
+        // Navigate after saving
+        navigate("/dashboard");
       } else {
-        setError('Invalid credentials.');
+        setError("Invalid credentials.");
       }
     } catch (err) {
       const serverMessage =
         err?.response?.data?.message ||
         err?.response?.data ||
-        'Failed to login. Please check your credentials.';
+        "Failed to login. Please check your credentials.";
 
       setError(
-        typeof serverMessage === 'string'
+        typeof serverMessage === "string"
           ? serverMessage
-          : 'Login error. Please try again.'
+          : "Login error. Please try again."
       );
     } finally {
       setLoading(false);
@@ -78,16 +88,14 @@ const Login = ({ onLogin }) => {
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
-        // Accessibility: Ensure background content has sufficient contrast
       }}
     >
-      {/* Accessibility: Heading */}
       <h1
         className="text-center mb-3"
         style={{
-          color: '#efeff1ff',
-          fontWeight: '700',
-          textShadow: '0px 2px 6px rgba(192, 36, 127, 0.69)',
+          color: "#efeff1ff",
+          fontWeight: "700",
+          textShadow: "0px 2px 6px rgba(192, 36, 127, 0.69)",
         }}
       >
         Welcome to the MLA Fitness App!
@@ -96,10 +104,10 @@ const Login = ({ onLogin }) => {
       <Card
         className="p-4 shadow-sm"
         style={{
-          maxWidth: '400px',
-          width: '100%',
-          borderRadius: '10px',
-          backgroundColor: 'rgba(255, 255, 255, 0.85)',
+          maxWidth: "400px",
+          width: "100%",
+          borderRadius: "10px",
+          backgroundColor: "rgba(255, 255, 255, 0.85)",
         }}
       >
         {error && (
@@ -156,11 +164,11 @@ const Login = ({ onLogin }) => {
                   size="sm"
                   role="status"
                   aria-hidden="true"
-                />{' '}
+                />{" "}
                 Logging in...
               </>
             ) : (
-              'Login'
+              "Login"
             )}
           </Button>
 
