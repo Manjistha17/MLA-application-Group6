@@ -43,12 +43,13 @@ import React from "react";
 import DashboardTabs from "./DashboardTabs";
 import "../styles/components/Dashboard.css";
 
-const Dashboard = ({ currentUser }) => {
+const Dashboard = ({ currentUser, role }) => {
+
   return (
     <div className="dashboardPage">
       <br />
       <div className="dashboardHeader">
-        <h1 className="dashboardTitle">Welcome back, {currentUser}</h1>
+        <h1 className="dashboardTitle">Welcome back, {currentUser} ({role}) </h1>
       </div>
 
       <DashboardTabs currentUser={currentUser} />

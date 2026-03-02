@@ -36,11 +36,22 @@ const HeroBanner = ({ onLogin }) => {
       });
 
       if (response.status === 200) {
-        onLogin(username);
-        navigate("/dashboard");
+      const { role, username: responseUsername, email } = response.data;
+
+      // ✅ Save role and user info in localStorage
+      localStorage.setItem("role", role);
+      localStorage.setItem("username", responseUsername);
+      localStorage.setItem("email", email);
+
+      // ✅ Pass role back to App.js
+      onLogin(responseUsername, role);
+
+      // ✅ Navigate to dashboard
+       navigate("/dashboard");
       } else {
-        setError("Invalid credentials.");
-      }
+      setError("Invalid credentials.");
+    }
+
     } catch (err) {
       const serverMessage =
         err?.response?.data?.message ||
