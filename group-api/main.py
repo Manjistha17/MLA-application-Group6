@@ -28,6 +28,41 @@ MONGO_DB = os.getenv("MONGO_DB")
 client = AsyncIOMotorClient(MONGO_URI)
 db = client[MONGO_DB]
 
+
+# ================= Response Model =================
+class UserGroupName(BaseModel):
+    groupId: str
+    groupName: str
+
+# ================= Endpoint =================
+@app.get("/users/{user_id}/groups", response_model=List[UserGroupName])
+async def get_user_groups(user_id: str = Path(..., description="User ID")):
+    """
+    Returns a list of groups the user belongs to, with group ID and name.
+    """
+    try:
+        groups_list = []
+
+        # 1️⃣ Fetch memberships for the user
+        cursor = db.group_memberships.find({"userId": user_id})
+        async for membership in cursor:
+            group_id = membership.get("groupId")
+            
+            # 2️⃣ Fetch group details
+            group = await db.groups.find_one({"groupId": group_id})
+            if group:
+                groups_list.append({
+                    "groupId": group.get("groupId"),
+                    "groupName": group.get("name", "Unknown")
+                })
+
+        return groups_list
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
 # ===================== Response Models =====================
 class GroupFeedItem(BaseModel):
     feed_id: str
@@ -44,6 +79,82 @@ class LeaderboardItem(BaseModel):
     totalMinutes: int = 0
     totalCalories: int = 0
     completed: bool = False
+
+class GroupDetail(BaseModel):
+    groupId: str
+    name: str
+    description: Optional[str] = None
+    rules: Optional[dict] = None
+    challengeMode: Optional[str] = None
+
+class MemberItem(BaseModel):
+    userId: str
+    name: Optional[str] = None
+
+class GroupProgress(BaseModel):
+    totalMinutes: int = 0
+    totalCalories: int = 0
+    completed: bool = False
+
+# ===================== Get Group Details Endpoint =====================
+@app.get("/groups/{group_id}", response_model=GroupDetail)
+async def get_group_details(group_id: str = Path(..., description="ID of the group")):
+    """
+    Returns group details including rules and metric information.
+    """
+    try:
+        # Try to find by groupId string first
+        group = await db.groups.find_one({"groupId": group_id})
+        
+        if not group:
+            raise HTTPException(status_code=404, detail="Group not found")
+        
+        return {
+            "groupId": group.get("groupId"),
+            "name": group.get("name", "Unknown"),
+            "description": group.get("description"),
+            "rules": group.get("rules", {}),
+            "challengeMode": group.get("rules", {}).get("challengeMode") or group.get("challengeMode")
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        import traceback
+        print("ERROR fetching group details:", e)
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+# ===================== Group Members Endpoint =====================
+@app.get("/groups/{group_id}/members", response_model=List[MemberItem])
+async def get_group_members(group_id: str = Path(..., description="ID of the group")):
+    """
+    Returns the list of members for a group (userId and optional name).
+    """
+    try:
+        try:
+            group_obj_id = ObjectId(group_id)
+        except:
+            group_obj_id = group_id
+
+        members = []
+        cursor = db.group_memberships.find({"groupId": group_obj_id})
+        async for m in cursor:
+            uid = m.get("userId")
+            display_name = None
+            # try to fetch user name if users collection exists
+            user = await db.users.find_one({"userId": uid})
+            if user:
+                display_name = user.get("name") or user.get("username")
+            members.append({"userId": uid, "name": display_name})
+
+        return members
+    except Exception as e:
+        import traceback
+        print("ERROR fetching group members:", e)
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail="Internal Server Error")
 
 # ===================== Group Feed Endpoint =====================
 @app.get("/groups/{group_id}/feed", response_model=List[GroupFeedItem])
@@ -106,19 +217,60 @@ async def get_group_leaderboard(
 
         rank = 1
         async for record in cursor:
-         leaderboard.append({
-         "rank": rank,
-         "userId": record.get("userId", "unknown"),
-         "totalMinutes": record.get("totalMinutes", 0),
-         "totalCalories": record.get("totalCalories", 0),
-         "completed": record.get("completed", False)
-         })
-         rank += 1
+            user_id = record.get("userId")
+            # skip entries without valid userId
+            if not user_id:
+                continue
+            leaderboard.append({
+                "rank": rank,
+                "userId": user_id,
+                "totalMinutes": record.get("totalMinutes", 0),
+                "totalCalories": int(round(record.get("totalCalories", 0))),
+                "completed": record.get("completed", False)
+            })
+            rank += 1
 
         return leaderboard
 
     except Exception as e:
         import traceback
         print("ERROR fetching leaderboard:", e)
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+# ===================== Group Progress Endpoint =====================
+@app.get("/groups/{group_id}/progress", response_model=GroupProgress)
+async def get_group_progress(
+    group_id: str = Path(..., description="ID of the group")
+):
+    """
+    Returns aggregate progress record stored with no userId (group level total).
+    """
+    try:
+        try:
+            group_obj_id = ObjectId(group_id)
+        except:
+            group_obj_id = group_id
+
+        # look for entry where userId is null or missing
+        query = {"groupId": group_obj_id, "userId": None}
+        record = await db.group_challenge_progress.find_one(query)
+        if not record:
+            # also try missing field
+            record = await db.group_challenge_progress.find_one({"groupId": group_obj_id, "userId": {"$exists": False}})
+
+        if not record:
+            # return defaults
+            return GroupProgress()
+
+        return {
+            "totalMinutes": record.get("totalMinutes", 0),
+            "totalCalories": int(round(record.get("totalCalories", 0))),
+            "completed": record.get("completed", False)
+        }
+    except Exception as e:
+        import traceback
+        print("ERROR fetching group progress:", e)
         traceback.print_exc()
         raise HTTPException(status_code=500, detail="Internal Server Error")
