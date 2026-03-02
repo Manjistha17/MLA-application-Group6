@@ -3,7 +3,7 @@ import {
   Box, TextField, Button, Typography, Stack, Card, CardContent,
   LinearProgress, Divider, Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, IconButton, Paper, MenuItem, Chip,
-  InputAdornment, CircularProgress, Snackbar, Alert, Tooltip, Grid,
+  InputAdornment, CircularProgress, Snackbar, Alert, Tooltip,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SaveIcon from "@mui/icons-material/Save";
@@ -14,7 +14,7 @@ import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
 import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis,
-  CartesianGrid, Tooltip as RechartsTooltip, Legend, ReferenceLine,
+  CartesianGrid, Tooltip as RechartsTooltip, ReferenceLine,
 } from "recharts";
 import axios from "axios";
 
