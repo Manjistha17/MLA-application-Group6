@@ -96,21 +96,13 @@ router.post('/add', async (req, res) => {
     const command = new InvokeCommand({
       FunctionName: "shaktiGroupChallengeBadgeFunction", // replace with your Lambda name
       Payload: Buffer.from(JSON.stringify(payload)),
-      // InvocationType: "Event" // async
-      InvocationType: "RequestResponse"
+      InvocationType: "Event" // async - fire and forget
     });
 
-    try {
-      // await lambdaClient.send(command);
-      const result = await lambdaClient.send(command);
-
-      console.log("Lambda StatusCode:", result.StatusCode);
-      console.log("Lambda Response:", Buffer.from(result.Payload).toString());
-      console.log("Lambda invoked for badge issuance");
-    } catch (lambdaErr) {
+    // Invoke Lambda asynchronously without waiting
+    lambdaClient.send(command).catch((lambdaErr) => {
       console.error("Failed to invoke Lambda:", lambdaErr);
-      // optional: continue without failing the API response
-    }
+    });
     res.json({ message: 'Exercise added!' });
 
   } catch (error) {
