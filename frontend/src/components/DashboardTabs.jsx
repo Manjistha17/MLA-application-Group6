@@ -22,7 +22,7 @@ const DashboardTabs = ({ currentUser, role }) => {
   ];
 
   // Add admin tab if role is admin
-  if (role === "admin") {
+  if (role?.toLowerCase() === "admin") {
     tabs.push({ label: "Admin Panel", component: <AdminPanel currentUser={currentUser} /> });
   }
 

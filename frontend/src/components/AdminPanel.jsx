@@ -6,6 +6,7 @@ import {
   Alert,
   Form,
   Card,
+  Modal,
 } from "react-bootstrap";
 import axios from "axios";
 
@@ -15,10 +16,14 @@ const AdminPanel = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  // Confirmation modal state
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [confirmMessage, setConfirmMessage] = useState("");
+  const [confirmAction, setConfirmAction] = useState(null);
+
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      // Use relative path, Nginx will forward to backend
       const response = await axios.get("/api/admin/users");
       setUsers(response.data);
     } catch (err) {
@@ -32,25 +37,36 @@ const AdminPanel = () => {
     fetchUsers();
   }, []);
 
-  const updateRole = async (username, newRole) => {
-    try {
-      await axios.put(`/api/admin/users/${username}/role`, { role: newRole });
-      setSuccess(`Updated ${username} to ${newRole}`);
-      fetchUsers();
-    } catch (err) {
-      setError("Failed to update role.");
-    }
+  const handleUpdateRole = (username, newRole) => {
+    setConfirmMessage(`Are you sure you want to change ${username}'s role to ${newRole}?`);
+    setConfirmAction(() => async () => {
+      try {
+        await axios.put(`/api/admin/users/${username}/role`, { role: newRole });
+        setSuccess(`Updated ${username} to ${newRole}`);
+        fetchUsers();
+      } catch (err) {
+        setError("Failed to update role.");
+      } finally {
+        setShowConfirm(false);
+      }
+    });
+    setShowConfirm(true);
   };
 
-  const deleteUser = async (username) => {
-    if (!window.confirm(`Delete user ${username}?`)) return;
-    try {
-      await axios.delete(`/api/admin/users/${username}`);
-      setSuccess(`Deleted user ${username}`);
-      fetchUsers();
-    } catch (err) {
-      setError("Failed to delete user.");
-    }
+  const handleDeleteUser = (username) => {
+    setConfirmMessage(`Delete user ${username}?`);
+    setConfirmAction(() => async () => {
+      try {
+        await axios.delete(`/api/admin/users/${username}`);
+        setSuccess(`Deleted user ${username}`);
+        fetchUsers();
+      } catch (err) {
+        setError("Failed to delete user.");
+      } finally {
+        setShowConfirm(false);
+      }
+    });
+    setShowConfirm(true);
   };
 
   return (
@@ -81,9 +97,8 @@ const AdminPanel = () => {
                 <td>
                   <Form.Select
                     value={u.role}
-                    onChange={(e) => updateRole(u.username, e.target.value)}
+                    onChange={(e) => handleUpdateRole(u.username, e.target.value)}
                   >
-                    {/* Only user and admin roles */}
                     <option value="user">User</option>
                     <option value="admin">Admin</option>
                   </Form.Select>
@@ -92,7 +107,7 @@ const AdminPanel = () => {
                   <Button
                     variant="danger"
                     size="sm"
-                    onClick={() => deleteUser(u.username)}
+                    onClick={() => handleDeleteUser(u.username)}
                   >
                     Delete
                   </Button>
@@ -102,6 +117,22 @@ const AdminPanel = () => {
           </tbody>
         </Table>
       )}
+
+      {/* Confirmation Modal */}
+      <Modal show={showConfirm} onHide={() => setShowConfirm(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Action</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>{confirmMessage}</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowConfirm(false)}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={() => confirmAction && confirmAction()}>
+            Confirm
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Card>
   );
 };
