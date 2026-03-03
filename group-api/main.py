@@ -1,3 +1,55 @@
+from uuid import uuid4
+# ===================== Group Creation Model =====================
+class GroupCreateRequest(BaseModel):
+    name: str
+    visibility: str  # 'public' or 'private'
+    adminId: str
+
+class GroupCreateResponse(BaseModel):
+    groupId: str
+    name: str
+    visibility: str
+    adminId: str
+
+# ===================== Create Group Endpoint =====================
+@app.post("/groups/create", response_model=GroupCreateResponse)
+async def create_group(payload: GroupCreateRequest):
+    """
+    Create a new group and assign the creator as admin and member.
+    """
+    try:
+        # Generate unique groupId
+        group_id = f"g_{uuid4().hex[:10]}"
+        group_doc = {
+            "groupId": group_id,
+            "name": payload.name,
+            "visibility": payload.visibility,
+            "adminId": payload.adminId,
+            "createdAt": datetime.utcnow(),
+            "isPublic": payload.visibility == "public",
+            "members": [payload.adminId],
+        }
+        await db.groups.insert_one(group_doc)
+
+        # Add admin as member in group_memberships
+        await db.group_memberships.insert_one({
+            "userId": payload.adminId,
+            "groupId": group_id,
+            "role": "admin",
+            "joinedAt": datetime.utcnow(),
+        })
+
+        return {
+            "groupId": group_id,
+            "name": payload.name,
+            "visibility": payload.visibility,
+            "adminId": payload.adminId,
+        }
+    except Exception as e:
+        import traceback
+        print("ERROR creating group:", e)
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail="Failed to create group")
 from fastapi import FastAPI, HTTPException, Query, Path
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
