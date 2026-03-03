@@ -6,6 +6,7 @@ import GoalSettingPage from "./GoalSettingPage";
 import WorkoutPlan from "./WorkoutPlan";
 import FoodHydration from "./FoodHydration";
 import GroupOverview from "./GroupOverview";
+import GroupCreateTab from "./GroupCreateTab";
 // import GroupFeed from "./GroupFeed";
 // import Leaderboard from "./Leaderboard";
 import ProgressTab from "./ProgressTab";
@@ -57,6 +58,7 @@ const DashboardTabs = ({ currentUser, role }) => {
         <Tab label="Progress" />
         <Tab label="Food & Hydration" />
         <Tab label="Group Overview" />
+        <Tab label="Create Group" />
         {/* <Tab label="Group Feed" /> */}
         {/* <Tab label="Leaderboard" /> */}
       </Tabs>
@@ -68,8 +70,9 @@ const DashboardTabs = ({ currentUser, role }) => {
       {activeTab === 2 && <WorkoutPlan currentUser={currentUser} />}
       {activeTab === 5 && <FoodHydration currentUser={currentUser} />}
       {activeTab === 6 && <GroupOverview currentUser={currentUser} />}
-      {/* {activeTab === 7 && <GroupFeed currentUser={currentUser} />} */}
-      {/* {activeTab === 8 && <Leaderboard currentUser={currentUser} />} */}
+      {activeTab === 7 && <GroupCreateTab currentUser={currentUser} />}
+      {/* {activeTab === 8 && <GroupFeed currentUser={currentUser} />} */}
+      {/* {activeTab === 9 && <Leaderboard currentUser={currentUser} />} */}
     </Box>
   );
 };
