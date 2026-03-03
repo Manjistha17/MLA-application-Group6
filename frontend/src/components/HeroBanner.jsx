@@ -30,7 +30,7 @@ const HeroBanner = ({ onLogin }) => {
     setLoading(true);
 
     try {
-      const response = await axios.post("http://16.171.162.5:8080/api/auth/login", {
+      const response = await axios.post("https://d393qv373r18to.cloudfront.net/api/auth/login", {
         username,
         password,
       });
