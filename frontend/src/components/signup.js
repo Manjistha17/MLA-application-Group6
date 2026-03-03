@@ -141,9 +141,19 @@ const Signup = ({ onSignup }) => {
         weight: Number(formData.weight),
       };
 
-      await axios.post('/api/auth/signup', payload);
-      localStorage.removeItem('signupForm');
-      onSignup(formData.username);
+      const response = await axios.post("/api/auth/signup", payload, {
+  withCredentials: true,
+});
+
+  const { role, username: responseUsername, email } = response.data;
+
+  localStorage.removeItem("signupForm");
+  localStorage.setItem("role", role);
+  localStorage.setItem("username", responseUsername);
+  localStorage.setItem("email", email);
+
+  onSignup(responseUsername, role);
+  navigate("/dashboard");
     } catch (err) {
       setGlobalError(
         err?.response?.data?.message || 'Signup failed. Please try again.'

@@ -5,7 +5,9 @@ import com.authservice.auth.dto.request.UpdateUserRequest;
 import com.authservice.auth.exception.*;
 import com.authservice.auth.model.User;
 import com.authservice.auth.repository.UserRepository;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -39,7 +42,6 @@ public class UserService {
     // SIGNUP
     // -----------------------------
     public User signup(SignupRequest req) {
-
         if (req.username() == null || req.password() == null)
             throw new IllegalArgumentException("Username and password are required");
 
@@ -68,18 +70,18 @@ public class UserService {
         user.setHeight(req.height());
         user.setWeight(req.weight());
         user.setEmailVerified(false);
+        user.setRole("user");
 
-        // ✅ Generate token BEFORE saving
+        // Generate token BEFORE saving
         String token = UUID.randomUUID().toString();
         user.setEmailVerificationToken(token);
         user.setEmailVerificationExpiry(LocalDateTime.now().plusHours(24));
 
-       // -----------------------------
-       // SAVE USER (ONLY INSERT HERE)
-       // -----------------------------
-       user = userRepository.save(user);
+        // Save user
+        user = userRepository.save(user);
 
-        emailService.sendVerificationEmail(user.getEmail(), token); // async
+        // Send verification email asynchronously
+        emailService.sendVerificationEmail(user.getEmail(), token);
 
         log.info("User registered: {}", user.getUsername());
         return user;
@@ -89,7 +91,6 @@ public class UserService {
     // LOGIN
     // -----------------------------
     public User login(String username, String password) {
-
         User user = userRepository.findByUsername(username.trim())
                 .orElseThrow(() ->
                         new InvalidCredentialsException("Invalid username or password"));
@@ -114,7 +115,6 @@ public class UserService {
     // UPDATE USER
     // -----------------------------
     public User updateUser(String username, UpdateUserRequest req) {
-
         User user = getUser(username);
 
         user.setContact(req.contact());
@@ -123,39 +123,37 @@ public class UserService {
         user.setHeight(req.height());
         user.setWeight(req.weight());
 
-        
-    // -----------------------------
-    // Update email if changed
-    // -----------------------------
-    if (req.email() != null && !req.email().equalsIgnoreCase(user.getEmail())) {
+        // Update email if changed
+        if (req.email() != null && !req.email().equalsIgnoreCase(user.getEmail())) {
+            if (userRepository.findByEmail(req.email()).isPresent()) {
+                throw new UserAlreadyExistsException("Email already exists");
+            }
 
-        // Check if the new email already exists
-        if (userRepository.findByEmail(req.email()).isPresent()) {
-            throw new UserAlreadyExistsException("Email already exists");
+            user.setEmail(req.email());
+            user.setEmailVerified(false);
+
+            String token = UUID.randomUUID().toString();
+            user.setEmailVerificationToken(token);
+            user.setEmailVerificationExpiry(LocalDateTime.now().plusHours(24));
+
+            user = userRepository.save(user);
+
+            log.info("User updated: {}", username);
+
+            // Send verification email asynchronously
+            emailService.sendVerificationEmail(user.getEmail(), token);
         }
 
-        user.setEmail(req.email());
-        user.setEmailVerified(false); // Reset verification
-        String token = UUID.randomUUID().toString();
-        user.setEmailVerificationToken(token);
-        user.setEmailVerificationExpiry(LocalDateTime.now().plusHours(24));
-        user = userRepository.save(user);
-        log.info("User updated: {}", username);
-
-        // Send verification email asynchronously
-        emailService.sendVerificationEmail(user.getEmail(), token);
-    }
-    return user;
+        return user;
     }
 
     // -----------------------------
     // FORGOT PASSWORD
     // -----------------------------
     public void forgotPassword(String email) {
-
         Optional<User> optionalUser = userRepository.findByEmail(email);
 
-        // prevent email enumeration
+        // Prevent email enumeration
         if (!optionalUser.isPresent()) {
             log.warn("Forgot password requested for non-existing email");
             return;
@@ -163,14 +161,13 @@ public class UserService {
 
         User user = optionalUser.get();
 
-        // check if email is verified
+        // Check if email is verified
         if (!Boolean.TRUE.equals(user.isEmailVerified())) {
             log.warn("Forgot password requested for unverified email: {}", email);
-            return; // silently return
+            return;
         }
 
         String token = UUID.randomUUID().toString();
-
         user.setResetToken(token);
         user.setResetTokenExpiry(LocalDateTime.now().plusMinutes(15));
         userRepository.save(user);
@@ -199,7 +196,6 @@ public class UserService {
     // RESET PASSWORD
     // -----------------------------
     public void resetPassword(String token, String newPassword) {
-
         if (newPassword == null || newPassword.length() < 6)
             throw new IllegalArgumentException("Password must be at least 6 characters");
 
@@ -223,41 +219,71 @@ public class UserService {
     // VERIFY EMAIL
     // -----------------------------
     public void verifyEmail(String token) {
+        User user = userRepository.findByEmailVerificationToken(token)
+                .orElseThrow(() -> new RuntimeException("Invalid token"));
 
-    User user = userRepository.findByEmailVerificationToken(token)
-        .orElseThrow(() -> new RuntimeException("Invalid token"));
+        if (user.getEmailVerificationExpiry().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("Token expired");
+        }
 
-    if (user.getEmailVerificationExpiry().isBefore(LocalDateTime.now())) {
-        throw new RuntimeException("Token expired");
+        user.setEmailVerified(true);
+        user.setEmailVerificationToken(null);
+        user.setEmailVerificationExpiry(null);
+
+        userRepository.save(user);
     }
 
-    user.setEmailVerified(true);
-    user.setEmailVerificationToken(null);
-    user.setEmailVerificationExpiry(null);
+    // -----------------------------
+    // RESEND VERIFICATION EMAIL
+    // -----------------------------
+    public void sendVerificationEmailToUser(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-    userRepository.save(user);
-}
+        if (Boolean.TRUE.equals(user.isEmailVerified())) {
+            throw new IllegalStateException("Email is already verified.");
+        }
 
-public void sendVerificationEmailToUser(String username) {
-    User user = userRepository.findByUsername(username)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        String token = UUID.randomUUID().toString();
+        user.setEmailVerificationToken(token);
+        user.setEmailVerificationExpiry(LocalDateTime.now().plusHours(24));
 
-    if (Boolean.TRUE.equals(user.isEmailVerified())) {
-        throw new IllegalStateException("Email is already verified.");
+        userRepository.save(user);
+
+        emailService.sendVerificationEmail(user.getEmail(), token);
+
+        log.info("Verification email sent to {}", user.getEmail());
     }
 
-    // Generate new token
-    String token = UUID.randomUUID().toString();
-    user.setEmailVerificationToken(token);
-    user.setEmailVerificationExpiry(LocalDateTime.now().plusHours(24));
+    // -----------------------------
+    // ADMIN OPERATIONS
+    // -----------------------------
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
 
-    userRepository.save(user);
+    public void deleteUser(String username) {
+        User user = getUser(username);
+        userRepository.delete(user);
+    }
 
-    // Send verification email
-    emailService.sendVerificationEmail(user.getEmail(), token);
+    public User updateUserRole(String username, String newRole) {
+    User user = getUser(username);
 
-    log.info("Verification email sent to {}", user.getEmail());
+    String normalizedRole = newRole.toLowerCase();
+    if (!normalizedRole.equals("admin") && !normalizedRole.equals("user")) {
+        throw new IllegalArgumentException("Invalid role: " + newRole);
+    }
+
+    // Prevent removing the last admin
+    if (user.getRole().equals("admin") && normalizedRole.equals("user")) {
+        long adminCount = userRepository.countByRole("admin");
+        if (adminCount <= 1) {
+            throw new IllegalStateException("Cannot demote the last admin");
+        }
+    }
+
+    user.setRole(normalizedRole);
+    return userRepository.save(user);
 }
-
-
 }

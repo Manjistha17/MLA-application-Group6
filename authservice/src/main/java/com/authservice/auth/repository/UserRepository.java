@@ -38,6 +38,8 @@ public interface UserRepository extends MongoRepository<User, String> {
     Optional<User> findByResetToken(String resetToken);
 
     Optional<User> findByEmailVerificationToken(String token);
-    
+
+    // ✅ Add this method so you can count admins
+    long countByRole(String role); 
 }
 
