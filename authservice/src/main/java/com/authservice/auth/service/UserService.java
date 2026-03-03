@@ -268,8 +268,22 @@ public class UserService {
     }
 
     public User updateUserRole(String username, String newRole) {
-        User user = getUser(username);
-        user.setRole(newRole);
-        return userRepository.save(user);
+    User user = getUser(username);
+
+    String normalizedRole = newRole.toLowerCase();
+    if (!normalizedRole.equals("admin") && !normalizedRole.equals("user")) {
+        throw new IllegalArgumentException("Invalid role: " + newRole);
     }
+
+    // Prevent removing the last admin
+    if (user.getRole().equals("admin") && normalizedRole.equals("user")) {
+        long adminCount = userRepository.countByRole("admin");
+        if (adminCount <= 1) {
+            throw new IllegalStateException("Cannot demote the last admin");
+        }
+    }
+
+    user.setRole(normalizedRole);
+    return userRepository.save(user);
+}
 }
