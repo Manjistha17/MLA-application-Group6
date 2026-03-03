@@ -55,3 +55,9 @@
 .loggedHeader__avatar {
   cursor: pointer;
 }
+
+/* Notification bell */
+.loggedHeader__notif {
+  cursor: pointer;
+  margin-right: 8px;
+}
