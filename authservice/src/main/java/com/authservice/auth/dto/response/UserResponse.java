@@ -10,7 +10,8 @@ public record UserResponse(
         String gender,
         Double height,
         Double weight,
-        boolean emailVerified
+        boolean emailVerified,
+        String role   // ✅ add role here
 ) {
     // Static factory method to convert User entity → UserResponse
     public static UserResponse from(User user) {
@@ -22,7 +23,8 @@ public record UserResponse(
                 user.getGender(),
                 user.getHeight(),
                 user.getWeight(),
-                user.isEmailVerified()
+                user.isEmailVerified(),
+                user.getRole()   // ✅ include role mapping
         );
     }
 }

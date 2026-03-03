@@ -6,6 +6,7 @@ public record UpdateUserRequest(
         Integer age,
         String gender,
         Double height,
-        Double weight
+        Double weight,
+        String role
 ) {}
 
