@@ -91,6 +91,16 @@ class MemberItem(BaseModel):
     userId: str
     name: Optional[str] = None
 
+class NotificationItem(BaseModel):
+    notificationId: str
+    userId: str
+    title: str
+    message: str
+    type: str
+    relatedId: Optional[str] = None
+    isRead: bool = False
+    createdAt: datetime
+
 class GroupProgress(BaseModel):
     totalMinutes: int = 0
     totalCalories: int = 0
@@ -153,6 +163,64 @@ async def get_group_members(group_id: str = Path(..., description="ID of the gro
     except Exception as e:
         import traceback
         print("ERROR fetching group members:", e)
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+# ===================== Notifications Endpoint =====================
+@app.get("/users/{user_id}/notifications", response_model=List[NotificationItem])
+async def get_notifications(user_id: str = Path(..., description="User ID")):
+    """
+    Returns notifications for the given user, newest first.
+    """
+    try:
+        cursor = db.notifications.find({"userId": user_id}).sort("createdAt", -1)
+        notes = []
+        async for n in cursor:
+            created = n.get("createdAt")
+            if isinstance(created, dict) and "$date" in created:
+                created = datetime.fromisoformat(created["$date"].replace("Z", "+00:00"))
+            notes.append({
+                "notificationId": n.get("notificationId"),
+                "userId": n.get("userId"),
+                "title": n.get("title"),
+                "message": n.get("message"),
+                "type": n.get("type"),
+                "relatedId": n.get("relatedId"),
+                "isRead": n.get("isRead", False),
+                "createdAt": created or datetime.utcnow()
+            })
+        return notes
+    except Exception as e:
+        import traceback
+        print("ERROR fetching notifications:", e)
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+# simple helper to mark a notification read/unread
+@app.patch("/users/{user_id}/notifications/{notification_id}")
+async def update_notification(
+    user_id: str = Path(..., description="User ID"),
+    notification_id: str = Path(..., description="Notification ID"),
+    isRead: bool = Query(None, description="New read status"),
+):
+    """
+    Update read status for a specific notification. Currently only supports toggling `isRead`.
+    """
+    if isRead is None:
+        raise HTTPException(status_code=400, detail="isRead query parameter required")
+    try:
+        result = await db.notifications.update_one(
+            {"userId": user_id, "notificationId": notification_id},
+            {"$set": {"isRead": isRead}},
+        )
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Notification not found")
+        return {"updated": True}
+    except Exception as e:
+        import traceback
+        print("ERROR updating notification:", e)
         traceback.print_exc()
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
