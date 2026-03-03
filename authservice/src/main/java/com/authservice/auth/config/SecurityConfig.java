@@ -55,7 +55,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("*")); // Change to your frontend URL for production
+        // permit CloudFront UI host in addition to wildcard (useful while
+        // developing locally). Remove wildcard in production or replace with
+        // explicit domains only.
+        configuration.setAllowedOrigins(Arrays.asList(
+            "*",
+            "https://d393qv373r18to.cloudfront.net"
+        )); // Change to your frontend URL for production
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
 
