@@ -160,7 +160,7 @@ const OverviewTab = ({ currentUser }) => {
           <div className="iconWrapper">
             <LocalFireDepartmentIcon fontSize="small" />
           </div>
-          <span>Calories Burned</span>
+          <span className="">Calories Burned</span>
         </div>
         <div className="statValue">{stats.caloriesBurned} kcal</div>
       </div>

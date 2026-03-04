@@ -1,6 +1,6 @@
 .dashboardPage {
   padding: var(--space-lg);
-  background-color: var(--color-bg-default);
+  background-color: var(--color-bg-main);
   min-height: calc(100vh - 64px); /* header height */
 }
 
@@ -13,6 +13,14 @@
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-bold);
   margin-bottom: 4px;
+  color:  var(--color-text-primary)
+}
+
+.dashboardUserNameText {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: 4px;
+  color:  var(--color-primary)
 }
 
 .dashboardSubtitle {
