@@ -3,15 +3,23 @@
 A full-stack fitness tracking web application built with a microservices architecture. Track workouts, monitor nutrition, set goals, and visualise your progress — all in one place.
 
 **Group 6 — Team Members:**
+
 Haritha Nallimilli
+
 Sagarika Bohidar
+
 Ramya V
+
 Pon Divya Ravichandran
+
 Manjistha Mukherjee
+
 Sandhya Salian
+
 
 **Architecture:**
 The app is built as a set of independent microservices, all routed through an Nginx reverse proxy:
+
 Browser
   └── Nginx (Port 8081) ── reverse proxy
         ├── /             → React Frontend
