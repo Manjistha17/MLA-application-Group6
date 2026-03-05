@@ -10,9 +10,13 @@ const Dashboard = ({ currentUser }) => {
       <br />
       <div className="dashboardHeader">
         <h1 className="dashboardTitle">Welcome back, {currentUser}</h1>
-        <p className="dashboardSubtitle">
-          You are logged in as: <strong>{role}</strong>
-        </p>
+        {/* Show role only if user is admin */}
+        {role === "admin" && (
+          <p className="dashboardSubtitle">
+           Welcome: <strong>{role}</strong>
+          </p>
+      )}
+
       </div>
 
       {/* ✅ pass role into DashboardTabs */}

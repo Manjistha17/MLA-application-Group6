@@ -1,14 +1,28 @@
 import React, { useEffect, useState } from "react";
-import {
-  Table,
-  Button,
-  Spinner,
-  Alert,
-  Form,
-  Card,
-  Modal,
-} from "react-bootstrap";
 import axios from "axios";
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Button,
+  Alert,
+  CircularProgress,
+  TextField,
+  MenuItem,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Divider,
+} from "@mui/material";
 
 const AdminPanel = () => {
   const [users, setUsers] = useState([]);
@@ -16,7 +30,7 @@ const AdminPanel = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // Confirmation modal state
+  // Confirmation dialog state
   const [showConfirm, setShowConfirm] = useState(false);
   const [confirmMessage, setConfirmMessage] = useState("");
   const [confirmAction, setConfirmAction] = useState(null);
@@ -70,70 +84,110 @@ const AdminPanel = () => {
   };
 
   return (
-    <Card className="p-4 shadow-sm">
-      <h2 className="mb-3">Admin Panel</h2>
-      <p className="text-muted">Manage users and roles.</p>
+    <Box sx={{ padding: 3 }}>
+      <Card
+        sx={{
+          maxWidth: 1000,
+          margin: "0 auto",
+          borderRadius: 3,
+          boxShadow: "0 8px 25px rgba(0,0,0,0.08)",
+        }}
+      >
+        <CardContent sx={{ p: 4 }}>
+          <Typography
+            variant="h4"
+            fontWeight="bold"
+            textAlign="center"
+            gutterBottom
+          >
+            Admin Panel
+          </Typography>
 
-      {error && <Alert variant="danger">{error}</Alert>}
-      {success && <Alert variant="success">{success}</Alert>}
+          <Typography
+            variant="body1"
+            color="text.secondary"
+            textAlign="center"
+            mb={4}
+          >
+            Manage users and roles.
+          </Typography>
 
-      {loading ? (
-        <div className="text-center"><Spinner animation="border" /></div>
-      ) : (
-        <Table striped bordered hover responsive>
-          <thead>
-            <tr>
-              <th>Username</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((u) => (
-              <tr key={u.username}>
-                <td>{u.username}</td>
-                <td>{u.email}</td>
-                <td>
-                  <Form.Select
-                    value={u.role}
-                    onChange={(e) => handleUpdateRole(u.username, e.target.value)}
-                  >
-                    <option value="user">User</option>
-                    <option value="admin">Admin</option>
-                  </Form.Select>
-                </td>
-                <td>
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    onClick={() => handleDeleteUser(u.username)}
-                  >
-                    Delete
-                  </Button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-      )}
+          {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+          {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
 
-      {/* Confirmation Modal */}
-      <Modal show={showConfirm} onHide={() => setShowConfirm(false)} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Confirm Action</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>{confirmMessage}</Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowConfirm(false)}>
-            Cancel
-          </Button>
-          <Button variant="danger" onClick={() => confirmAction && confirmAction()}>
-            Confirm
-          </Button>
-        </Modal.Footer>
-      </Modal>
-    </Card>
+          {loading ? (
+            <Box textAlign="center" mt={3}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <TableContainer component={Paper} sx={{ borderRadius: 2 }}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell><strong>Username</strong></TableCell>
+                    <TableCell><strong>Email</strong></TableCell>
+                    <TableCell><strong>Role</strong></TableCell>
+                    <TableCell><strong>Actions</strong></TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {users.map((u) => (
+                    <TableRow key={u.username}>
+                      <TableCell>{u.username}</TableCell>
+                      <TableCell>{u.email}</TableCell>
+                      <TableCell>
+                        <TextField
+                          select
+                          value={u.role}
+                          onChange={(e) => handleUpdateRole(u.username, e.target.value)}
+                          size="small"
+                          sx={{ minWidth: 120 }}
+                        >
+                          <MenuItem value="user">User</MenuItem>
+                          <MenuItem value="admin">Admin</MenuItem>
+                        </TextField>
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="contained"
+                          color="error"
+                          size="small"
+                          onClick={() => handleDeleteUser(u.username)}
+                          sx={{ textTransform: "none" }}
+                        >
+                          Delete
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+
+          {/* Confirmation Dialog */}
+          <Dialog open={showConfirm} onClose={() => setShowConfirm(false)} maxWidth="sm" fullWidth>
+            <DialogTitle fontWeight="bold">Confirm Action</DialogTitle>
+            <Divider />
+            <DialogContent>
+              <Typography>{confirmMessage}</Typography>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setShowConfirm(false)} color="secondary">
+                Cancel
+              </Button>
+              <Button
+                onClick={() => confirmAction && confirmAction()}
+                color="error"
+                variant="contained"
+              >
+                Confirm
+              </Button>
+            </DialogActions>
+          </Dialog>
+        </CardContent>
+      </Card>
+    </Box>
   );
 };
 
