@@ -16,7 +16,7 @@ const GroupCreate = ({ currentUser, onGroupCreated }) => {
     setSuccess("");
     try {
       const res = await axios.post(
-        "http://16.171.162.5:8005/groups/create",
+        "http://d393qv373r18to.cloudfront.net/groups/create",
         {
           name: groupName,
           visibility,
