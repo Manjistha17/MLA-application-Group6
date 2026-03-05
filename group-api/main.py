@@ -1,32 +1,53 @@
 from uuid import uuid4
-# ===================== Group Creation Model =====================
+
+# ===================== Group Creation Model (Extended) =====================
+from pydantic import BaseModel, Field
+from typing import Optional, Dict, Any
+
+class GroupRules(BaseModel):
+    startDate: Optional[str] = None
+    endDate: Optional[str] = None
+    createdBy: Optional[str] = None
+    challengeMode: Optional[str] = None
+
 class GroupCreateRequest(BaseModel):
     name: str
-    visibility: str  # 'public' or 'private'
+    type: str
+    visibility: str
+    status: str
+    description: str
+    rules: Optional[GroupRules] = None
     adminId: str
 
 class GroupCreateResponse(BaseModel):
     groupId: str
     name: str
+    type: str
     visibility: str
+    status: str
+    description: str
+    rules: Optional[Dict[str, Any]] = None
     adminId: str
 
-# ===================== Create Group Endpoint =====================
+# ===================== Create Group Endpoint (Extended) =====================
 @app.post("/groups/create", response_model=GroupCreateResponse)
 async def create_group(payload: GroupCreateRequest):
     """
-    Create a new group and assign the creator as admin and member.
+    Create a new group with all challenge parameters and assign the creator as admin and member.
     """
     try:
-        # Generate unique groupId
         group_id = f"g_{uuid4().hex[:10]}"
         group_doc = {
             "groupId": group_id,
             "name": payload.name,
+            "type": payload.type,
             "visibility": payload.visibility,
+            "status": payload.status,
+            "description": payload.description,
+            "rules": payload.rules.dict() if payload.rules else {},
             "adminId": payload.adminId,
             "createdAt": datetime.utcnow(),
-            "isPublic": payload.visibility == "public",
+            "isPublic": payload.visibility.upper() == "PUBLIC",
             "members": [payload.adminId],
         }
         await db.groups.insert_one(group_doc)
@@ -42,7 +63,11 @@ async def create_group(payload: GroupCreateRequest):
         return {
             "groupId": group_id,
             "name": payload.name,
+            "type": payload.type,
             "visibility": payload.visibility,
+            "status": payload.status,
+            "description": payload.description,
+            "rules": payload.rules.dict() if payload.rules else {},
             "adminId": payload.adminId,
         }
     except Exception as e:
