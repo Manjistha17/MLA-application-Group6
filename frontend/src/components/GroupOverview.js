@@ -268,7 +268,7 @@ const GroupOverview = ({ currentUser }) => {
                   <th>User</th>
                   {groupMetric === "totalMinutes" && <th>Total Minutes</th>}
                   {groupMetric === "totalCalories" && <th>Total Calories</th>}
-                  {!isTeamChallenge && <th>Completed</th>}
+                  {isTeamChallenge && <th>Completed</th>}
                 </tr>
               </thead>
 
