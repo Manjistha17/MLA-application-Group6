@@ -22,12 +22,7 @@ const Dashboard = ({ currentUser }) => {
       {/* ✅ pass role into DashboardTabs */}
       <DashboardTabs currentUser={currentUser} role={role} />
 
-      {role === "admin" && (
-        <div className="adminPanel">
-          <h2>Admin Controls</h2>
-          <p>Here you can manage users, view reports, or configure settings.</p>
-        </div>
-      )}
+      
     </div>
   );
 };
