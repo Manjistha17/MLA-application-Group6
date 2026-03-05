@@ -1,166 +1,90 @@
-# MLA Fitness App
+**Shakti 360 — MLA Fitness App**
 
-An interactive fitness tracking application built with a polyglot microservices architecture. Users can log exercises, monitor progress, and view analytics in real time.
+A full-stack fitness tracking web application built with a microservices architecture. Track workouts, monitor nutrition, set goals, and visualise your progress — all in one place.
 
-![Screenshot](screenshots/frontpage.png)
+**Group 6 — Team Members:**
+Haritha Nallimilli
+Sagarika Bohidar
+Ramya V
+Pon Divya Ravichandran
+Manjistha Mukherjee
+Sandhya Salian
 
-## Architecture Overview
+**Architecture:**
+The app is built as a set of independent microservices, all routed through an Nginx reverse proxy:
+Browser
+  └── Nginx (Port 8081) ── reverse proxy
+        ├── /             → React Frontend
+        ├── /api/         → Activity Tracking Service (Node.js :5000)
+        ├── /analytics/   → Analytics Service (Python Flask :5050)
+        ├── /auth/        → Auth Service (Java Spring Boot :8080)
+        ├── /nutrition/   → Nutrition API (Node.js :5005)
+        └── /workout/     → Workout API (Node.js :5002)
 
-This app now uses a multi-service architecture with distinct backend services for activity tracking, analytics, and user management. Requests flow through a reverse proxy and SPA frontend, with CORS and security handled uniformly across services.
+**Tech Stack:**
+Layer Technology
+Frontend React, Material UI, Recharts
+Reverse Proxy Nginx
+Activity Tracking Node.js + Express
+Analytics Python Flask
+Auth Service Java Spring Boot + Gradle
+Nutrition API Node.js + Express + Anthropic AI
+Workout API Node.js + Express
+Database MongoDB Atlas 
+Monitoring Prometheus + Grafana        
 
-## Tech Stack by Layer
+**Features**
 
-| Layer | Technology Used |
-|-------|----------------|
-| Reverse Proxy | Nginx (Routing, Auth, CORS, Error Handling) |
-| Frontend | React SPA served via Nginx |
-| Activity Service | Node.js (Port 5000) |
-| Analytics Service | Python Flask (Port 5050) |
-| User Service | Java + Gradle (Port 8080) |
-| Database | MongoDB |
+1)Authentication
 
-## Features
+User registration and login via Java Auth Service
+Password reset via email
+Session management with localStorage
 
-- User registration and login via Java-based Auth Service
-- Real-time activity tracking with Node.js
-- Weekly and overall analytics via Python Flask
-- Interactive UI with Material-UI components
-- Centralized CORS and security handling via reverse proxy
-- MongoDB-backed data persistence across services
+2)Activity Tracking
 
-## Prerequisites
+Log exercises with type, duration, and intensity
+Real-time calorie burn calculation
+Weekly activity progress chart
+Workout streak tracking
 
-Ensure the following are installed (already included in devcontainer):
+3)Food & Hydration
 
-- Node.js v18+
-- MongoDB
-- npm or yarn
-- Python 3.9+
-- Java 8
-- Gradle  
+AI-powered calorie estimation — type any food and get instant calories + macros (protein, carbs, fat) using Claude AI
+Portion size tracking with multiple units (g, ml, oz, cup, piece, etc.)
+Meal type grouping (Breakfast, Lunch, Dinner, Snack)
+Water intake tracking with visual glass indicator
+Quick water log buttons (+150ml, +250ml, +500ml, etc.)
+Daily calorie and hydration progress bars
+AI meal suggestions based on remaining calories, exercise burned, and what you've already eaten — includes Indian and international options
+Browse past days' logs
+Macro breakdown (protein/carbs/fat chips)
 
-### Project Setup Instructions
+4)Overview Dashboard
 
-- One fork per group: Before you begin, one member of your group should fork this repository.
-- Each group member should clone the forked version of the repository to their local environment or GitHub Codespace.
-- All project work should be done in your group's fork.
+Today's calories burned, active minutes, workouts, and streak
+Full nutrition summary with macros and hydration
+Weekly activity progress graph
 
-## Development Setup (GitHub Codespaces)
+5)Goals
 
-1. Fork this repo (one per group)
-2. Clone your fork locally or open in Codespaces
-3. Create a new Codespace from main
-4. Open in VS Code for best experience
-<img src="screenshots/codespaces.png" width="300"/>
+Set daily calorie and water goals
+Track progress towards fitness goals
 
-5. Run installation check:
-```sh
-sh .devcontainer/check-installation.sh
-```
+6)Workout Plan
 
+Browse and follow structured workout plans
 
-## MongoDB Installation & Setup
+7)Progress
 
-### For Ubuntu/Debian:
-```sh
-sudo apt update
-sudo apt install -y mongodb
-sudo systemctl start mongodb
-sudo systemctl enable mongodb
-```
+Weekly activity line chart
+Total minutes, active days, and average per day
 
-### For Windows:
-1. Download MongoDB Community Server
-2. Run the installer with default settings
-3. Start MongoDB service
+8)Monitoring
 
-### For macOS:
-```sh
-brew tap mongodb/brew
-brew install mongodb-community
-brew services start mongodb/brew/mongodb-community
-```
+Prometheus metrics collection
+Grafana dashboards for service health
 
-## Running the Application
-
-### Option 1: Docker (Recommended)
-```sh
-docker-compose up --build
-```
-
-### Option 2: Local Development
-```sh
-# Terminal 1 - Start MongoDB (if not running as service)
-mongod
-
-# Terminal 2 - Activity Tracking Service
-cd activity-tracking
-npm install
-npm start
-
-# Terminal 3 - Analytics Service  
-cd analytics
-pip install -r requirements.txt
-python app.py
-
-# Terminal 4 - Auth Service
-cd authservice
-./gradlew bootRun
-
-# Terminal 5 - Frontend
-cd frontend
-npm install
-npm start
-```
-
-## Access Points
-
-- **Frontend**: http://localhost:3000 (development) or http://localhost:80 (Docker)
-- **Activity API**: http://localhost:5000
-- **Analytics API**: http://localhost:5001
-- **Auth API**: http://localhost:8080
-
-## Testing
-
-### Unit Tests
-```sh
-cd frontend
-npm test
-```
-
-### E2E Tests
-```sh
-cd activity-tracking/cypress
-npm install
-npx cypress run
-```
-
-## Troubleshooting
-
-### Common Docker Issues
-```sh
-# Clear Docker cache
-docker system prune -a
-
-# Rebuild without cache
-docker-compose build --no-cache
-
-# View service logs
-docker-compose logs [service-name]
-```
-
-### MongoDB Issues
-- Ensure MongoDB is running on port 27017
-- Check database connection strings in config files
-
-### Port Conflicts
-- Frontend: Change port in package.json
-- Backend: Update docker-compose.yml port mappings
-
-## Contributing
-
-1. Fork the repository
-2. Create feature branch: `git checkout -b feature-name`
-3. Commit changes: `git commit -m 'Description'`
-4. Push branch: `git push origin feature-name`
-5. Submit Pull Request
+Environment Variables:
+MONGO_URI : nutrition-api, activity-tracking MongoDB connection string
+ANTHROPIC_API_KEY : nutrition-api, API key for AI calorie features
