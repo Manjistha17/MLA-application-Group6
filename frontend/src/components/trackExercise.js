@@ -36,7 +36,7 @@ const TrackExercise = ({ currentUser }) => {
   useEffect(() => {
     const fetchActivities = async () => {
       try {
-        const response = await axios.get('http://16.171.162.5:5300/exercises/activities/');
+        const response = await axios.get('https://d393qv373r18to.cloudfront.net/exercises/activities/');
         setActivities(response.data);
       } catch (error) {
         console.error('Error fetching activities', error);
