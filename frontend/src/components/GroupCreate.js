@@ -12,6 +12,9 @@ const GroupCreate = ({ currentUser, onGroupCreated }) => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [challengeMode, setChallengeMode] = useState("INDIVIDUAL");
+  const [activityTypes, setActivityTypes] = useState("");
+  const [metric, setMetric] = useState("MINUTES");
+  const [target, setTarget] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -29,15 +32,17 @@ const GroupCreate = ({ currentUser, onGroupCreated }) => {
         status,
         description,
         rules: {
-          startDate: startDate ? new Date(startDate).toISOString() : undefined,
-          endDate: endDate ? new Date(endDate).toISOString() : undefined,
-          createdBy: currentUser,
-          challengeMode,
+          activityTypes: activityTypes.split(',').map(s => s.trim()).filter(s => s),
+          metric,
+          target: parseInt(target),
         },
-        adminId: currentUser,
+        startDate: startDate ? new Date(startDate).toISOString() : undefined,
+        endDate: endDate ? new Date(endDate).toISOString() : undefined,
+        createdBy: currentUser,
+        challengeMode,
       };
       const res = await axios.post(
-        "http://16.171.162.5:8005/groups/create",
+        "https://d393qv373r18to.cloudfront.net/groups/create",
         payload
       );
       setSuccess("Group created successfully!");
@@ -49,6 +54,9 @@ const GroupCreate = ({ currentUser, onGroupCreated }) => {
       setStartDate("");
       setEndDate("");
       setChallengeMode("INDIVIDUAL");
+      setActivityTypes("");
+      setMetric("MINUTES");
+      setTarget("");
       if (onGroupCreated) onGroupCreated(res.data);
     } catch (err) {
       setError(
@@ -146,6 +154,38 @@ const GroupCreate = ({ currentUser, onGroupCreated }) => {
             <option value="INDIVIDUAL">Individual</option>
             <option value="TEAM">Team</option>
           </select>
+        </div>
+        <div className="form-group">
+          <label htmlFor="activityTypes">Activity Types (comma-separated)</label>
+          <input
+            id="activityTypes"
+            type="text"
+            value={activityTypes}
+            onChange={(e) => setActivityTypes(e.target.value)}
+            placeholder="e.g., Swimming, Running"
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="metric">Metric</label>
+          <select
+            id="metric"
+            value={metric}
+            onChange={(e) => setMetric(e.target.value)}
+          >
+            <option value="MINUTES">Minutes</option>
+            <option value="CALORIES">Calories</option>
+          </select>
+        </div>
+        <div className="form-group">
+          <label htmlFor="target">Target</label>
+          <input
+            id="target"
+            type="number"
+            value={target}
+            onChange={(e) => setTarget(e.target.value)}
+            required
+          />
         </div>
         <button type="submit" disabled={loading}>
           {loading ? "Creating..." : "Create Group"}

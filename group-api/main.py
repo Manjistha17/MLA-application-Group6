@@ -1,89 +1,13 @@
-from uuid import uuid4
-
-# ===================== Group Creation Model (Extended) =====================
-from pydantic import BaseModel, Field
-from typing import Optional, Dict, Any
-
-class GroupRules(BaseModel):
-    startDate: Optional[str] = None
-    endDate: Optional[str] = None
-    createdBy: Optional[str] = None
-    challengeMode: Optional[str] = None
-
-class GroupCreateRequest(BaseModel):
-    name: str
-    type: str
-    visibility: str
-    status: str
-    description: str
-    rules: Optional[GroupRules] = None
-    adminId: str
-
-class GroupCreateResponse(BaseModel):
-    groupId: str
-    name: str
-    type: str
-    visibility: str
-    status: str
-    description: str
-    rules: Optional[Dict[str, Any]] = None
-    adminId: str
-
-# ===================== Create Group Endpoint (Extended) =====================
-@app.post("/groups/create", response_model=GroupCreateResponse)
-async def create_group(payload: GroupCreateRequest):
-    """
-    Create a new group with all challenge parameters and assign the creator as admin and member.
-    """
-    try:
-        group_id = f"g_{uuid4().hex[:10]}"
-        group_doc = {
-            "groupId": group_id,
-            "name": payload.name,
-            "type": payload.type,
-            "visibility": payload.visibility,
-            "status": payload.status,
-            "description": payload.description,
-            "rules": payload.rules.dict() if payload.rules else {},
-            "adminId": payload.adminId,
-            "createdAt": datetime.utcnow(),
-            "isPublic": payload.visibility.upper() == "PUBLIC",
-            "members": [payload.adminId],
-        }
-        await db.groups.insert_one(group_doc)
-
-        # Add admin as member in group_memberships
-        await db.group_memberships.insert_one({
-            "userId": payload.adminId,
-            "groupId": group_id,
-            "role": "admin",
-            "joinedAt": datetime.utcnow(),
-        })
-
-        return {
-            "groupId": group_id,
-            "name": payload.name,
-            "type": payload.type,
-            "visibility": payload.visibility,
-            "status": payload.status,
-            "description": payload.description,
-            "rules": payload.rules.dict() if payload.rules else {},
-            "adminId": payload.adminId,
-        }
-    except Exception as e:
-        import traceback
-        print("ERROR creating group:", e)
-        traceback.print_exc()
-        raise HTTPException(status_code=500, detail="Failed to create group")
 from fastapi import FastAPI, HTTPException, Query, Path
 from fastapi.middleware.cors import CORSMiddleware
-from typing import List, Optional
+from pydantic import BaseModel, Field
+from typing import List, Optional, Dict, Any
 from bson import ObjectId
-from pydantic import BaseModel
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 from dotenv import load_dotenv
 from datetime import datetime
+from uuid import uuid4
 
 load_dotenv()
 
@@ -105,6 +29,89 @@ MONGO_DB = os.getenv("MONGO_DB")
 client = AsyncIOMotorClient(MONGO_URI)
 db = client[MONGO_DB]
 
+# ===================== Group Creation Model (Extended) =====================
+class GroupRules(BaseModel):
+    activityTypes: List[str]
+    metric: str
+    target: int
+
+class GroupCreateRequest(BaseModel):
+    name: str
+    type: str
+    visibility: str
+    status: str
+    description: str
+    rules: GroupRules
+    startDate: Optional[str] = None
+    endDate: Optional[str] = None
+    createdBy: str
+    challengeMode: str
+
+class GroupCreateResponse(BaseModel):
+    groupId: str
+    name: str
+    type: str
+    visibility: str
+    status: str
+    description: str
+    rules: Dict[str, Any]
+    startDate: Optional[str] = None
+    endDate: Optional[str] = None
+    createdBy: str
+    challengeMode: str
+
+# ===================== Create Group Endpoint (Extended) =====================
+@app.post("/groups/create", response_model=GroupCreateResponse)
+async def create_group(payload: GroupCreateRequest):
+    """
+    Create a new group with all challenge parameters and assign the creator as admin and member.
+    """
+    try:
+        group_id = f"g_{uuid4().hex[:10]}"
+        group_doc = {
+            "groupId": group_id,
+            "name": payload.name,
+            "type": payload.type,
+            "visibility": payload.visibility,
+            "status": payload.status,
+            "description": payload.description,
+            "rules": payload.rules.dict(),
+            "startDate": payload.startDate,
+            "endDate": payload.endDate,
+            "createdBy": payload.createdBy,
+            "challengeMode": payload.challengeMode,
+            "createdAt": datetime.utcnow(),
+            "isPublic": payload.visibility.upper() == "PUBLIC",
+            "members": [payload.createdBy],
+        }
+        await db.groups.insert_one(group_doc)
+
+        # Add creator as member in group_memberships
+        await db.group_memberships.insert_one({
+            "userId": payload.createdBy,
+            "groupId": group_id,
+            "role": "admin",
+            "joinedAt": datetime.utcnow(),
+        })
+
+        return {
+            "groupId": group_id,
+            "name": payload.name,
+            "type": payload.type,
+            "visibility": payload.visibility,
+            "status": payload.status,
+            "description": payload.description,
+            "rules": payload.rules.dict(),
+            "startDate": payload.startDate,
+            "endDate": payload.endDate,
+            "createdBy": payload.createdBy,
+            "challengeMode": payload.challengeMode,
+        }
+    except Exception as e:
+        import traceback
+        print("ERROR creating group:", e)
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail="Failed to create group")
 
 # ================= Response Model =================
 class UserGroupName(BaseModel):
@@ -162,6 +169,9 @@ class GroupDetail(BaseModel):
     name: str
     description: Optional[str] = None
     rules: Optional[dict] = None
+    startDate: Optional[str] = None
+    endDate: Optional[str] = None
+    createdBy: Optional[str] = None
     challengeMode: Optional[str] = None
 
 class MemberItem(BaseModel):
@@ -201,7 +211,10 @@ async def get_group_details(group_id: str = Path(..., description="ID of the gro
             "name": group.get("name", "Unknown"),
             "description": group.get("description"),
             "rules": group.get("rules", {}),
-            "challengeMode": group.get("rules", {}).get("challengeMode") or group.get("challengeMode")
+            "startDate": group.get("startDate"),
+            "endDate": group.get("endDate"),
+            "createdBy": group.get("createdBy"),
+            "challengeMode": group.get("challengeMode")
         }
     
     except HTTPException:
