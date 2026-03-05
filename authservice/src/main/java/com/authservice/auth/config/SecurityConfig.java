@@ -1,16 +1,11 @@
 package com.authservice.auth.config;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-import java.util.Arrays;
+import org.springframework.context.annotation.Bean;
 
 @Configuration
 @EnableWebSecurity
@@ -19,8 +14,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-            .cors().and()
-            .csrf().disable()
+            .csrf().disable()  // Disable CSRF for APIs
             .authorizeRequests()
 
                 // ✅ Prometheus and auth endpoints
@@ -52,22 +46,5 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return new BCryptPasswordEncoder();
     }
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        // permit CloudFront UI host in addition to wildcard (useful while
-        // developing locally). Remove wildcard in production or replace with
-        // explicit domains only.
-        configuration.setAllowedOrigins(Arrays.asList(
-            "*",
-            "https://d393qv373r18to.cloudfront.net"
-        )); // Change to your frontend URL for production
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-
-        return source;
-    }
+    // ✅ Remove the CorsConfigurationSource bean to prevent Spring Boot from sending CORS headers
 }
