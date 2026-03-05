@@ -15,20 +15,23 @@ import AdminPanel from "./AdminPanel";
 const DashboardTabs = ({ currentUser, role }) => {
   const [activeTab, setActiveTab] = useState(0);
 
-  // Define base tabs
-  const tabs = [
-    { label: "Overview", component: <Overview currentUser={currentUser} /> },
-    { label: "Goals", component: <GoalSettingPage currentUser={currentUser} /> },
-    { label: "Workout Plan", component: <WorkoutPlan currentUser={currentUser} /> },
-    { label: "Workouts", component: <Workouts currentUser={currentUser} /> },
-    { label: "Progress", component: <ProgressTab /> },
-    { label: "Food & Hydration", component: <FoodHydration currentUser={currentUser} /> },
-  ];
-
-  // Add admin tab if role is admin
-  if (role?.toLowerCase() === "admin") {
-    tabs.push({ label: "Admin Panel", component: <AdminPanel currentUser={currentUser} /> });
-  }
+  // Define tabs based on role
+  const tabs =
+    role?.toLowerCase() === "admin"
+      ? [
+          {
+            label: "Admin Panel",
+            component: <AdminPanel currentUser={currentUser} />,
+          },
+        ]
+      : [
+          { label: "Overview", component: <Overview currentUser={currentUser} /> },
+          { label: "Goals", component: <GoalSettingPage currentUser={currentUser} /> },
+          { label: "Workout Plan", component: <WorkoutPlan currentUser={currentUser} /> },
+          { label: "Workouts", component: <Workouts currentUser={currentUser} /> },
+          { label: "Progress", component: <ProgressTab /> },
+          { label: "Food & Hydration", component: <FoodHydration currentUser={currentUser} /> },
+        ];
 
   return (
     <Box sx={{ width: "100%" }}>
