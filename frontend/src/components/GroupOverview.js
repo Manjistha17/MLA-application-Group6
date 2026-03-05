@@ -31,7 +31,7 @@ const GroupOverview = ({ currentUser }) => {
       setLoadingGroups(true);
       try {
         const res = await axios.get(
-          `http://16.171.162.5:8005/users/${currentUser}/groups`
+          `https://d393qv373r18to.cloudfront.net/users/${currentUser}/groups`
         );
         setGroups(res.data);
         if (res.data.length > 0) setSelectedGroup(res.data[0].groupId);
@@ -60,7 +60,7 @@ const GroupOverview = ({ currentUser }) => {
       try {
         // 1️⃣ Get group details (to detect metric)
         const groupRes = await axios.get(
-          `http://16.171.162.5:8005/groups/${selectedGroup}`
+          `https://d393qv373r18to.cloudfront.net/groups/${selectedGroup}`
         );
         const groupData = groupRes.data;
         // flag if this is the public/default group
@@ -69,8 +69,8 @@ const GroupOverview = ({ currentUser }) => {
           groupData.name?.toLowerCase().includes("public");
         setIsPublicGroup(publicFlag);
         // determine whether to treat progress as a team challenge
-        // hide progress if rules indicate individual mode
-        const teamFlag = groupData.rules?.challengeMode !== "INDIVIDUAL" && groupData.rules?.mode !== "INDIVIDUAL";
+        // if challengeMode is TEAM, then isTeamChallenge = true
+        const teamFlag = groupData.rules?.challengeMode === "TEAM" || groupData.rules?.mode === "TEAM";
         setIsTeamChallenge(teamFlag);
         const metric =
           groupData.rules?.metric === "CALORIES"
@@ -80,13 +80,13 @@ const GroupOverview = ({ currentUser }) => {
 
         // 2️⃣ Fetch feed
         const feedRes = await axios.get(
-          `http://16.171.162.5:8005/groups/${selectedGroup}/feed`
+          `https://d393qv373r18to.cloudfront.net/groups/${selectedGroup}/feed`
         );
         setFeedItems(feedRes.data);
 
         // 3️⃣ Fetch leaderboard
         const leaderboardRes = await axios.get(
-          `http://16.171.162.5:8005/groups/${selectedGroup}/leaderboard`,
+          `https://d393qv373r18to.cloudfront.net/groups/${selectedGroup}/leaderboard`,
           { params: { top_n: 10, metric } }
         );
         setLeaders(leaderboardRes.data);
@@ -94,7 +94,7 @@ const GroupOverview = ({ currentUser }) => {
         // 4️⃣ Fetch group‑level progress summary
         try {
           const progressRes = await axios.get(
-            `http://16.171.162.5:8005/groups/${selectedGroup}/progress`
+            `https://d393qv373r18to.cloudfront.net/groups/${selectedGroup}/progress`
           );
           setGroupProgress(progressRes.data);
         } catch (ignore) {
@@ -152,7 +152,7 @@ const GroupOverview = ({ currentUser }) => {
             setLoadingMembers(true);
             try {
               const res = await axios.get(
-                `http://16.171.162.5:8005/groups/${selectedGroup}/members`
+                `https://d393qv373r18to.cloudfront.net/groups/${selectedGroup}/members`
               );
               setMembers(res.data || []);
             } catch (e) {
@@ -211,7 +211,7 @@ const GroupOverview = ({ currentUser }) => {
                   <th>User</th>
                   {groupMetric === "totalMinutes" && <th>Total Minutes</th>}
                   {groupMetric === "totalCalories" && <th>Total Calories</th>}
-                  {!isTeamChallenge && <th>Completed</th>}
+                  {isTeamChallenge && <th>Completed</th>}
                 </tr>
               </thead>
               <tbody>
@@ -221,7 +221,7 @@ const GroupOverview = ({ currentUser }) => {
                     <td>{item.userId}</td>
                     {groupMetric === "totalMinutes" && <td>{item.totalMinutes}</td>}
                     {groupMetric === "totalCalories" && <td>{item.totalCalories}</td>}
-                    {!isTeamChallenge && <td>{item.completed ? "✅" : "❌"}</td>}
+                    {isTeamChallenge && <td>{item.completed ? "✅" : "❌"}</td>}
                   </tr>
                 ))}
               </tbody>
