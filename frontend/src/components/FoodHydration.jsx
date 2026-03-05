@@ -12,10 +12,6 @@ import WaterDropIcon from "@mui/icons-material/WaterDrop";
 import LocalFireDepartmentIcon from "@mui/icons-material/LocalFireDepartment";
 import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
 import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
-import {
-  ResponsiveContainer, BarChart, Bar, XAxis, YAxis,
-  CartesianGrid, Tooltip as RechartsTooltip, ReferenceLine,
-} from "recharts";
 import axios from "axios";
 
 const MEAL_TYPES = ["Breakfast", "Lunch", "Dinner", "Snack"];
@@ -25,7 +21,6 @@ const MEAL_COLORS = {
 const PORTION_UNITS = ["g", "ml", "oz", "cup", "piece", "slice", "tbsp", "tsp"];
 const TOTAL_GLASSES = 8;
 
-// ── Water glasses visual ──
 const WaterGlasses = ({ water, waterGoal }) => {
   const mlPerGlass = waterGoal / TOTAL_GLASSES;
   const filled = Math.min(Math.floor(water / mlPerGlass), TOTAL_GLASSES);
@@ -48,7 +43,6 @@ const WaterGlasses = ({ water, waterGoal }) => {
   );
 };
 
-// ── Macro chip ──
 const MacroChip = ({ label, value, color }) => (
   <Chip
     label={`${label}: ${Math.round(value || 0)}g`}
@@ -58,7 +52,6 @@ const MacroChip = ({ label, value, color }) => (
 );
 
 const FoodHydration = () => {
-  // Form state
   const [food, setFood] = useState("");
   const [portionSize, setPortionSize] = useState(100);
   const [portionUnit, setPortionUnit] = useState("g");
@@ -72,20 +65,16 @@ const FoodHydration = () => {
   const [mealType, setMealType] = useState("Breakfast");
   const [water, setWater] = useState("");
 
-  // Data state
   const [summary, setSummary] = useState({ calories: 0, water: 0, protein: 0, carbs: 0, fat: 0 });
   const [logs, setLogs] = useState([]);
-  const [weeklyData, setWeeklyData] = useState([]);
   const [caloriesBurned, setCaloriesBurned] = useState(0);
   const [suggestions, setSuggestions] = useState([]);
   const [suggestLoading, setSuggestLoading] = useState(false);
 
-  // Date picker
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0]);
   const today = new Date().toISOString().split("T")[0];
   const isToday = selectedDate === today;
 
-  // Goals
   const [calorieGoal, setCalorieGoal] = useState(
     Number(localStorage.getItem("dailyCaloriesGoal")) || 2000
   );
@@ -97,7 +86,6 @@ const FoodHydration = () => {
   const [snack, setSnack] = useState({ open: false, msg: "", severity: "success" });
   const showSnack = (msg, severity = "success") => setSnack({ open: true, msg, severity });
 
-  // ── Fetch daily logs ──
   const fetchSummary = useCallback(async () => {
     if (!username) return;
     try {
@@ -114,16 +102,6 @@ const FoodHydration = () => {
     } catch (err) { console.error("Failed to fetch summary", err); }
   }, [selectedDate, username]);
 
-  // ── Fetch weekly data ──
-  const fetchWeekly = useCallback(async () => {
-    if (!username) return;
-    try {
-      const res = await axios.get(`/nutrition/weekly/${username}`);
-      setWeeklyData(res.data);
-    } catch (err) { console.error("Failed to fetch weekly data", err); }
-  }, [username]);
-
-  // ── Fetch calories burned from activity service ──
   const fetchCaloriesBurned = useCallback(async () => {
     if (!username) return;
     try {
@@ -137,11 +115,9 @@ const FoodHydration = () => {
 
   useEffect(() => {
     fetchSummary();
-    fetchWeekly();
     fetchCaloriesBurned();
-  }, [fetchSummary, fetchWeekly, fetchCaloriesBurned]);
+  }, [fetchSummary, fetchCaloriesBurned]);
 
-  // ── AI calorie lookup ──
   const handleAiLookup = async (showToast = true) => {
     if (!food.trim()) return;
     setAiLoading(true);
@@ -160,14 +136,12 @@ const FoodHydration = () => {
     finally { setAiLoading(false); }
   };
 
-  // Re-calculate when portion changes
   useEffect(() => {
     if (!aiDone || !food.trim()) return;
     const timer = setTimeout(() => handleAiLookup(false), 600);
     return () => clearTimeout(timer);
   }, [portionSize, portionUnit]); // eslint-disable-line
 
-  // ── AI meal suggestions ──
   const fetchSuggestions = async () => {
     setSuggestLoading(true);
     setSuggestions([]);
@@ -184,7 +158,6 @@ const FoodHydration = () => {
     finally { setSuggestLoading(false); }
   };
 
-  // ── Save food ──
   const saveFood = async (e) => {
     e.preventDefault();
     if (!username || !isToday) return;
@@ -201,12 +174,11 @@ const FoodHydration = () => {
       setFood(""); setPortionSize(100); setPortionUnit("g");
       setCalories(""); setProtein(0); setCarbs(0); setFat(0);
       setAiDone(false); setAiNote(""); setMealType("Breakfast");
-      fetchSummary(); fetchWeekly();
+      fetchSummary();
       showSnack("Food logged!");
     } catch { showSnack("Failed to save food", "error"); }
   };
 
-  // ── Save water ──
   const saveWater = async (amount) => {
     if (!username || !isToday) return;
     try {
@@ -214,7 +186,7 @@ const FoodHydration = () => {
         userId: username, food: "", calories: 0,
         mealType: "", water: amount, date: today,
       });
-      fetchSummary(); fetchWeekly();
+      fetchSummary();
       showSnack(`+${amount} ml logged 💧`);
     } catch { showSnack("Failed to save water", "error"); }
   };
@@ -230,7 +202,7 @@ const FoodHydration = () => {
   const deleteLog = async (id) => {
     try {
       await axios.delete(`/nutrition/${id}`);
-      fetchSummary(); fetchWeekly();
+      fetchSummary();
       showSnack("Deleted", "info");
     } catch { showSnack("Delete failed", "error"); }
   };
@@ -255,7 +227,7 @@ const FoodHydration = () => {
   return (
     <Box sx={{ maxWidth: 1200, margin: "auto" }}>
 
-      {/* ── Date Picker ── */}
+      {/* Date Picker */}
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={3}>
         <Typography variant="h5" fontWeight={700}>
           {isToday ? "Today" : new Date(selectedDate).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
@@ -277,7 +249,7 @@ const FoodHydration = () => {
 
       <Box sx={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 3 }}>
 
-        {/* ── LEFT COLUMN ── */}
+        {/* LEFT COLUMN */}
         <Stack spacing={3}>
 
           {/* Water */}
@@ -315,7 +287,7 @@ const FoodHydration = () => {
             </CardContent>
           </Card>
 
-          {/* Log Food — only show on today */}
+          {/* Log Food */}
           {isToday && (
             <Card sx={{ borderRadius: 3 }}>
               <CardContent>
@@ -363,7 +335,6 @@ const FoodHydration = () => {
                       </span>
                     </Tooltip>
 
-                    {/* Macros preview */}
                     {aiDone && (
                       <Stack direction="row" spacing={1} flexWrap="wrap">
                         <MacroChip label="P" value={protein} color="#2196F3" />
@@ -396,35 +367,9 @@ const FoodHydration = () => {
               </CardContent>
             </Card>
           )}
-
-          {/* Weekly Chart */}
-          <Card sx={{ borderRadius: 3 }}>
-            <CardContent>
-              <Typography variant="h6" mb={2}>📊 Weekly Calories</Typography>
-              {weeklyData.length > 0 ? (
-                <ResponsiveContainer width="100%" height={220}>
-                  <BarChart data={weeklyData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                    <XAxis dataKey="label" tick={{ fontSize: 12 }} />
-                    <YAxis tick={{ fontSize: 12 }} />
-                    <RechartsTooltip
-                      formatter={(val, name) => [`${Math.round(val)} kcal`, "Calories"]}
-                    />
-                    <ReferenceLine y={calorieGoal} stroke="#f44336" strokeDasharray="4 4"
-                      label={{ value: "Goal", position: "right", fontSize: 11, fill: "#f44336" }} />
-                    <Bar dataKey="calories" fill="#2196F3" radius={[4, 4, 0, 0]} name="Calories" />
-                  </BarChart>
-                </ResponsiveContainer>
-              ) : (
-                <Typography variant="body2" color="text.secondary" textAlign="center" py={4}>
-                  No data yet this week
-                </Typography>
-              )}
-            </CardContent>
-          </Card>
         </Stack>
 
-        {/* ── RIGHT COLUMN ── */}
+        {/* RIGHT COLUMN */}
         <Stack spacing={3}>
 
           {/* Summary */}
@@ -435,8 +380,6 @@ const FoodHydration = () => {
               </Typography>
               <Divider sx={{ my: 2 }} />
               <Stack spacing={3}>
-
-                {/* Calories */}
                 <Box>
                   <Stack direction="row" justifyContent="space-between">
                     <Typography variant="body2" color="text.secondary">Calories Eaten</Typography>
@@ -455,7 +398,6 @@ const FoodHydration = () => {
                     color={calorieColor} sx={{ height: 10, borderRadius: 5, mt: 1 }} />
                 </Box>
 
-                {/* Calorie burn offset */}
                 {caloriesBurned > 0 && (
                   <Box sx={{ bgcolor: "action.hover", borderRadius: 2, p: 1.5 }}>
                     <Stack direction="row" justifyContent="space-between" alignItems="center">
@@ -478,7 +420,6 @@ const FoodHydration = () => {
                   </Box>
                 )}
 
-                {/* Macros */}
                 {(summary.protein > 0 || summary.carbs > 0 || summary.fat > 0) && (
                   <Box>
                     <Typography variant="body2" color="text.secondary" mb={1}>Macros</Typography>
@@ -490,7 +431,6 @@ const FoodHydration = () => {
                   </Box>
                 )}
 
-                {/* Water */}
                 <Box>
                   <Stack direction="row" justifyContent="space-between">
                     <Typography variant="body2" color="text.secondary">Hydration</Typography>
@@ -529,13 +469,11 @@ const FoodHydration = () => {
                     {suggestLoading ? "Thinking..." : "Suggest"}
                   </Button>
                 </Stack>
-
                 {suggestions.length === 0 && !suggestLoading && (
                   <Typography variant="body2" color="text.secondary">
                     Hit "Suggest" to get AI-powered meal ideas based on your remaining calories.
                   </Typography>
                 )}
-
                 <Stack spacing={1.5}>
                   {suggestions.map((s, i) => (
                     <Box key={i} sx={{ p: 1.5, bgcolor: "action.hover", borderRadius: 2 }}>
@@ -551,13 +489,12 @@ const FoodHydration = () => {
             </Card>
           )}
 
-          {/* Food Log — grouped by meal */}
+          {/* Food Log */}
           <Card sx={{ borderRadius: 3 }}>
             <CardContent>
               <Typography variant="h6" mb={2}>
                 {isToday ? "Today's Food Log" : "Food Log"}
               </Typography>
-
               {Object.keys(groupedLogs).length === 0 ? (
                 <Typography variant="body2" color="text.secondary" textAlign="center" py={2}>
                   No food logged {isToday ? "yet today" : "on this day"}
