@@ -37,7 +37,7 @@ const GroupCreate = ({ currentUser, onGroupCreated }) => {
         adminId: currentUser,
       };
       const res = await axios.post(
-        "http://16.171.162.5:8005/groups/create",
+        "https://d393qv373r18to.cloudfront.netru/groups/create",
         payload
       );
       setSuccess("Group created successfully!");
