@@ -10,4 +10,5 @@
   --color-text-muted: var(--color-gray-500);
 
   --color-border-subtle: var(--color-gray-200);
+  --color-app-header-bg: var(--color-white);
 }
