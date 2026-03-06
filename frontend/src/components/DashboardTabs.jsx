@@ -88,6 +88,7 @@ import WorkoutPlan from "./WorkoutPlan";
 import FoodHydration from "./FoodHydration";
 import GroupOverview from "./GroupOverview";
 import GroupCreateTab from "./GroupCreateTab";
+import JoinPublicGroup from "./JoinPublicGroup";
 // import GroupFeed from "./GroupFeed";
 // import Leaderboard from "./Leaderboard";
 import ProgressTab from "./ProgressTab";
@@ -114,6 +115,7 @@ const DashboardTabs = ({ currentUser, role }) => {
           { label: "Food & Hydration", component: <FoodHydration currentUser={currentUser} /> },
           { label: "Group Dashboard", component: <GroupOverview currentUser={currentUser} /> },
           { label: "Create Group", component: <GroupCreateTab currentUser={currentUser} /> },
+          { label: "Join Public Group", component: <JoinPublicGroup currentUser={currentUser} /> },
           // { label: "Group Feed", component: <GroupFeed currentUser={currentUser} /> },
           // { label: "Leaderboard", component: <Leaderboard currentUser={currentUser} /> },
         ];
