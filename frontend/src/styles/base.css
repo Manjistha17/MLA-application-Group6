@@ -18,3 +18,11 @@ body {
 .App {
   min-height: 100vh;
 }
+
+.orangeText {
+  color: var(--color-primary);
+}
+
+span {
+  color: var(--color-text-primary);
+}

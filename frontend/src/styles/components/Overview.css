@@ -40,8 +40,8 @@
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background-color: #bbdefb; /* light blue background */
-  color: #2563eb;           /* dark blue icon */
+  background-color: var(--color-bg-muted); /* light blue background */
+  color: var(--color-primary);           /* dark blue icon */
 }
 
 /* Main stat value */
@@ -49,7 +49,7 @@
   margin-top: 0.5rem;
   font-size: 1.5rem;
   font-weight: 600;
-  color: #2563eb; /* unified blue */
+  color: var(--color-primary); 
 }
 
 /* Smaller text for 'No workouts today' */
