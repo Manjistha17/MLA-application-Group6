@@ -28,7 +28,7 @@ const ProgressTab = () => {
     const fetchWeeklyProgress = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:8081/exercises/weekly/${username}`
+          `https://d393qv373r18to.cloudfront.net/exercises/weekly/${username}`
         );
         setData(res.data);
       } catch (err) {

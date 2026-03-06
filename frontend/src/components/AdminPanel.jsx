@@ -38,7 +38,7 @@ const AdminPanel = () => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const response = await axios.get("/api/admin/users");
+      const response = await axios.get("https://d393qv373r18to.cloudfront.net/api/admin/users");
       setUsers(response.data);
     } catch (err) {
       setError("Failed to load users.");
@@ -55,7 +55,7 @@ const AdminPanel = () => {
     setConfirmMessage(`Are you sure you want to change ${username}'s role to ${newRole}?`);
     setConfirmAction(() => async () => {
       try {
-        await axios.put(`/api/admin/users/${username}/role`, { role: newRole });
+        await axios.put(`https://d393qv373r18to.cloudfront.net/api/admin/users/${username}/role`, { role: newRole });
         setSuccess(`Updated ${username} to ${newRole}`);
         fetchUsers();
       } catch (err) {
@@ -71,7 +71,7 @@ const AdminPanel = () => {
     setConfirmMessage(`Delete user ${username}?`);
     setConfirmAction(() => async () => {
       try {
-        await axios.delete(`/api/admin/users/${username}`);
+        await axios.delete(`https://d393qv373r18to.cloudfront.net/api/admin/users/${username}`);
         setSuccess(`Deleted user ${username}`);
         fetchUsers();
       } catch (err) {

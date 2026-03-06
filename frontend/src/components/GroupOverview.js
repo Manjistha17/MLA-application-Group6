@@ -17,6 +17,9 @@ const GroupOverview = ({ currentUser }) => {
   const [members, setMembers] = useState([]);
   const [loadingMembers, setLoadingMembers] = useState(false);
   const [showMembers, setShowMembers] = useState(false);
+  const [showJoinGroups, setShowJoinGroups] = useState(false);
+  const [showCreateGroup, setShowCreateGroup] = useState(false);
+  const [showAddMembers, setShowAddMembers] = useState(false);
   const [groupProgress, setGroupProgress] = useState(null);
   const [groupMetric, setGroupMetric] = useState("totalMinutes");
   const [isPublicGroup, setIsPublicGroup] = useState(false);
@@ -159,7 +162,29 @@ const GroupOverview = ({ currentUser }) => {
       {loadingGroups ? (
         <p className="loading-text">Loading groups...</p>
       ) : groups.length === 0 ? (
-        <p className="empty-text">No groups found.</p>
+        <div className="no-groups-container">
+          <p className="empty-text">No groups yet.</p>
+          <button
+            className="members-btn"
+            onClick={() => setShowJoinGroups(true)}
+          >
+            Join Other Groups
+          </button>
+
+          <button
+            className="members-btn"
+            onClick={() => setShowCreateGroup(true)}
+          >
+            Create New Group
+          </button>
+
+          <button
+            className="members-btn"
+            onClick={() => setShowAddMembers(true)}
+          >
+            Add Members
+          </button>
+        </div>
       ) : (
         <>
           <select
@@ -204,9 +229,31 @@ const GroupOverview = ({ currentUser }) => {
           >
             {showMembers ? "Hide Members" : "Members"}
           </button>
+
+          <button
+            className="members-btn"
+            onClick={() => setShowJoinGroups(true)}
+          >
+            Join Other Groups
+          </button>
+
+          <button
+            className="members-btn"
+            onClick={() => setShowCreateGroup(true)}
+          >
+            Create New Group
+          </button>
+
+          <button
+            className="members-btn"
+            onClick={() => setShowAddMembers(true)}
+          >
+            Add Members
+          </button>
         </>
       )}
 
+      {groups.length > 0 && (
       <div className="combined-sections">
 
         {loadingProgress ? (
@@ -214,7 +261,7 @@ const GroupOverview = ({ currentUser }) => {
         ) : (
           <>
             {groupProgress && isTeamChallenge ? (
-              <div className="group-progress-summary" style={{background: 'lightgreen', padding: '20px', margin: '10px 0', border: '2px solid green'}}>
+              <div className="group-progress-summary" style={{background: '#fde8df', padding: '20px', margin: '10px 0', border: '2px solid #fa632a'}}>
                 <h3>Group Progress</h3>
                 <p>
                   {groupMetric === "totalMinutes" && (
@@ -273,7 +320,7 @@ const GroupOverview = ({ currentUser }) => {
               </thead>
 
               <tbody>
-                {leaders.map((item) => {
+                {leaders.map((item, index) => {
                   const isCurrentUser = item.userId === currentUser;
 
                   const medal =
@@ -286,12 +333,15 @@ const GroupOverview = ({ currentUser }) => {
                     <tr
                       key={item.userId}
                       className={isCurrentUser ? "current-user-row" : ""}
+                      style={isCurrentUser ? { boxShadow: '0 0 0 3px #fa632a' } : {}}
                     >
-                      <td>{medal}</td>
+                      <td style={{ textAlign: 'center' }}>{medal}</td>
 
                       <td>
-                        {item.userId}
-                        {isCurrentUser && " (You)"}
+                        <span style={isCurrentUser ? { fontWeight: 'bold', color: '#fa632a' } : {}}>
+                          {item.userId}
+                        </span>
+                        {isCurrentUser && <span style={{ marginLeft: '8px', color: '#fa632a', fontWeight: 'bold' }}>⭐ You</span>}
                       </td>
 
                       {groupMetric === "totalMinutes" && (
@@ -321,29 +371,85 @@ const GroupOverview = ({ currentUser }) => {
           ) : feedItems.length === 0 ? (
             <p className="empty-text">No feed items yet.</p>
           ) : (
-            feedItems.map((item) => (
-              <div key={item.feed_id} className="feed-item">
-                <div className="feed-item-header">
-                  <div className="feed-icon">{icons[item.type]}</div>
-                  <h4>{item.title}</h4>
+            feedItems.map((item) => {
+              const isUserActivity = item.userId === currentUser;
+              return (
+                <div 
+                  key={item.feed_id} 
+                  className="feed-item"
+                  style={isUserActivity ? { borderLeftColor: '#fa632a', borderLeftWidth: '8px', backgroundColor: '#fef6f1' } : {}}
+                >
+                  <div className="feed-item-header">
+                    <div className="feed-icon">{icons[item.type]}</div>
+                    <h4>{item.title}</h4>
+                    {isUserActivity && <span style={{ marginLeft: 'auto', color: '#fa632a', fontWeight: 'bold', fontSize: '0.85rem' }}>Your Activity</span>}
+                  </div>
+
+                  <p>{item.description}</p>
+
+                  <small>
+                    {icons.CLOCK}{" "}
+                    {new Date(item.createdAt).toLocaleString([], {
+                      dateStyle: "medium",
+                      timeStyle: "short",
+                    })}{" "}
+                    • {item.type}
+                  </small>
                 </div>
-
-                <p>{item.description}</p>
-
-                <small>
-                  {icons.CLOCK}{" "}
-                  {new Date(item.createdAt).toLocaleString([], {
-                    dateStyle: "medium",
-                    timeStyle: "short",
-                  })}{" "}
-                  • {item.type}
-                </small>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
 
-      </div>
+      )}
+
+      {/* Join Other Groups Modal */}
+      {showJoinGroups && (
+        <div className="modal-overlay" onClick={() => setShowJoinGroups(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Join Other Groups</h2>
+              <button className="modal-close" onClick={() => setShowJoinGroups(false)}>×</button>
+            </div>
+            <div className="modal-body">
+              <p>Join other groups functionality will be implemented here.</p>
+              <p>Backend integration coming soon...</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Create New Group Modal */}
+      {showCreateGroup && (
+        <div className="modal-overlay" onClick={() => setShowCreateGroup(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Create New Group</h2>
+              <button className="modal-close" onClick={() => setShowCreateGroup(false)}>×</button>
+            </div>
+            <div className="modal-body">
+              <p>Create new group functionality will be implemented here.</p>
+              <p>Backend integration coming soon...</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Members Modal */}
+      {showAddMembers && (
+        <div className="modal-overlay" onClick={() => setShowAddMembers(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Add Members to {selectedGroup}</h2>
+              <button className="modal-close" onClick={() => setShowAddMembers(false)}>×</button>
+            </div>
+            <div className="modal-body">
+              <p>Add members functionality will be implemented here.</p>
+              <p>Backend integration coming soon...</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {error && <p className="error-text">{error}</p>}
     </div>

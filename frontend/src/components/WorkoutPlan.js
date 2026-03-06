@@ -46,7 +46,7 @@ const WorkoutPlan = ({ currentUser }) => {
     console.log("Full currentUser object:", currentUser);
 
     axios
-      .get("/workouts/user-workout-plan/all", {
+      .get("https://d393qv373r18to.cloudfront.net/workouts/user-workout-plan/all", {
         params: { user_id: userId }
       })
       .then(({ data }) => {

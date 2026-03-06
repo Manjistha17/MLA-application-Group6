@@ -105,7 +105,7 @@ const Profile = ({ currentUser }) => {
         if (!currentUser) return;
 
         axios
-            .get(`/api/auth/details/${currentUser}`)
+            .get(`https://d393qv373r18to.cloudfront.net/api/auth/details/${currentUser}`)
             .then(res => setUserDetails(res.data))
             .catch(err => console.error("Error loading profile:", err))
             .finally(() => setLoading(false));

@@ -9,7 +9,7 @@ const Profile = ({ currentUser }) => {
   useEffect(() => {
   if (!currentUser) return;
 
-  axios.get(`/api/auth/details/${currentUser}`)
+  axios.get(`https://d393qv373r18to.cloudfront.net/api/auth/details/${currentUser}`)
     .then(res => setUserDetails(res.data))
     .catch(err => console.error("Error loading profile:", err))
     .finally(() => setLoading(false));
