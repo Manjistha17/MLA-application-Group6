@@ -44,7 +44,7 @@ const OverviewTab = ({ currentUser }) => {
 
   useEffect(() => {
     if (!currentUser) return;
-    axios.get(`/api/stats/daily/?user=${currentUser}`).then(res => {
+    axios.get(`https://d393qv373r18to.cloudfront.net/api/stats/daily/?user=${currentUser}`).then(res => {
       if (Array.isArray(res.data?.stats)) {
         const ex = res.data.stats;
         setStats({
@@ -56,7 +56,7 @@ const OverviewTab = ({ currentUser }) => {
       }
     }).catch(() => {});
 
-    axios.get(`/nutrition/${today}/${currentUser}`).then(res => {
+    axios.get(`https://d393qv373r18to.cloudfront.net/nutrition/${today}/${currentUser}`).then(res => {
       const food = res.data.filter(i => i.food);
       setNutrition({
         calories: res.data.reduce((s, i) => s + Number(i.calories || 0), 0),
@@ -67,7 +67,7 @@ const OverviewTab = ({ currentUser }) => {
       });
     }).catch(() => {});
 
-    axios.get(`/exercises/weekly/${currentUser}`).then(res => setWeeklyData(res.data)).catch(() => {});
+    axios.get(`https://d393qv373r18to.cloudfront.net/exercises/weekly/${currentUser}`).then(res => setWeeklyData(res.data)).catch(() => {});
   }, [currentUser, today]);
 
   const caloriePercent = Math.min((nutrition.calories / calorieGoal) * 100, 100);
