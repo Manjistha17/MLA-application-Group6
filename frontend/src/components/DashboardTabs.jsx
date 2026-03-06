@@ -57,7 +57,7 @@ const DashboardTabs = ({ currentUser, role }) => {
         <Tab label="Workouts" />
         <Tab label="Progress" />
         <Tab label="Food & Hydration" />
-        <Tab label="Group Overview" />
+        <Tab label="Group Dashboard" />
         <Tab label="Create Group" />
         {/* <Tab label="Group Feed" /> */}
         {/* <Tab label="Leaderboard" /> */}
