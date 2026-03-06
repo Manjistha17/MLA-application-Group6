@@ -7,7 +7,7 @@ const Header = () => {
         <span className="publicHeader__logo">
           <img src="/logo.png" alt="Shakti 360 Logo" />
         </span>
-        <span className="publicHeader__name">Shakti 360</span>
+        <span className="publicHeader__name orangeText">Shakti 360</span>
       </div>
 
       <div className="publicHeader__right">
