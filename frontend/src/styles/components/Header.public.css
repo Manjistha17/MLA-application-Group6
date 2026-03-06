@@ -36,7 +36,7 @@
 .publicHeader__name {
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-bold);
-  color: var(--color-text-primary);
+  /*color: var(--color-text-primary);*/
   white-space: nowrap;
 }
 
