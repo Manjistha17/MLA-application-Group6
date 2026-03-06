@@ -1,3 +1,5 @@
+# ===================== List All Public Groups Endpoint =====================
+from fastapi import Body
 from fastapi import FastAPI, HTTPException, Query, Path
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
@@ -430,5 +432,66 @@ async def get_group_progress(
     except Exception as e:
         import traceback
         print("ERROR fetching group progress:", e)
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+		class PublicGroupItem(BaseModel):
+    groupId: str
+    groupName: str
+    description: Optional[str] = None
+	
+# ===================== To identify public group =====================
+
+@app.get("/groups/public", response_model=List[PublicGroupItem])
+async def get_public_groups():
+    """
+    Returns a list of all public groups (isPublic == True).
+    """
+    try:
+        groups = []
+        cursor = db.groups.find({"isPublic": True})
+        async for group in cursor:
+            groups.append({
+                "groupId": group.get("groupId"),
+                "groupName": group.get("name", "Unknown"),
+                "description": group.get("description", "")
+            })
+        return groups
+    except Exception as e:
+        import traceback
+        print("ERROR fetching public groups:", e)
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+# ===================== Join Group Endpoint =====================
+class JoinGroupRequest(BaseModel):
+    userId: str
+
+@app.post("/groups/{group_id}/join")
+async def join_group(group_id: str = Path(..., description="ID of the group"), req: JoinGroupRequest = Body(...)):
+    """
+    Adds the user to the group and group_memberships if not already a member.
+    """
+    try:
+        # Check if group exists
+        group = await db.groups.find_one({"groupId": group_id})
+        if not group:
+            raise HTTPException(status_code=404, detail="Group not found")
+        # Check if already a member
+        existing = await db.group_memberships.find_one({"userId": req.userId, "groupId": group_id})
+        if existing:
+            return {"joined": False, "message": "Already a member"}
+        # Add to group_memberships
+        await db.group_memberships.insert_one({
+            "userId": req.userId,
+            "groupId": group_id,
+            "role": "member",
+            "joinedAt": datetime.utcnow(),
+        })
+        # Optionally, add to group members array (if you want to keep it in sync)
+        await db.groups.update_one({"groupId": group_id}, {"$addToSet": {"members": req.userId}})
+        return {"joined": True}
+    except Exception as e:
+        import traceback
+        print("ERROR joining group:", e)
         traceback.print_exc()
         raise HTTPException(status_code=500, detail="Internal Server Error")

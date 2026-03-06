@@ -7,6 +7,8 @@ import WorkoutPlan from "./WorkoutPlan";
 import FoodHydration from "./FoodHydration";
 import GroupOverview from "./GroupOverview";
 import GroupCreateTab from "./GroupCreateTab";
+import JoinPublicGroup from "./JoinPublicGroup";
+import "../styles/components/JoinPublicGroup.css";
 // import GroupFeed from "./GroupFeed";
 // import Leaderboard from "./Leaderboard";
 import ProgressTab from "./ProgressTab";
@@ -59,6 +61,7 @@ const DashboardTabs = ({ currentUser, role }) => {
         <Tab label="Food & Hydration" />
         <Tab label="Group Dashboard" />
         <Tab label="Create Group" />
+        <Tab label="Join Public Group" />
         {/* <Tab label="Group Feed" /> */}
         {/* <Tab label="Leaderboard" /> */}
       </Tabs>
@@ -73,6 +76,8 @@ const DashboardTabs = ({ currentUser, role }) => {
       {activeTab === 7 && <GroupCreateTab currentUser={currentUser} />}
       {/* {activeTab === 8 && <GroupFeed currentUser={currentUser} />} */}
       {/* {activeTab === 9 && <Leaderboard currentUser={currentUser} />} */}
+      {activeTab === 8 && <JoinPublicGroup currentUser={currentUser} />}
+
     </Box>
   );
 };
