@@ -24,12 +24,12 @@ import { trackExercise } from "../api";
 import Timer from "./Timer";
 
 const activitiesConfig = [
-  { key: "Running", label: "Running", icon: <DirectionsRunIcon fontSize="large" /> },
-  { key: "Swimming", label: "Swimming", icon: <PoolIcon fontSize="large" /> },
-  { key: "Cycling", label: "Cycling", icon: <DirectionsBikeIcon fontSize="large" /> },
-  { key: "Yoga", label: "Yoga", icon: <SelfImprovementIcon fontSize="large" /> },
-  { key: "Gym", label: "Weights", icon: <FitnessCenterIcon fontSize="large" /> },
-  { key: "Other", label: "Others", icon: <HelpOutlineIcon fontSize="large" /> },
+  { key: "Running", label: "Running", icon: <DirectionsRunIcon fontSize="large" color='primary' /> },
+  { key: "Swimming", label: "Swimming", icon: <PoolIcon fontSize="large" color='primary'/> },
+  { key: "Cycling", label: "Cycling", icon: <DirectionsBikeIcon fontSize="large" color='primary'/> },
+  { key: "Yoga", label: "Yoga", icon: <SelfImprovementIcon fontSize="large" color='primary'/> },
+  { key: "Gym", label: "Weights", icon: <FitnessCenterIcon fontSize="large" color='primary'/> },
+  { key: "Other", label: "Others", icon: <HelpOutlineIcon fontSize="large" color='primary'/> },
 ];
 
 const TrackExercise = (props) => {
@@ -108,7 +108,7 @@ const TrackExercise = (props) => {
         return;
       }
 
-      // ✅ FIX: never allow 0 minutes
+      
       finalDuration = Math.ceil(timerSession.duration / 60);
       description = `${state.exerciseType} session`;
 
@@ -138,7 +138,7 @@ const TrackExercise = (props) => {
       setMessageType("success");
       setMessage("Exercise logged successfully!");
 
-      // ✅ Clean reset
+      // reset
       setState({
         exerciseType: "",
         duration: 0,
@@ -182,7 +182,7 @@ const TrackExercise = (props) => {
                 "&.Mui-selected": {
                   borderColor: "primary.main",
                   color: "primary.main",
-                  backgroundColor: "rgba(25, 118, 210, 0.08)", // subtle blue
+                  backgroundColor: "rgba(25, 118, 210, 0.08)", 
                 },
                 "&.Mui-selected:hover": {
                   backgroundColor: "rgba(25, 118, 210, 0.12)",

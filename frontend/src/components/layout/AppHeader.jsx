@@ -84,7 +84,7 @@ const AppHeader = ({ currentUser, onLogout }) => {
       color="inherit"   
       className="appHeader"
       sx={{
-        backgroundColor: '#ffffff', 
+        backgroundColor: 'var(--color-bg-main)', 
         borderBottom: '1px solid var(--color-border-subtle)',
       }}
     >
@@ -98,7 +98,7 @@ const AppHeader = ({ currentUser, onLogout }) => {
           <span className="loggedHeader__logo">
             <img src="/logo.png" alt="Shakti 360 Logo" />
           </span>
-          <span className="loggedHeader__name">Shakti 360</span>
+          <span className="loggedHeader__name">Shakti <span className="orangeText">360</span></span>
         </div>
 
         {/* RIGHT: AVATAR */}
