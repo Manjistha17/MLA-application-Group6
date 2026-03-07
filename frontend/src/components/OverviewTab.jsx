@@ -11,8 +11,20 @@ import "../styles/components/Overview.css";
 
 // Axios instance that automatically sends the nutrition JWT token
 const axios = axiosBase.create();
-axios.interceptors.request.use((config) => {
-  const token = localStorage.getItem("nutritionToken");
+axios.interceptors.request.use(async (config) => {
+  let token = localStorage.getItem("nutritionToken");
+  if (!token) {
+    const username = localStorage.getItem("username");
+    if (username) {
+      try {
+        const res = await axiosBase.post("/nutrition/token", { username });
+        token = res.data.token;
+        localStorage.setItem("nutritionToken", token);
+      } catch {
+        console.warn("Could not refresh nutrition token");
+      }
+    }
+  }
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
