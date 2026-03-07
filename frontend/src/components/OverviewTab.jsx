@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
-
+import axiosBase from "axios";
 import LocalFireDepartmentIcon from "@mui/icons-material/LocalFireDepartment";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
 import WhatshotIcon from "@mui/icons-material/Whatshot";
 import WaterDropIcon from "@mui/icons-material/WaterDrop";
-
 import { Box, Card, CardContent, Typography, Stack, LinearProgress, Divider, Chip, Tooltip } from "@mui/material";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip } from "recharts";
-
 import "../styles/components/Overview.css";
 
 // Axios instance that automatically sends the nutrition JWT token
@@ -53,7 +50,7 @@ const MacroChip = ({ label, value, color }) => (
     sx={{ bgcolor: color + "20", color, fontWeight: 700, border: `1px solid ${color}40` }} />
 );
 
-const OverviewTab = ({ currentUser }) => {
+const OverviewTab = ({ currentUser, onNavigate }) => {
   const [stats, setStats] = useState({ caloriesBurned: 0, activeMinutes: 0, streak: 0, activities: [] });
   const [nutrition, setNutrition] = useState({ calories: 0, water: 0, protein: 0, carbs: 0, fat: 0 });
   const [weeklyData, setWeeklyData] = useState([]);
@@ -111,7 +108,7 @@ const OverviewTab = ({ currentUser }) => {
           { icon: <WhatshotIcon fontSize="small" />, title: "Streak", value: `${stats.streak} days` },
         ].map((item, idx) => {
           if (idx === 2) return (
-            <Card key={idx} sx={{ borderRadius: 2, border: "1px solid #ddd", boxShadow: "none" }}>
+            <Card key={idx} onClick={() => onNavigate(3)} sx={{ borderRadius: 2, border: "1px solid #ddd", boxShadow: "none", cursor: "pointer", "&:hover": { boxShadow: 3, borderColor: "#2563eb" } }}>
               <CardContent>
                 <Stack direction="row" alignItems="center" spacing={1} mb={1}>
                   <Box sx={{ width: 28, height: 28, borderRadius: "50%", bgcolor: "#bbdefb", color: "#2563eb", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -157,9 +154,12 @@ const OverviewTab = ({ currentUser }) => {
       }}>
 
         {/* Nutrition */}
-        <Card sx={{ borderRadius: 3 }}>
+        <Card onClick={() => onNavigate(5)} sx={{ borderRadius: 3, cursor: "pointer", "&:hover": { boxShadow: 3, borderColor: "#2563eb" } }}>
           <CardContent>
-            <Typography variant="h6" mb={2}>Today's Nutrition Summary</Typography>
+            <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
+              <Typography variant="h6">Today's Nutrition Summary</Typography>
+              <Typography variant="caption" color="primary" fontWeight={600}>View →</Typography>
+            </Stack>
             <Divider sx={{ mb: 2 }} />
             <Stack spacing={3}>
               <Box>
@@ -204,9 +204,12 @@ const OverviewTab = ({ currentUser }) => {
         </Card>
 
         {/* Graph */}
-        <Card sx={{ borderRadius: 3 }}>
+        <Card onClick={() => onNavigate(4)} sx={{ borderRadius: 3, cursor: "pointer", "&:hover": { boxShadow: 3, borderColor: "#2563eb" } }}>
           <CardContent>
-            <Typography variant="h6" mb={1}>Weekly Activity Progress</Typography>
+            <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>
+              <Typography variant="h6">Weekly Activity Progress</Typography>
+              <Typography variant="caption" color="primary" fontWeight={600}>View →</Typography>
+            </Stack>
             <Typography variant="body2" color="text.secondary" mb={2}>Track your workout consistency throughout the week</Typography>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={weeklyData}>
