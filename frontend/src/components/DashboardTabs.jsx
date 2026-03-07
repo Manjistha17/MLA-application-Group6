@@ -21,7 +21,7 @@ const DashboardTabs = ({ currentUser, role }) => {
           },
         ]
       : [
-          { label: "Overview", component: <Overview currentUser={currentUser} /> },
+          { label: "Overview", component: <Overview currentUser={currentUser} onNavigate={setActiveTab} /> },
           { label: "Goals", component: <GoalSettingPage currentUser={currentUser} /> },
           { label: "Workout Plan", component: <WorkoutPlan currentUser={currentUser} /> },
           { label: "Workouts", component: <Workouts currentUser={currentUser} /> },
