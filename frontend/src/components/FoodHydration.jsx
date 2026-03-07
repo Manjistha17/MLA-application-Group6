@@ -175,6 +175,7 @@ const FoodHydration = () => {
       setCalories(""); setProtein(0); setCarbs(0); setFat(0);
       setAiDone(false); setAiNote(""); setMealType("Breakfast");
       fetchSummary();
+      refreshCoachTip();
       showSnack("Food logged!");
     } catch { showSnack("Failed to save food", "error"); }
   };
@@ -187,6 +188,7 @@ const FoodHydration = () => {
         mealType: "", water: amount, date: today,
       });
       fetchSummary();
+      refreshCoachTip();
       showSnack(`+${amount} ml logged 💧`);
     } catch { showSnack("Failed to save water", "error"); }
   };
@@ -223,6 +225,17 @@ const FoodHydration = () => {
     if (items.length > 0) acc[meal] = items;
     return acc;
   }, {});
+
+  const refreshCoachTip = async () => {
+    try {
+      // Delete cached tip so next fetch generates a fresh one
+      await axios.delete(`/coach/daily-tip/invalidate?username=${username}`);
+      // Fetch fresh tip
+      await axios.get(`/coach/daily-tip?username=${username}`);
+    } catch {
+      // silently fail
+    }
+  };
 
   return (
     <Box sx={{ maxWidth: 1200, margin: "auto" }}>

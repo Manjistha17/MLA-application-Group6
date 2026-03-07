@@ -18,3 +18,6 @@ pytest-mock>=3.12
 
 # OpenAI API client
 openai>=1.0.0   
+
+# Rate limiting for Open AI API calls
+slowapi>=0.1.9

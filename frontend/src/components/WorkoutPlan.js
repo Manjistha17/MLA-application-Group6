@@ -34,7 +34,7 @@ const WorkoutPlan = ({ currentUser }) => {
   // Fetch workout plans
   useEffect(() => {
     console.log("WorkoutPlan useEffect called, currentUser:", currentUser);
-    
+
     if (!currentUser) {
       console.log("No currentUser, returning early");
       setLoading(false);
@@ -71,13 +71,13 @@ const WorkoutPlan = ({ currentUser }) => {
         p._id !== plan._id
           ? p
           : {
-              ...p,
-              workouts: p.workouts.map(w =>
-                w.exercise_id === exercise.exercise_id
-                  ? { ...w, completed: true }
-                  : w
-              )
-            }
+            ...p,
+            workouts: p.workouts.map(w =>
+              w.exercise_id === exercise.exercise_id
+                ? { ...w, completed: true }
+                : w
+            )
+          }
       )
     );
 
@@ -87,6 +87,7 @@ const WorkoutPlan = ({ currentUser }) => {
         plan.plan_id || plan._id,
         exercise
       );
+      refreshCoachTip();
     } catch (err) {
       console.error("Failed to mark exercise:", err);
 
@@ -96,13 +97,13 @@ const WorkoutPlan = ({ currentUser }) => {
           p._id !== plan._id
             ? p
             : {
-                ...p,
-                workouts: p.workouts.map(w =>
-                  w.exercise_id === exercise.exercise_id
-                    ? { ...w, completed: false }
-                    : w
-                )
-              }
+              ...p,
+              workouts: p.workouts.map(w =>
+                w.exercise_id === exercise.exercise_id
+                  ? { ...w, completed: false }
+                  : w
+              )
+            }
         )
       );
     }
@@ -110,6 +111,17 @@ const WorkoutPlan = ({ currentUser }) => {
 
   if (loading) return <p className="loading-text">Loading workout plans...</p>;
   if (!plans.length) return <p className="empty-text">No workout plans found.</p>;
+
+  const refreshCoachTip = async () => {
+    try {
+      // Delete cached tip so next fetch generates a fresh one
+      await axios.delete(`/coach/daily-tip/invalidate?username=${currentUser}`);
+      // Fetch fresh tip
+      await axios.get(`/coach/daily-tip?username=${currentUser}`);
+    } catch {
+      // silently fail
+    }
+  };
 
   return (
     <div className="workout-plan-wrapper">
@@ -154,9 +166,8 @@ const WorkoutPlan = ({ currentUser }) => {
                     {days[day].map(exercise => (
                       <div
                         key={exercise.exercise_id}
-                        className={`exercise-item ${
-                          exercise.completed ? "completed" : ""
-                        }`}
+                        className={`exercise-item ${exercise.completed ? "completed" : ""
+                          }`}
                       >
                         <div className="exercise-info">
                           <span>

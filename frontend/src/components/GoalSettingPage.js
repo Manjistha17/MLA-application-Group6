@@ -83,7 +83,7 @@ function GoalSettingPage({ currentUser }) {
             timeline.
           </Typography>
 
-          <Grid container spacing={3}>
+          <Grid container spacing={3} sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
             <Grid item xs={12} md={4}>
               <TextField
                 select

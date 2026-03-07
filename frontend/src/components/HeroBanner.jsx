@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from "react";
-import { TextField, Button, Alert } from "@mui/material";
+import { Alert } from "@mui/material";
 import axios from "axios";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import "../styles/components/HeroBanner.css";
@@ -36,28 +36,20 @@ const HeroBanner = ({ onLogin }) => {
       });
 
       if (response.status === 200) {
-      const { role, username: responseUsername, email } = response.data;
-
-      // ✅ Save role and user info in localStorage
-      localStorage.setItem("role", role);
-      localStorage.setItem("username", responseUsername);
-      localStorage.setItem("email", email);
-
-      // ✅ Pass role back to App.js
-      onLogin(responseUsername, role);
-
-      // ✅ Navigate to dashboard
-       navigate("/dashboard");
+        const { role, username: responseUsername, email } = response.data;
+        localStorage.setItem("role", role);
+        localStorage.setItem("username", responseUsername);
+        localStorage.setItem("email", email);
+        onLogin(responseUsername, role);
+        navigate("/dashboard");
       } else {
-      setError("Invalid credentials.");
-    }
-
+        setError("Invalid credentials.");
+      }
     } catch (err) {
       const serverMessage =
         err?.response?.data?.message ||
         err?.response?.data ||
         "Failed to login. Please check your credentials.";
-
       setError(
         typeof serverMessage === "string"
           ? serverMessage
@@ -68,84 +60,108 @@ const HeroBanner = ({ onLogin }) => {
     }
   };
 
-  return (
-    <section className="heroBanner">
-      <div className="heroLeft">
-        <h1 className="heroTitle">Build a stronger, healthier you</h1>
-        <p className="heroSubtitle">
-          Track workouts, monitor progress, and stay consistent.
-        </p>
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") handleSignIn();
+  };
 
-        <div className="loginForm">
+  return (
+    <div className="loginPage">
+      <div className="loginCard">
+
+        {/* LEFT — FORM */}
+        <div className="loginFormSide">
+          <div className="loginLogo">
+            <img src="/logo.png" alt="Shakti 360 logo" className="loginLogoImg" />
+            <span className="loginLogoText">Shakti <span className="loginLogoBrand">360</span></span>
+          </div>
+
+          <div className="loginHeadingGroup">
+            <h1 className="loginHeading">Welcome back.<br />Let's keep moving.</h1>
+            <p className="loginSubheading">Sign in to track your progress and crush today's goals.</p>
+          </div>
+
           {error && (
-            <Alert severity="error" className="loginError" role="alert">
+            <Alert severity="error" sx={{ borderRadius: "10px", fontSize: "14px", mb: 1 }}>
               {error}
             </Alert>
           )}
 
-          <label className="formLabel">Username</label>
-          <TextField
-            inputRef={usernameRef}
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            variant="outlined"
-            fullWidth
-            autoComplete="username"
-          />
+          <div className="loginFields">
+            <div className="loginFieldGroup">
+              <label className="loginLabel">Username</label>
+              <input
+                ref={usernameRef}
+                className="loginInput"
+                type="text"
+                placeholder="Username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                onKeyDown={handleKeyDown}
+                autoComplete="username"
+              />
+            </div>
 
-          <label className="formLabel">Password</label>
-          <TextField
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            variant="outlined"
-            fullWidth
-            autoComplete="current-password"
-          />
-          <br />
+            <div className="loginFieldGroup">
+              <label className="loginLabel">Password</label>
+              <input
+                className="loginInput"
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onKeyDown={handleKeyDown}
+                autoComplete="current-password"
+              />
+            </div>
 
-          <Button
-            variant="contained"
-            fullWidth
-            size="large"
-            className="loginPrimaryButton"
-            onClick={handleSignIn}
-            disabled={loading}
-            aria-busy={loading}
-          >
-            {loading ? "Signing in..." : "Sign In"}
-          </Button>
-
-          {/* ✅ Forgot Password (same style as Get Started) */}
-          <div className="forgotPasswordCTA">
             <button
-              className="getStartedBtn"
-              onClick={() => navigate("/ForgotPassword")}
+              className="loginSignInBtn"
+              onClick={handleSignIn}
+              disabled={loading}
             >
+              {loading ? "Signing in..." : "Sign In"}
+            </button>
+          </div>
+
+          <div className="loginBottomLinks">
+            <button className="loginLinkBtn" onClick={() => navigate("/ForgotPassword")}>
               Forgot password?
             </button>
+            <span className="loginNewHere">
+              New here?{" "}
+              <button className="loginLinkBtnPrimary" onClick={() => navigate("/signup")}>
+                Get Started
+              </button>
+            </span>
           </div>
         </div>
 
-        <div className="signupCTA">
-          <span>New here?</span>
-          <button
-            className="getStartedBtn"
-            onClick={() => navigate("/signup")}
-          >
-            Get Started
-          </button>
-        </div>
-      </div>
+        {/* RIGHT — ILLUSTRATION */}
+        <div className="loginIllustrationSide">
+          <div className="loginRing loginRing1" />
+          <div className="loginRing loginRing2" />
+          <div className="loginRing loginRing3" />
 
-      <div className="heroRight">
-        <img
-          src="/login-illustration.png"
-          alt="Gym fitness concept illustration"
-          className="heroIllustration"
-        />
+          <img
+            src="/login-illustration.png"
+            alt="Fitness illustration"
+            className="loginIllustrationImg"
+          />
+
+          <div className="loginIllustrationCaption">
+            <h2>Build a stronger, healthier you</h2>
+            <p>Track workouts, monitor nutrition, and stay consistent every single day.</p>
+            <div className="loginPills">
+              <span className="loginPill loginPillActive">🔥 Workout Tracking</span>
+              <span className="loginPill">💧 Hydration</span>
+              <span className="loginPill">📈 Progress</span>
+              <span className="loginPill loginPillActive">🥗 Nutrition</span>
+            </div>
+          </div>
+        </div>
+
       </div>
-    </section>
+    </div>
   );
 };
 

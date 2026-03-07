@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Request
 from pydantic import BaseModel, Field
 from motor.motor_asyncio import AsyncIOMotorClient
 from typing import List, Optional
@@ -12,10 +12,18 @@ from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 import time
 from fastapi.middleware.cors import CORSMiddleware
 from openai import AsyncOpenAI
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 load_dotenv()
 
 app = FastAPI(title="Fitness App API")
+
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -277,9 +285,18 @@ openai_client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 # AI Coach endpoint
 # ============================================================
 @app.get("/coach/daily-tip")
-async def get_daily_tip(username: str = Query(...)):
+@limiter.limit("20/15minutes")
+async def get_daily_tip(request: Request, username: str = Query(...)):
     from datetime import date
     today = str(date.today())
+
+    # Return cached tip if exists for today
+    cached = await db.coach_tips.find_one({
+        "username": username,
+        "date": today
+    })
+    if cached:
+        return {"message": cached["message"]}
 
     # Fetch user profile
     user = await db.users.find_one({"username": username})
@@ -302,7 +319,6 @@ async def get_daily_tip(username: str = Query(...)):
     # Fetch user's active workout plan
     plan = await db.user_workout_plans.find_one({"user_id": username})
 
-    # Build prompt context
     age = user.get("age", "unknown")
     weight = user.get("weight", "unknown")
     height = user.get("height", "unknown")
@@ -312,27 +328,19 @@ async def get_daily_tip(username: str = Query(...)):
 
     calories_consumed = nutrition.get("calories", 0) if nutrition else 0
     water_intake = nutrition.get("water", 0) if nutrition else 0
-
     total_exercise_minutes = sum(e.get("duration", 0) for e in exercises_today)
     exercise_count = len(exercises_today)
 
     prompt = f"""
     You are a friendly, encouraging fitness coach.
-    
     Here is your user's profile:
-    - Age: {age}
-    - Gender: {gender}
-    - Weight: {weight}kg
-    - Height: {height}cm
-    - Goal: {goal_type}
-    - Level: {level}
-    
+    - Age: {age}, Gender: {gender}, Weight: {weight}kg, Height: {height}cm
+    - Goal: {goal_type}, Level: {level}
     Today's activity so far:
     - Exercises completed: {exercise_count}
     - Total exercise minutes: {total_exercise_minutes}
     - Calories consumed: {calories_consumed} kcal
     - Water intake: {water_intake}ml
-    
     Write a short, warm, motivating daily coaching message for this user.
     Be specific to their numbers. Maximum 3 sentences.
     """
@@ -341,5 +349,25 @@ async def get_daily_tip(username: str = Query(...)):
         model="gpt-4o-mini",
         messages=[{"role": "user", "content": prompt}]
     )
+    message = response.choices[0].message.content
 
-    return {"message": response.choices[0].message.content}
+    # Caching the tip
+    await db.coach_tips.delete_many({"username": username, "date": today})
+    await db.coach_tips.insert_one({
+        "username": username,
+        "date": today,
+        "message": message
+    })
+
+    return {"message": message}
+
+# ============================================================
+# Invalidate coach tip cache endpoint
+# ============================================================  
+
+@app.delete("/coach/daily-tip/invalidate")
+async def invalidate_coach_tip(username: str = Query(...)):
+    from datetime import date
+    today = str(date.today())
+    await db.coach_tips.delete_many({"username": username, "date": today})
+    return {"message": "Cache invalidated"}

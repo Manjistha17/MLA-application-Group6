@@ -25,15 +25,14 @@ import Timer from "./Timer";
 
 const activitiesConfig = [
   { key: "Running", label: "Running", icon: <DirectionsRunIcon fontSize="large" color='primary' /> },
-  { key: "Swimming", label: "Swimming", icon: <PoolIcon fontSize="large" color='primary'/> },
-  { key: "Cycling", label: "Cycling", icon: <DirectionsBikeIcon fontSize="large" color='primary'/> },
-  { key: "Yoga", label: "Yoga", icon: <SelfImprovementIcon fontSize="large" color='primary'/> },
-  { key: "Gym", label: "Weights", icon: <FitnessCenterIcon fontSize="large" color='primary'/> },
-  { key: "Other", label: "Others", icon: <HelpOutlineIcon fontSize="large" color='primary'/> },
+  { key: "Swimming", label: "Swimming", icon: <PoolIcon fontSize="large" color='primary' /> },
+  { key: "Cycling", label: "Cycling", icon: <DirectionsBikeIcon fontSize="large" color='primary' /> },
+  { key: "Yoga", label: "Yoga", icon: <SelfImprovementIcon fontSize="large" color='primary' /> },
+  { key: "Gym", label: "Weights", icon: <FitnessCenterIcon fontSize="large" color='primary' /> },
+  { key: "Other", label: "Others", icon: <HelpOutlineIcon fontSize="large" color='primary' /> },
 ];
 
 const TrackExercise = (props) => {
-  console.log("ALL PROPS:", props);
   const { currentUser } = props;
   const [state, setState] = useState({
     exerciseType: "",
@@ -106,7 +105,7 @@ const TrackExercise = (props) => {
         return;
       }
 
-      
+
       finalDuration = Math.ceil(timerSession.duration / 60);
       description = `${state.exerciseType} session`;
 
@@ -132,6 +131,7 @@ const TrackExercise = (props) => {
         duration: finalDuration,
         description,
       });
+      refreshCoachTip();
 
       setMessageType("success");
       setMessage("Exercise logged successfully!");
@@ -158,6 +158,16 @@ const TrackExercise = (props) => {
     }
   };
 
+  const refreshCoachTip = async () => {
+    try {
+      // Delete cached tip so next fetch generates a fresh one
+      await axios.delete(`/coach/daily-tip/invalidate?username=${currentUser}`);
+      // Fetch fresh tip
+      await axios.get(`/coach/daily-tip?username=${currentUser}`);
+    } catch {
+      // silently fail
+    }
+  };
 
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
@@ -180,7 +190,7 @@ const TrackExercise = (props) => {
                 "&.Mui-selected": {
                   borderColor: "primary.main",
                   color: "primary.main",
-                  backgroundColor: "rgba(25, 118, 210, 0.08)", 
+                  backgroundColor: "rgba(25, 118, 210, 0.08)",
                 },
                 "&.Mui-selected:hover": {
                   backgroundColor: "rgba(25, 118, 210, 0.12)",
