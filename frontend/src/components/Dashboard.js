@@ -21,8 +21,6 @@ const Dashboard = ({ currentUser }) => {
 
       {/* pass role into DashboardTabs */}
       <DashboardTabs currentUser={currentUser} role={role} />
-
-      
     </div>
   );
 };

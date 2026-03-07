@@ -10,10 +10,19 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 import time
+from fastapi.middleware.cors import CORSMiddleware
+from openai import AsyncOpenAI
 
 load_dotenv()
 
 app = FastAPI(title="Fitness App API")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # ============================================================
 # Prometheus metrics setup
@@ -259,3 +268,78 @@ async def mark_exercise_complete(payload: MarkExerciseComplete):
         "exercise_id": payload.exercise_id,
         "completed_at": now
     }
+# ============================================================
+# OpenAI client setup
+# ============================================================
+openai_client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+# ============================================================
+# AI Coach endpoint
+# ============================================================
+@app.get("/coach/daily-tip")
+async def get_daily_tip(username: str = Query(...)):
+    from datetime import date
+    today = str(date.today())
+
+    # Fetch user profile
+    user = await db.users.find_one({"username": username})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Fetch today's nutrition
+    nutrition = await db.nutritions.find_one({
+        "userId": username,
+        "date": today
+    })
+
+    # Fetch today's exercises
+    exercises_cursor = db.exercises.find({
+        "username": username,
+        "date": {"$gte": datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)}
+    })
+    exercises_today = await exercises_cursor.to_list(length=100)
+
+    # Fetch user's active workout plan
+    plan = await db.user_workout_plans.find_one({"user_id": username})
+
+    # Build prompt context
+    age = user.get("age", "unknown")
+    weight = user.get("weight", "unknown")
+    height = user.get("height", "unknown")
+    gender = user.get("gender", "unknown")
+    goal_type = plan.get("goal_type", "General Fitness") if plan else "General Fitness"
+    level = plan.get("level", "Beginner") if plan else "Beginner"
+
+    calories_consumed = nutrition.get("calories", 0) if nutrition else 0
+    water_intake = nutrition.get("water", 0) if nutrition else 0
+
+    total_exercise_minutes = sum(e.get("duration", 0) for e in exercises_today)
+    exercise_count = len(exercises_today)
+
+    prompt = f"""
+    You are a friendly, encouraging fitness coach.
+    
+    Here is your user's profile:
+    - Age: {age}
+    - Gender: {gender}
+    - Weight: {weight}kg
+    - Height: {height}cm
+    - Goal: {goal_type}
+    - Level: {level}
+    
+    Today's activity so far:
+    - Exercises completed: {exercise_count}
+    - Total exercise minutes: {total_exercise_minutes}
+    - Calories consumed: {calories_consumed} kcal
+    - Water intake: {water_intake}ml
+    
+    Write a short, warm, motivating daily coaching message for this user.
+    Be specific to their numbers. Maximum 3 sentences.
+    """
+
+    response = await openai_client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": prompt}]
+    )
+
+    return {"message": response.choices[0].message.content}

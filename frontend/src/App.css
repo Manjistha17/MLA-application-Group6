@@ -91,10 +91,11 @@ input#duration {
   text-align: center;
   padding: 10px;
   font-size: 12px;
-  color: lightgrey;
+  color: var(--color-text-primary);
   position: relative;
   bottom: 0;
   width: 100%;
+  background-color: var(--color-bg-main);
 }
 
 .navbar {

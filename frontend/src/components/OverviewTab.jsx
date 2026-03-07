@@ -9,10 +9,29 @@ import WaterDropIcon from "@mui/icons-material/WaterDrop";
 
 import { Box, Card, CardContent, Typography, Stack, LinearProgress, Divider, Chip, Tooltip } from "@mui/material";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip } from "recharts";
+import AICoach from "./AICoach";
 
 import "../styles/components/Overview.css";
 
 const TOTAL_GLASSES = 8;
+
+const cardSx = {
+  borderRadius: 2,
+  border: "1px solid var(--color-border-subtle)",
+  boxShadow: "var(--shadow-sm)",
+  backgroundColor: "var(--color-bg-surface)",
+};
+
+const iconBoxSx = {
+  width: 28,
+  height: 28,
+  borderRadius: "50%",
+  bgcolor: "var(--color-primary-soft)",
+  color: "var(--color-primary)",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+};
 
 const WaterGlasses = ({ water, waterGoal }) => {
   const mlPerGlass = waterGoal / TOTAL_GLASSES;
@@ -54,7 +73,7 @@ const OverviewTab = ({ currentUser }) => {
           activities: ex.map(e => ({ activity: e.exerciseType, subActivity: e.subActivity || "" })),
         });
       }
-    }).catch(() => {});
+    }).catch(() => { });
 
     axios.get(`/nutrition/${today}/${currentUser}`).then(res => {
       const food = res.data.filter(i => i.food);
@@ -65,9 +84,9 @@ const OverviewTab = ({ currentUser }) => {
         carbs: food.reduce((s, i) => s + Number(i.carbs || 0), 0),
         fat: food.reduce((s, i) => s + Number(i.fat || 0), 0),
       });
-    }).catch(() => {});
+    }).catch(() => { });
 
-    axios.get(`/exercises/weekly/${currentUser}`).then(res => setWeeklyData(res.data)).catch(() => {});
+    axios.get(`/exercises/weekly/${currentUser}`).then(res => setWeeklyData(res.data)).catch(() => { });
   }, [currentUser, today]);
 
   const caloriePercent = Math.min((nutrition.calories / calorieGoal) * 100, 100);
@@ -77,24 +96,19 @@ const OverviewTab = ({ currentUser }) => {
   return (
     <Box sx={{ width: "100%" }}>
 
-      {/* Row 1 — 4 equal cards using CSS grid */}
-      <Box sx={{
-        display: "grid",
-        gridTemplateColumns: "1fr 1fr 1fr 1fr",
-        gap: 2,
-        mb: 3,
-      }}>
+      {/* Row 1 — 4 equal stat cards */}
+      <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 2, mb: 3 }}>
         {[
           { icon: <LocalFireDepartmentIcon fontSize="small" />, title: "Calories Burned", value: `${stats.caloriesBurned} kcal` },
           { icon: <AccessTimeIcon fontSize="small" />, title: "Active Minutes", value: `${stats.activeMinutes} mins` },
-          null, // workouts handled separately
+          null,
           { icon: <WhatshotIcon fontSize="small" />, title: "Streak", value: `${stats.streak} days` },
         ].map((item, idx) => {
           if (idx === 2) return (
-            <Card key={idx} sx={{ borderRadius: 2, border: "1px solid #ddd", boxShadow: "none" }}>
+            <Card key={idx} sx={cardSx}>
               <CardContent>
                 <Stack direction="row" alignItems="center" spacing={1} mb={1}>
-                  <Box sx={{ width: 28, height: 28, borderRadius: "50%", bgcolor: "#bbdefb", color: "#2563eb", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <Box sx={iconBoxSx}>
                     <FitnessCenterIcon fontSize="small" />
                   </Box>
                   <Typography variant="body2" color="text.secondary">Workouts</Typography>
@@ -102,7 +116,12 @@ const OverviewTab = ({ currentUser }) => {
                 {stats.activities.length > 0 ? (
                   <Stack direction="row" flexWrap="wrap" gap={0.5}>
                     {stats.activities.map((act, i) => (
-                      <Box key={i} sx={{ px: 1, py: 0.5, fontSize: "0.75rem", borderRadius: 1, border: "1px solid #2563eb", color: "#2563eb", bgcolor: "#bbdefb" }}>
+                      <Box key={i} sx={{
+                        px: 1, py: 0.5, fontSize: "0.75rem", borderRadius: 1,
+                        border: "1px solid var(--color-primary)",
+                        color: "var(--color-primary)",
+                        bgcolor: "var(--color-primary-soft)",
+                      }}>
                         {act.subActivity ? `${act.activity} – ${act.subActivity}` : act.activity}
                       </Box>
                     ))}
@@ -114,33 +133,27 @@ const OverviewTab = ({ currentUser }) => {
             </Card>
           );
           return (
-            <Card key={idx} sx={{ borderRadius: 2, border: "1px solid #ddd", boxShadow: "none" }}>
+            <Card key={idx} sx={cardSx}>
               <CardContent>
                 <Stack direction="row" alignItems="center" spacing={1} mb={1}>
-                  <Box sx={{ width: 28, height: 28, borderRadius: "50%", bgcolor: "#bbdefb", color: "#2563eb", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    {item.icon}
-                  </Box>
+                  <Box sx={iconBoxSx}>{item.icon}</Box>
                   <Typography variant="body2" color="text.secondary">{item.title}</Typography>
                 </Stack>
-                <Typography variant="h5" fontWeight={700} color="#2563eb">{item.value}</Typography>
+                <Typography variant="h5" fontWeight={700} sx={{ color: "var(--color-primary)" }}>{item.value}</Typography>
               </CardContent>
             </Card>
           );
         })}
       </Box>
 
-      {/* Row 2 — Nutrition + Graph using CSS grid */}
-      <Box sx={{
-        display: "grid",
-        gridTemplateColumns: "5fr 7fr",
-        gap: 2,
-      }}>
+      {/* Row 2 — Nutrition + Graph */}
+      <Box sx={{ display: "grid", gridTemplateColumns: "5fr 7fr", gap: 2 }}>
 
         {/* Nutrition */}
-        <Card sx={{ borderRadius: 3 }}>
+        <Card sx={{ ...cardSx, borderRadius: 3 }}>
           <CardContent>
-            <Typography variant="h6" mb={2}>Today's Nutrition Summary</Typography>
-            <Divider sx={{ mb: 2 }} />
+            <Typography variant="h6" mb={2} sx={{ color: "var(--color-text-primary)" }}>Today's Nutrition Summary</Typography>
+            <Divider sx={{ mb: 2, borderColor: "var(--color-border-subtle)" }} />
             <Stack spacing={3}>
               <Box>
                 <Stack direction="row" justifyContent="space-between">
@@ -149,7 +162,7 @@ const OverviewTab = ({ currentUser }) => {
                     {Math.round(caloriePercent)}%
                   </Typography>
                 </Stack>
-                <Typography variant="h4" fontWeight={700}>
+                <Typography variant="h4" fontWeight={700} sx={{ color: "var(--color-text-primary)" }}>
                   {nutrition.calories}
                   <Typography component="span" variant="body1" color="text.secondary" ml={1}>/ {calorieGoal} kcal</Typography>
                 </Typography>
@@ -171,7 +184,7 @@ const OverviewTab = ({ currentUser }) => {
                   </Stack>
                   <Typography variant="body2" fontWeight={600} color="text.secondary">{Math.round(hydrationPercent)}%</Typography>
                 </Stack>
-                <Typography variant="h4" fontWeight={700}>
+                <Typography variant="h4" fontWeight={700} sx={{ color: "var(--color-text-primary)" }}>
                   {nutrition.water}
                   <Typography component="span" variant="body1" color="text.secondary" ml={1}>/ {waterGoal} ml</Typography>
                 </Typography>
@@ -184,23 +197,27 @@ const OverviewTab = ({ currentUser }) => {
         </Card>
 
         {/* Graph */}
-        <Card sx={{ borderRadius: 3 }}>
+        <Card sx={{ ...cardSx, borderRadius: 3 }}>
           <CardContent>
-            <Typography variant="h6" mb={1}>Weekly Activity Progress</Typography>
+            <Typography variant="h6" mb={1} sx={{ color: "var(--color-text-primary)" }}>Weekly Activity Progress</Typography>
             <Typography variant="body2" color="text.secondary" mb={2}>Track your workout consistency throughout the week</Typography>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={weeklyData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="day" />
-                <YAxis />
-                <RechartsTooltip />
-                <Line type="monotone" dataKey="value" stroke="#3f51b5" strokeWidth={3} dot={{ r: 5 }} activeDot={{ r: 8 }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-subtle)" />
+                <XAxis dataKey="day" stroke="var(--color-text-muted)" />
+                <YAxis stroke="var(--color-text-muted)" />
+                <RechartsTooltip contentStyle={{ backgroundColor: "var(--color-bg-surface)", border: "1px solid var(--color-border-subtle)", color: "var(--color-text-primary)" }} />
+                <Line type="monotone" dataKey="value" stroke="var(--color-blue)" strokeWidth={3} dot={{ r: 5 }} activeDot={{ r: 8 }} />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
 
       </Box>
+
+      {/* Row 3 — AI Coach */}
+      <AICoach currentUser={currentUser} />
+
     </Box>
   );
 };
