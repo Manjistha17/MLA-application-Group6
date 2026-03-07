@@ -12,7 +12,28 @@ import WaterDropIcon from "@mui/icons-material/WaterDrop";
 import LocalFireDepartmentIcon from "@mui/icons-material/LocalFireDepartment";
 import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
 import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
-import axios from "axios";
+import axiosBase from "axios";
+
+// Axios instance that automatically sends the nutrition JWT token
+const axios = axiosBase.create();
+axios.interceptors.request.use(async (config) => {
+  let token = localStorage.getItem("nutritionToken");
+  if (!token) {
+    // Token missing (e.g. existing session before security was added) — fetch one now
+    const username = localStorage.getItem("username");
+    if (username) {
+      try {
+        const res = await axiosBase.post("/nutrition/token", { username });
+        token = res.data.token;
+        localStorage.setItem("nutritionToken", token);
+      } catch {
+        console.warn("Could not refresh nutrition token");
+      }
+    }
+  }
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
 
 const MEAL_TYPES = ["Breakfast", "Lunch", "Dinner", "Snack"];
 const MEAL_COLORS = {
