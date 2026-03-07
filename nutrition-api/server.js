@@ -2,12 +2,15 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const Anthropic = require("@anthropic-ai/sdk");
+const jwt = require("jsonwebtoken");
+const rateLimit = require("express-rate-limit");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 const MONGO_URI = process.env.MONGO_URI;
+const JWT_SECRET = process.env.JWT_SECRET || "shakti360-secret-change-in-prod";
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 mongoose
@@ -15,8 +18,43 @@ mongoose
   .then(() => console.log("MongoDB connected (nutrition-api)"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
-// ── AI Calorie + Macro Lookup ──
-app.post("/nutrition/ai-lookup", async (req, res) => {
+// ── Rate Limiting ──
+// AI endpoints: max 20 requests per user per 15 minutes
+const aiRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20,
+  keyGenerator: (req) => req.user?.username || req.ip, // per user, fallback to IP
+  message: { error: "Too many AI requests. Please wait a few minutes before trying again." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// ── JWT Middleware ──
+const requireAuth = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader?.startsWith("Bearer ")) {
+    return res.status(401).json({ error: "Unauthorised: no token provided" });
+  }
+  const token = authHeader.split(" ")[1];
+  try {
+    req.user = jwt.verify(token, JWT_SECRET);
+    next();
+  } catch (err) {
+    return res.status(401).json({ error: "Unauthorised: invalid or expired token" });
+  }
+};
+
+// ── Issue JWT Token (called after Java auth service login) ──
+// Frontend calls this right after a successful login to get a nutrition API token
+app.post("/nutrition/token", (req, res) => {
+  const { username } = req.body;
+  if (!username) return res.status(400).json({ error: "Username required" });
+  const token = jwt.sign({ username }, JWT_SECRET, { expiresIn: "8h" });
+  res.json({ token });
+});
+
+// ── AI Calorie + Macro Lookup (protected + rate limited) ──
+app.post("/nutrition/ai-lookup", requireAuth, aiRateLimit, async (req, res) => {
   const { food, portionSize, portionUnit } = req.body;
   if (!food) return res.status(400).json({ error: "Food name is required" });
   try {
@@ -48,8 +86,8 @@ JSON format:
   }
 });
 
-// ── AI Meal Suggestion ──
-app.post("/nutrition/ai-suggest", async (req, res) => {
+// ── AI Meal Suggestion (protected + rate limited) ──
+app.post("/nutrition/ai-suggest", requireAuth, aiRateLimit, async (req, res) => {
   const { caloriesConsumed, calorieGoal, caloriesBurned, loggedFoods, mealType } = req.body;
   const remaining = calorieGoal - caloriesConsumed + (caloriesBurned || 0);
   try {
@@ -100,10 +138,9 @@ const NutritionSchema = new mongoose.Schema({
 
 const Nutrition = mongoose.model("Nutrition", NutritionSchema);
 
-// ── Log a meal or water ──
-app.post("/nutrition/log", async (req, res) => {
+// ── Log a meal or water (protected) ──
+app.post("/nutrition/log", requireAuth, async (req, res) => {
   try {
-    console.log("REQ BODY:", req.body);
     const entry = new Nutrition(req.body);
     await entry.save();
     res.status(201).json({ message: "Saved successfully" });
@@ -113,8 +150,8 @@ app.post("/nutrition/log", async (req, res) => {
   }
 });
 
-// ── Get daily logs ──
-app.get("/nutrition/:date/:userId", async (req, res) => {
+// ── Get daily logs (protected) ──
+app.get("/nutrition/:date/:userId", requireAuth, async (req, res) => {
   try {
     const { date, userId } = req.params;
     const data = await Nutrition.find({ date, userId });
@@ -124,8 +161,8 @@ app.get("/nutrition/:date/:userId", async (req, res) => {
   }
 });
 
-// ── Weekly summary (last 7 days) ──
-app.get("/nutrition/weekly/:userId", async (req, res) => {
+// ── Weekly summary (protected) ──
+app.get("/nutrition/weekly/:userId", requireAuth, async (req, res) => {
   try {
     const { userId } = req.params;
     const days = [];
@@ -153,8 +190,8 @@ app.get("/nutrition/weekly/:userId", async (req, res) => {
   }
 });
 
-// ── Update ──
-app.put("/nutrition/:id", async (req, res) => {
+// ── Update (protected) ──
+app.put("/nutrition/:id", requireAuth, async (req, res) => {
   try {
     const updated = await Nutrition.findByIdAndUpdate(req.params.id, req.body, { new: true });
     res.json(updated);
@@ -163,8 +200,8 @@ app.put("/nutrition/:id", async (req, res) => {
   }
 });
 
-// ── Delete ──
-app.delete("/nutrition/:id", async (req, res) => {
+// ── Delete (protected) ──
+app.delete("/nutrition/:id", requireAuth, async (req, res) => {
   try {
     await Nutrition.findByIdAndDelete(req.params.id);
     res.json({ message: "Deleted" });

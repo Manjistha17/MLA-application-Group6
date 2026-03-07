@@ -140,7 +140,7 @@ const HeroBanner = ({ onLogin }) => {
 
       <div className="heroRight">
         <img
-          src="/login-illustration.png"
+          src="/login-Illustration.png"
           alt="Gym fitness concept illustration"
           className="heroIllustration"
         />
