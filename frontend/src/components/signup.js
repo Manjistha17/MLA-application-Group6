@@ -32,17 +32,6 @@ const initialForm = {
 
 const getErrorId = (name) => `error-${name}`;
 
-const textFieldSx = {
-  "& .MuiInputLabel-root": { color: "var(--color-text-secondary)" },
-  "& .MuiOutlinedInput-root": {
-    color: "var(--color-text-primary)",
-    "& fieldset": { borderColor: "var(--color-border-subtle)" },
-    "&:hover fieldset": { borderColor: "var(--color-primary)" },
-    "&.Mui-focused fieldset": { borderColor: "var(--color-primary)" },
-  },
-  "& .MuiSvgIcon-root": { color: "var(--color-text-secondary)" },
-};
-
 /* ------------------ PASSWORD STRENGTH ------------------ */
 
 const passwordStrength = (pwd) => {
