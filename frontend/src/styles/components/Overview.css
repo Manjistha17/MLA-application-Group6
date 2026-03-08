@@ -73,9 +73,9 @@
   padding: 0.25rem 0.5rem;
   font-size: 0.75rem;
   border-radius: 4px;
-  border: 1px solid #2563eb;
-  color: #2563eb;
-  background-color: #bbdefb;
+  border: 1px solid var(--color-primary);
+  color: var(--color-primary);
+  background-color: var(--color-primary-soft);
   display: inline-flex;
   align-items: center;
   justify-content: center;

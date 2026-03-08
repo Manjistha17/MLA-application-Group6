@@ -30,17 +30,20 @@ function App() {
 
   // Restore login on refresh
   useEffect(() => {
-    const savedTheme = localStorage.getItem("theme") || "light";
-    document.documentElement.setAttribute("data-theme", savedTheme);
-
     const storedUser = localStorage.getItem("currentUser");
     const storedLogin = localStorage.getItem("isLoggedIn") === "true";
     const storedRole = localStorage.getItem("role");
 
+    // Only restore dark theme if user is logged in
     if (storedUser && storedLogin) {
+      const savedTheme = localStorage.getItem("theme") || "light";
+      document.documentElement.setAttribute("data-theme", savedTheme);
       setCurrentUser(storedUser);
       setIsLoggedIn(true);
       if (storedRole) setRole(storedRole);
+    } else {
+      // Public pages always light
+      document.documentElement.removeAttribute("data-theme");
     }
   }, []);
 

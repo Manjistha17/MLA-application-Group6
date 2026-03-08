@@ -32,6 +32,17 @@ const initialForm = {
 
 const getErrorId = (name) => `error-${name}`;
 
+const textFieldSx = {
+  "& .MuiInputLabel-root": { color: "var(--color-text-secondary)" },
+  "& .MuiOutlinedInput-root": {
+    color: "var(--color-text-primary)",
+    "& fieldset": { borderColor: "var(--color-border-subtle)" },
+    "&:hover fieldset": { borderColor: "var(--color-primary)" },
+    "&.Mui-focused fieldset": { borderColor: "var(--color-primary)" },
+  },
+  "& .MuiSvgIcon-root": { color: "var(--color-text-secondary)" },
+};
+
 /* ------------------ PASSWORD STRENGTH ------------------ */
 
 const passwordStrength = (pwd) => {
@@ -142,18 +153,18 @@ const Signup = ({ onSignup }) => {
       };
 
       const response = await axios.post("/api/auth/signup", payload, {
-  withCredentials: true,
-});
+        withCredentials: true,
+      });
 
-  const { role, username: responseUsername, email } = response.data;
+      const { role, username: responseUsername, email } = response.data;
 
-  localStorage.removeItem("signupForm");
-  localStorage.setItem("role", role);
-  localStorage.setItem("username", responseUsername);
-  localStorage.setItem("email", email);
+      localStorage.removeItem("signupForm");
+      localStorage.setItem("role", role);
+      localStorage.setItem("username", responseUsername);
+      localStorage.setItem("email", email);
 
-  onSignup(responseUsername, role);
-  navigate("/dashboard");
+      onSignup(responseUsername, role);
+      navigate("/dashboard");
     } catch (err) {
       setGlobalError(
         err?.response?.data?.message || 'Signup failed. Please try again.'
@@ -169,7 +180,7 @@ const Signup = ({ onSignup }) => {
 
   return (
     <Container maxWidth="sm" sx={{ mt: 8, mb: 6 }}>
-      <Card elevation={3}>
+      <Card elevation={3} sx={{ backgroundColor: "var(--color-bg-surface)" }}>
         <CardContent sx={{ p: 4 }}>
           <Typography variant="h5" fontWeight={600}>
             Create your account

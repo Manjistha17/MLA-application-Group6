@@ -1,4 +1,4 @@
-import { Alert } from "@mui/material";
+import { Alert, Typography } from "@mui/material";
 import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -72,7 +72,8 @@ const HeroBanner = ({ onLogin }) => {
         <div className="loginFormSide">
           <div className="loginLogo">
             <img src="/logo.png" alt="Shakti 360 logo" className="loginLogoImg" />
-            <span className="loginLogoText">Shakti <span className="loginLogoBrand">360</span></span>
+            <Typography component="span" sx={{ fontWeight: 800, color: "#111827" }}>Shakti°</Typography>
+            <Typography component="span" sx={{ fontWeight: 400, color: "#111827" }}>360</Typography>
           </div>
 
           <div className="loginHeadingGroup">
@@ -143,7 +144,7 @@ const HeroBanner = ({ onLogin }) => {
           <div className="loginRing loginRing3" />
 
           <img
-            src="/login-illustration.png"
+            src="/login-Illustration.png"
             alt="Fitness illustration"
             className="loginIllustrationImg"
           />

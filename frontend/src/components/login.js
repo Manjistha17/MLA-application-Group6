@@ -55,6 +55,14 @@ const Login = ({ onLogin }) => {
         localStorage.setItem("username", responseUsername);
         localStorage.setItem("email", email);
 
+        // Fetch a JWT token for the nutrition API
+        try {
+          const tokenRes = await axios.post("/nutrition/token", { username: responseUsername });
+          localStorage.setItem("nutritionToken", tokenRes.data.token);
+        } catch {
+          console.warn("Could not fetch nutrition token");
+        }
+
         // Pass role to parent if needed
         onLogin(responseUsername, role);
 

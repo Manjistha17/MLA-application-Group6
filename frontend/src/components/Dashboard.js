@@ -4,12 +4,14 @@ import "../styles/components/Dashboard.css";
 
 const Dashboard = ({ currentUser }) => {
   const role = localStorage.getItem("role"); // ✅ read role
+  const today = new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
 
   return (
     <div className="dashboardPage">
-      <br />
+    
       <div className="dashboardHeader">
         <h1 className="dashboardTitle">Welcome back, <span className="orangeText">{currentUser}</span></h1>
+        <span style={{ color: "var(--color-text-secondary)", fontSize: "var(--font-size-sm)", fontWeight: 500 }}>{today}</span>
         {/* Show role only if user is admin */}
         {role === "admin" && (
           <p className="dashboardSubtitle">

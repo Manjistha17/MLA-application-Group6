@@ -1,97 +1,17 @@
-/* .workout-plan-wrapper {
-  padding: 20px;
-}
-
-.plan-container {
-  border: 1px solid #ddd;
-  padding: 16px;
-  margin-bottom: 24px;
-  border-radius: 8px;
-}
-
-.plan-title {
-  margin: 0 0 8px 0;
-}
-
-.plan-meta {
-  font-size: 0.9rem;
-  color: #666;
-  margin-bottom: 16px;
-}
-
-.week-tabs {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-
-.week-tab {
-  padding: 6px 12px;
-  border: 1px solid #aaa;
-  background-color: #f5f5f5;
-  cursor: pointer;
-  border-radius: 4px;
-}
-
-.week-tab.active {
-  background-color: #4caf50;
-  color: #fff;
-  border-color: #4caf50;
-}
-
-.day-section {
-  border: 1px solid #eee;
-  padding: 10px;
-  margin-bottom: 10px;
-  border-radius: 5px;
-  background-color: #fafafa;
-}
-
-.exercise-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 6px 8px;
-  border-bottom: 1px solid #ddd;
-}
-
-.exercise-item.completed {
-  background-color: #e0ffe0;
-  text-decoration: line-through;
-}
-
-.exercise-info span {
-  margin-right: 8px;
-}
-
-.mark-complete-btn, .exercise-item button {
-  padding: 4px 8px;
-  border: none;
-  cursor: pointer;
-  border-radius: 4px;
-  background-color: #2196f3;
-  color: white;
-}
-
-.mark-complete-btn:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
- */
-
- /* Page wrapper */
+/* Page wrapper */
 .workout-plan-wrapper {
   padding: 20px;
-  background: #f7f9fc;
+  background: var(--color-bg-main);
 }
 
 /* Plan card */
 .plan-container {
-  background: #ffffff;
+  background: var(--color-bg-surface);
   border-radius: 14px;
   padding: 18px;
   margin-bottom: 28px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border-subtle);
 }
 
 /* Header */
@@ -99,11 +19,12 @@
   margin: 0;
   font-size: 1.3rem;
   font-weight: 600;
+  color: var(--color-text-primary);
 }
 
 .plan-meta {
   font-size: 0.9rem;
-  color: #6b7280;
+  color: var(--color-text-muted);
   margin-top: 4px;
   margin-bottom: 16px;
 }
@@ -118,22 +39,22 @@
 .week-tab {
   padding: 6px 14px;
   border-radius: 999px;
-  border: 1px solid #e5e7eb;
-  background: #f1f5ff;
-  color: #2f6df6;
+  border: 1px solid var(--color-border-subtle);
+  background: var(--color-bg-muted);
+  color: var(--color-primary);
   font-size: 0.85rem;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .week-tab:hover {
-  background: #e8eeff;
+  background: var(--color-primary-soft);
 }
 
 .week-tab.active {
-  background: #2f6df6;
+  background: var(--color-primary);
   color: #ffffff;
-  border-color: #2f6df6;
+  border-color: var(--color-primary);
 }
 
 /* Week content */
@@ -145,16 +66,17 @@
 
 /* Day section */
 .day-section {
-  background: #fafafa;
+  background: var(--color-bg-muted);
   border-radius: 10px;
   padding: 12px 14px;
+  border: 1px solid var(--color-border-subtle);
 }
 
 .day-section h4 {
   margin: 0 0 8px;
   font-size: 0.95rem;
   font-weight: 600;
-  color: #374151;
+  color: var(--color-text-primary);
 }
 
 /* Exercise row */
@@ -163,7 +85,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 8px 0;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--color-border-subtle);
 }
 
 .exercise-item:first-child {
@@ -172,13 +94,13 @@
 
 /* Completed state */
 .exercise-item.completed {
-  background: #e8f5ee;
+  background: rgba(16, 185, 129, 0.08);
   border-radius: 8px;
   padding: 8px 10px;
 }
 
 .exercise-item.completed span {
-  color: #1f9d55;
+  color: #10b981;
   text-decoration: line-through;
 }
 
@@ -191,16 +113,17 @@
 .exercise-info span:first-child {
   font-size: 0.9rem;
   font-weight: 500;
+  color: var(--color-text-primary);
 }
 
 .exercise-info span:last-child {
   font-size: 0.8rem;
-  color: #6b7280;
+  color: var(--color-text-muted);
 }
 
 /* Button */
 .exercise-item button {
-  background: #2f6df6;
+  background: var(--color-primary);
   color: #ffffff;
   border: none;
   padding: 6px 12px;
@@ -211,11 +134,19 @@
 }
 
 .exercise-item button:hover {
-  background: #245ad8;
+  background: var(--color-primary-hover);
 }
 
 .exercise-item button:disabled {
-  background: #c7d2fe;
+  background: var(--color-bg-muted);
+  color: var(--color-text-muted);
   cursor: not-allowed;
 }
 
+/* Loading / empty states */
+.loading-text,
+.empty-text {
+  color: var(--color-text-muted);
+  text-align: center;
+  padding: 40px;
+}

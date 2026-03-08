@@ -286,7 +286,8 @@ openai_client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 # ============================================================
 @app.get("/coach/daily-tip")
 @limiter.limit("20/15minutes")
-async def get_daily_tip(request: Request, username: str = Query(...)):
+async def get_daily_tip(request: Request, username: str = Query(...), calorie_goal: int = Query(2000),
+    water_goal: int = Query(2500)):
     from datetime import date
     today = str(date.today())
 
@@ -319,6 +320,7 @@ async def get_daily_tip(request: Request, username: str = Query(...)):
     # Fetch user's active workout plan
     plan = await db.user_workout_plans.find_one({"user_id": username})
 
+    # User profile
     age = user.get("age", "unknown")
     weight = user.get("weight", "unknown")
     height = user.get("height", "unknown")
@@ -326,24 +328,40 @@ async def get_daily_tip(request: Request, username: str = Query(...)):
     goal_type = plan.get("goal_type", "General Fitness") if plan else "General Fitness"
     level = plan.get("level", "Beginner") if plan else "Beginner"
 
+    # Nutrition data
     calories_consumed = nutrition.get("calories", 0) if nutrition else 0
     water_intake = nutrition.get("water", 0) if nutrition else 0
+    calories_goal = calorie_goal
+    water_goal = water_goal
+    calories_remaining = max(0, calories_goal - calories_consumed)
+    water_remaining = max(0, water_goal - water_intake)
+
+    # Exercise data
     total_exercise_minutes = sum(e.get("duration", 0) for e in exercises_today)
     exercise_count = len(exercises_today)
+    exercise_types = ", ".join([e.get("exerciseType", "") for e in exercises_today]) if exercises_today else "none"
 
     prompt = f"""
-    You are a friendly, encouraging fitness coach.
-    Here is your user's profile:
-    - Age: {age}, Gender: {gender}, Weight: {weight}kg, Height: {height}cm
-    - Goal: {goal_type}, Level: {level}
-    Today's activity so far:
-    - Exercises completed: {exercise_count}
-    - Total exercise minutes: {total_exercise_minutes}
-    - Calories consumed: {calories_consumed} kcal
-    - Water intake: {water_intake}ml
-    Write a short, warm, motivating daily coaching message for this user.
-    Be specific to their numbers. Maximum 3 sentences.
-    """
+You are a knowledgeable, direct fitness coach. Give ONE specific, actionable recommendation.
+
+User profile:
+- Age: {age}, Gender: {gender}, Weight: {weight}kg, Height: {height}cm
+- Goal: {goal_type}, Fitness level: {level}
+
+Today's data:
+- Exercises done: {exercise_count} ({exercise_types})
+- Total exercise minutes: {total_exercise_minutes}
+- Calories consumed: {calories_consumed} / {calories_goal} kcal ({calories_remaining} kcal remaining)
+- Water intake: {water_intake} / {water_goal} ml ({water_remaining} ml remaining)
+
+Rules:
+- Do NOT just motivate — give a specific action the user should take RIGHT NOW based on their numbers
+- If calories remaining > 800, suggest a specific meal or snack with approximate calories
+- If water remaining > 500ml, tell them exactly how many glasses they still need
+- If exercise minutes < 30, suggest a specific workout type suited to their goal and level
+- If everything looks good, suggest one recovery or optimization tip (sleep, stretching, protein timing etc.)
+- Be conversational but concrete. Maximum 3 sentences. No generic phrases like "keep it up" or "you got this".
+"""
 
     response = await openai_client.chat.completions.create(
         model="gpt-4o-mini",
@@ -351,7 +369,7 @@ async def get_daily_tip(request: Request, username: str = Query(...)):
     )
     message = response.choices[0].message.content
 
-    # Caching the tip
+    # Cache the tip
     await db.coach_tips.delete_many({"username": username, "date": today})
     await db.coach_tips.insert_one({
         "username": username,
@@ -360,6 +378,17 @@ async def get_daily_tip(request: Request, username: str = Query(...)):
     })
 
     return {"message": message}
+
+
+# ============================================================
+# Invalidate coach tip cache endpoint
+# ============================================================
+@app.delete("/coach/daily-tip/invalidate")
+async def invalidate_coach_tip(username: str = Query(...)):
+    from datetime import date
+    today = str(date.today())
+    await db.coach_tips.delete_many({"username": username, "date": today})
+    return {"message": "Cache invalidated"}
 
 # ============================================================
 # Invalidate coach tip cache endpoint

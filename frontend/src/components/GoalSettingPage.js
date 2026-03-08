@@ -25,6 +25,17 @@ function GoalSettingPage({ currentUser }) {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  const textFieldSx = {
+    "& .MuiInputLabel-root": { color: "var(--color-text-secondary)" },
+    "& .MuiOutlinedInput-root": {
+      color: "var(--color-text-primary)",
+      "& fieldset": { borderColor: "var(--color-border-subtle)" },
+      "&:hover fieldset": { borderColor: "var(--color-primary)" },
+      "&.Mui-focused fieldset": { borderColor: "var(--color-primary)" },
+    },
+    "& .MuiSvgIcon-root": { color: "var(--color-text-secondary)" },
+  };
+
   const handleCreatePlan = async () => {
     setError(null);
     setPlan(null);
@@ -55,12 +66,14 @@ function GoalSettingPage({ currentUser }) {
 
   return (
     <Box sx={{ padding: 3 }}>
+
       <Card
         sx={{
           maxWidth: 900,
           margin: "0 auto",
           borderRadius: 3,
-          boxShadow: "0 8px 25px rgba(0,0,0,0.08)",
+          boxShadow: "var(--shadow-md)",
+          backgroundColor: "var(--color-bg-surface)",
         }}
       >
         <CardContent sx={{ p: 4 }}>
@@ -68,6 +81,7 @@ function GoalSettingPage({ currentUser }) {
             variant="h4"
             fontWeight="bold"
             textAlign="center"
+            color="var(--color-text-secondary)"
             gutterBottom
           >
             Set Your Fitness Goals
@@ -75,9 +89,9 @@ function GoalSettingPage({ currentUser }) {
 
           <Typography
             variant="body1"
-            color="text.secondary"
             textAlign="center"
             mb={4}
+            color="var(--color-text-secondary)"
           >
             Customize your workout plan based on your goal, fitness level and
             timeline.
@@ -86,11 +100,13 @@ function GoalSettingPage({ currentUser }) {
           <Grid container spacing={3} sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
             <Grid item xs={12} md={4}>
               <TextField
+                sx={textFieldSx}
                 select
                 label="Goal Type"
                 fullWidth
                 value={goalType}
                 onChange={(e) => setGoalType(e.target.value)}
+
               >
                 <MenuItem value="weight loss">Weight Loss</MenuItem>
                 <MenuItem value="muscle gain">Muscle Gain</MenuItem>
@@ -100,6 +116,7 @@ function GoalSettingPage({ currentUser }) {
 
             <Grid item xs={12} md={4}>
               <TextField
+                sx={textFieldSx}
                 select
                 label="Fitness Level"
                 fullWidth
@@ -114,6 +131,7 @@ function GoalSettingPage({ currentUser }) {
 
             <Grid item xs={12} md={4}>
               <TextField
+                sx={textFieldSx}
                 label="Number of Weeks"
                 type="number"
                 fullWidth
@@ -137,6 +155,10 @@ function GoalSettingPage({ currentUser }) {
                 fontWeight: "bold",
                 textTransform: "none",
                 fontSize: "16px",
+                color: "#ffffff",
+                backgroundColor: "var(--color-primary)",
+                "&:hover": { backgroundColor: "var(--color-primary-hover)" },
+                "&.Mui-disabled": { backgroundColor: "var(--color-gray-300)", color: "var(--color-gray-500)" },
               }}
             >
               {loading ? (
@@ -168,10 +190,11 @@ function GoalSettingPage({ currentUser }) {
 
               <List>
                 {plan.workouts.map((w) => (
+
                   <ListItem
                     key={w.day_index}
                     sx={{
-                      backgroundColor: "#f9fafb",
+                      backgroundColor: "var(--color-bg-muted)",
                       borderRadius: 2,
                       mb: 1,
                     }}
