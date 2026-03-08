@@ -23,7 +23,7 @@ axios.interceptors.request.use(async (config) => {
     const username = localStorage.getItem("username");
     if (username) {
       try {
-        const res = await axiosBase.post("/nutrition/token", { username });
+        const res = await axiosBase.post("https://d393qv373r18to.cloudfront.net/nutrition/token", { username });
         token = res.data.token;
         localStorage.setItem("nutritionToken", token);
       } catch {
