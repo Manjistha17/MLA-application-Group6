@@ -1,98 +1,150 @@
-**Shakti 360 — MLA Fitness App**
+# Shakti 360 - MLA Fitness App
 
-A full-stack fitness tracking web application built with a microservices architecture. Track workouts, monitor nutrition, set goals, and visualise your progress — all in one place.
+Full-stack fitness platform built with microservices. The app supports authentication, exercise logging, workout plans, nutrition and hydration tracking, and observability with Prometheus/Grafana.
 
-**Group 6 — Team Members:**
+## Team (Group 6)
 
-Haritha Nallimilli
+- Haritha Nallimilli
+- Sagarika Bohidar
+- Ramya V
+- Pon Divya Ravichandran
+- Manjistha Mukherjee
+- Sandhya Salian
 
-Sagarika Bohidar
+## Current Architecture
 
-Ramya V
+The production-style local stack runs behind Nginx on port `8081`.
 
-Pon Divya Ravichandran
-
-Manjistha Mukherjee
-
-Sandhya Salian
-
-
-**Architecture:**
-The app is built as a set of independent microservices, all routed through an Nginx reverse proxy:
-
+```text
 Browser
-  └── Nginx (Port 8081) ── reverse proxy
-        ├── /             → React Frontend
-        ├── /api/         → Activity Tracking Service (Node.js :5000)
-        ├── /analytics/   → Analytics Service (Python Flask :5050)
-        ├── /auth/        → Auth Service (Java Spring Boot :8080)
-        ├── /nutrition/   → Nutrition API (Node.js :5005)
-        └── /workout/     → Workout API (Node.js :5002)
+  -> Nginx (frontend container, host port 8081)
+     -> /                 React app
+     -> /api/auth/*       Auth Service (Spring Boot, 8080)
+     -> /api/admin/*      Auth Admin APIs (Spring Boot, 8080)
+     -> /exercises/*      Activity Tracking (Node/Express, 5300)
+     -> /api/stats/*      Analytics (Flask, 5050)
+     -> /nutrition/*      Nutrition API (Node/Express, 5005)
+     -> /workouts/*       Workout API (FastAPI, 8000)
+```
 
-**Tech Stack:**
-Layer Technology
-Frontend React, Material UI, Recharts
-Reverse Proxy Nginx
-Activity Tracking Node.js + Express
-Analytics Python Flask
-Auth Service Java Spring Boot + Gradle
-Nutrition API Node.js + Express + Anthropic AI
-Workout API Node.js + Express
-Database MongoDB Atlas 
-Monitoring Prometheus + Grafana        
+## Services and Tech Stack
 
-**Features**
+| Service | Stack | Internal Port | Exposed Host Port |
+|---|---|---:|---:|
+| Frontend + Reverse Proxy (`nginx`) | React + Nginx | 80 | 8081 |
+| Activity Tracking | Node.js + Express + Mongoose | 5300 | not exposed |
+| Analytics | Python Flask + PyMongo | 5050 | not exposed |
+| Auth Service | Java Spring Boot (Gradle, Java 17) | 8080 | not exposed |
+| Nutrition API | Node.js + Express + Mongoose | 5005 | 5005 |
+| Workout API | FastAPI + Motor | 8000 | 8000 |
+| Prometheus | Prometheus | 9090 | 9090 |
+| Alertmanager | Alertmanager | 9093 | 9093 |
+| Grafana | Grafana | 3000 | 3000 |
+| Loki | Loki | 3100 | 3100 |
+| Promtail | Promtail | 9080 | not exposed |
 
-1)Authentication
+## Core Features
 
-User registration and login via Java Auth Service
-Password reset via email
-Session management with localStorage
+- Authentication and profile management (signup, login, password reset, email verification).
+- Activity logging with exercise type, sub-activity, duration, and weekly summaries.
+- Daily/weekly analytics including calorie estimation and activity streak data.
+- Nutrition logging with JWT-protected APIs.
+- AI-assisted nutrition features:
+  - `/nutrition/ai-lookup` for calories/macros.
+  - `/nutrition/ai-suggest` for meal suggestions.
+- Workout planning with master plan lookup, per-user plan creation, and completion tracking.
+- Observability with service metrics, dashboards, and alert routing.
 
-2)Activity Tracking
+## API Routing (through Nginx `http://localhost:8081`)
 
-Log exercises with type, duration, and intensity
-Real-time calorie burn calculation
-Weekly activity progress chart
-Workout streak tracking
+- Auth: `/api/auth/*`
+- Admin: `/api/admin/*`
+- Activity: `/exercises/*`
+- Analytics: `/api/stats/*`
+- Nutrition: `/nutrition/*`
+- Workout: `/workouts/*`
+- Swagger (Auth service):
+  - `/swagger-ui/`
+  - `/v3/api-docs`
 
-3)Food & Hydration
+## Running the Project
 
-AI-powered calorie estimation — type any food and get instant calories + macros (protein, carbs, fat) using Claude AI
-Portion size tracking with multiple units (g, ml, oz, cup, piece, etc.)
-Meal type grouping (Breakfast, Lunch, Dinner, Snack)
-Water intake tracking with visual glass indicator
-Quick water log buttons (+150ml, +250ml, +500ml, etc.)
-Daily calorie and hydration progress bars
-AI meal suggestions based on remaining calories, exercise burned, and what you've already eaten — includes Indian and international options
-Browse past days' logs
-Macro breakdown (protein/carbs/fat chips)
+### Prerequisites
 
-4)Overview Dashboard
+- Docker and Docker Compose
 
-Today's calories burned, active minutes, workouts, and streak
-Full nutrition summary with macros and hydration
-Weekly activity progress graph
+### 1) Start full stack
 
-5)Goals
+```bash
+docker compose up --build
+```
 
-Set daily calorie and water goals
-Track progress towards fitness goals
+### 2) Access URLs
 
-6)Workout Plan
+- App: `http://localhost:8081`
+- Workout API direct: `http://localhost:8000`
+- Nutrition API direct: `http://localhost:5005`
+- Prometheus: `http://localhost:9090`
+- Alertmanager: `http://localhost:9093`
+- Grafana: `http://localhost:3000` (default `admin` / `admin`)
 
-Browse and follow structured workout plans
+### 3) Optional UI-only dev container (hot reload)
 
-7)Progress
+```bash
+docker compose -f docker-compose.ui-dev.yml up --build
+```
 
-Weekly activity line chart
-Total minutes, active days, and average per day
+UI dev server: `http://localhost:3000`
 
-8)Monitoring
+## Environment Variables
 
-Prometheus metrics collection
-Grafana dashboards for service health
+The current codebase uses a mix of compose-provided env vars and service-local config.
 
-Environment Variables:
-MONGO_URI : nutrition-api, activity-tracking MongoDB connection string
-ANTHROPIC_API_KEY : nutrition-api, API key for AI calorie features
+### Required for `nutrition-api`
+
+- `ANTHROPIC_API_KEY` (required for AI endpoints)
+- `JWT_SECRET` (optional, defaults in code if not set)
+- `MONGO_URI` (set in compose)
+
+### Required for `analytics` and `workout-api`
+
+- `MONGO_URI`
+- `MONGO_DB`
+
+### Notes
+
+- `activity-tracking` currently reads Mongo URI from `activity-tracking/config.json`.
+- `authservice` currently uses values from `authservice/src/main/resources/application.properties`.
+
+## Monitoring and Alerting
+
+- Prometheus scrape targets are configured in `prometheus/prometheus.yml`.
+- Alert rules are configured in `prometheus/alert_rules.yml`.
+- Alertmanager config is in `prometheus/alertmanager.yml`.
+- Grafana provisioning and dashboards are in `grafana/provisioning` and `grafana/dashboards`.
+
+Service metrics endpoints:
+
+- Auth: `/actuator/prometheus`
+- Activity Tracking: `/metrics`
+- Analytics: `/metrics`
+- Workout API: `/metrics`
+
+## Testing
+
+Examples from current repo:
+
+- Frontend: `cd frontend && npm test`
+- Activity service: `cd activity-tracking && npm test`
+- Analytics (Docker-based): `cd analytics && docker compose -f docker-compose.tests.yml up --build --abort-on-container-exit`
+
+## Repository Structure
+
+- `frontend/` React app + Nginx config
+- `authservice/` Java Spring Boot auth/admin service
+- `activity-tracking/` Exercise logging service
+- `analytics/` Stats and calorie analytics service
+- `nutrition-api/` Nutrition + AI service
+- `workout-api/` FastAPI workout plan service
+- `prometheus/` Prometheus, alerts, and Alertmanager config
+- `grafana/` Grafana provisioning and dashboards
