@@ -18,7 +18,7 @@ const ForgotPassword = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post('/api/auth/forgotPassword', { email });
+      const response = await axios.post('https://d393qv373r18to.cloudfront.net/api/auth/forgotPassword', { email });
       setMessage(response.data.message);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to send reset link');

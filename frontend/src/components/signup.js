@@ -141,7 +141,7 @@ const Signup = ({ onSignup }) => {
         weight: Number(formData.weight),
       };
 
-      const response = await axios.post("/api/auth/signup", payload, {
+      const response = await axios.post("https://d393qv373r18to.cloudfront.net/api/auth/signup", payload, {
         withCredentials: true,
       });
 

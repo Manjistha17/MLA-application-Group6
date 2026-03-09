@@ -1,104 +1,28 @@
-# # version: '3.8'
-
-# services:
-#   nginx:
-#     build:
-#       context: ./frontend  # path to the folder with Dockerfile & nginx.conf
-#       dockerfile: Dockerfile
-#     container_name: nginx-proxy
-#     ports:
-#       - "8081:80"  # Map host port 8081 to container port 80
-#     depends_on:
-#       - authservice
-#       - activity-tracking
-#       - analytics
-#     networks:
-#       - app-network
-
-#   activity-tracking:
-#     build:
-#       context: ./activity-tracking
-#       dockerfile: Dockerfile
-#     environment:
-#       - NODE_ENV=development
-#     expose:
-#       - "5300"
-#     depends_on:
-#       - mongodb
-#     networks:
-#       - app-network
-
-#   analytics:
-#     build:
-#       context: ./analytics
-#       dockerfile: Dockerfile
-#     environment:
-#       - NODE_ENV=development
-#       - MONGO_URI=mongodb://root:cfgmla23@mongodb:27017
-#     expose:
-#       - "5050"
-#     depends_on:
-#       - mongodb
-#     networks:
-#       - app-network
-
-#   authservice:
-#     build:
-#       context: ./authservice
-#       dockerfile: Dockerfile
-#     environment:
-#       - SPRING_DATA_MONGODB_DATABASE=test
-#       - SPRING_DATA_MONGODB_URI=mongodb://root:cfgmla23@mongodb:27017
-#     expose:
-#       - "8080"
-#     depends_on:
-#       - mongodb
-#     networks:
-#       - app-network
-
-#   mongodb:
-#     image: mongo:latest
-#     environment:
-#       - MONGO_INITDB_ROOT_USERNAME=root
-#       - MONGO_INITDB_ROOT_PASSWORD=cfgmla23
-#     ports:
-#       - "27017:27017"
-#     volumes:
-#       - mongodbdata:/data/db
-#     networks:
-#       - app-network
-
-# networks:
-#   app-network:
-#     driver: bridge
-
-# volumes:
-#   mongodbdata:
-
 services:
   nginx:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: nginx-proxy
+    image: nginx:latest
     ports:
-      - "8081:80"
+      - "80:80"  # single public entry point for CloudFront
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
-      - authservice
       - activity-tracking
       - analytics
+      - authservice
+      - workout-api
+      - group-api
+      - nutrition-api
     networks:
       - app-network
-
   activity-tracking:
     build:
       context: ./activity-tracking
       dockerfile: Dockerfile
     environment:
-      - NODE_ENV=development
-      - MONGO_URI=mongodb+srv://mlagroup6_db_user1:Mlagrp6%402026@mlagroup6datacluster.ms0cuuq.mongodb.net/mlagrp6db
-    expose:
-      - "5300"
+      - NODE_ENV=production
+      - MONGO_URI=${MONGO_URI}
+    ports:               # ← change here
+      - "5300:5300"
     networks:
       - app-network
 
@@ -107,10 +31,10 @@ services:
       context: ./analytics
       dockerfile: Dockerfile
     environment:
-      - NODE_ENV=development
-      - MONGO_URI=mongodb+srv://mlagroup6_db_user1:Mlagrp6%402026@mlagroup6datacluster.ms0cuuq.mongodb.net/mlagrp6db
-    expose:
-      - "5050"
+      - NODE_ENV=production
+      - MONGO_URI=${MONGO_URI}
+    ports:
+      - "5050:5050"
     networks:
       - app-network
 
@@ -120,63 +44,46 @@ services:
       dockerfile: Dockerfile
     environment:
       - SPRING_DATA_MONGODB_DATABASE=mlagrp6db
-      - SPRING_DATA_MONGODB_URI=mongodb+srv://mlagroup6_db_user1:Mlagrp6%402026@mlagroup6datacluster.ms0cuuq.mongodb.net/mlagrp6db
-    expose:
-      - "8080"
+      - SPRING_DATA_MONGODB_URI=${MONGO_URI}
+    ports:
+      - "8080:8080"
+    logging:
+      driver: "awslogs"
+      options:
+        awslogs-region: "eu-north-1"        # change to your region
+        awslogs-group: "authservice-logs"
+        awslogs-stream: "authservice"
+        awslogs-create-group: "true"
+
     networks:
       - app-network
 
   workout-api:
     build:
-      context: ./workout-api   # folder with FastAPI Dockerfile
+      context: ./workout-api
       dockerfile: Dockerfile
-    container_name: workout-api
     environment:
-      - MONGO_URI=mongodb+srv://mlagroup6_db_user1:Mlagrp6%402026@mlagroup6datacluster.ms0cuuq.mongodb.net/mlagrp6db
+      - MONGO_URI=${MONGO_URI}
     ports:
       - "8000:8000"
     networks:
       - app-network
 
-  loki:
-    image: grafana/loki:2.9.0
+  group-api:
+    build:
+      context: ./group-api
+      dockerfile: Dockerfile
+    environment:
+      - MONGO_URI=${MONGO_URI}
     ports:
-      - "3100:3100"
-
-  promtail:
-   image: grafana/promtail:2.9.0
-   volumes:
-    - /var/run/docker.sock:/var/run/docker.sock
-    - ./promtail-config.yaml:/etc/promtail/config.yaml
-   command: -config.file=/etc/promtail/config.yaml
-
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: prometheus
-    volumes:
-      - ./prometheus:/etc/prometheus
-      - prometheus_data:/prometheus
-    ports:
-      - "9090:9090"
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
-      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - "8005:8005"
     networks:
       - app-network
-    depends_on:
-      - authservice
-      - activity-tracking
-      - analytics
-      - workout-api
 
   nutrition-api:
     build: ./nutrition-api
-    ports:
-      - "5005:5005"
     environment:
-      - MONGO_URI=mongodb+srv://mlagroup6_db_user1:Mlagrp6%402026@mlagroup6datacluster.ms0cuuq.mongodb.net/mlagrp6db
+      - MONGO_URI=${MONGO_URI}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - JWT_SECRET=${JWT_SECRET:-shakti360-secret-change-in-prod}
     networks:
@@ -187,39 +94,39 @@ services:
   #   ports:
   #     - "3100:3100"
 
-  alertmanager:
-    image: prom/alertmanager:v0.26.0
-    container_name: alertmanager
-    ports:
-      - "9093:9093"
-    volumes:
-      - ./prometheus/alertmanager.yml:/etc/alertmanager/alertmanager.yml
-      - alertmanager_data:/alertmanager
-    command:
-      - '--config.file=/etc/alertmanager/alertmanager.yml'
-      - '--storage.path=/alertmanager'
-    networks:
-      - app-network
-    depends_on:
-      - prometheus
+  # alertmanager:
+  #   image: prom/alertmanager:v0.26.0
+  #   container_name: alertmanager
+  #   ports:
+  #     - "9093:9093"
+  #   volumes:
+  #     - ./prometheus/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+  #     - alertmanager_data:/alertmanager
+  #   command:
+  #     - '--config.file=/etc/alertmanager/alertmanager.yml'
+  #     - '--storage.path=/alertmanager'
+  #   networks:
+  #     - app-network
+  #   depends_on:
+  #     - prometheus
 
-  grafana:
-    image: grafana/grafana:10.3.0
-    container_name: grafana
-    ports:
-      - "3000:3000"
-    environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-      - GF_INSTALL_PLUGINS=
-    volumes:
-      - grafana_data:/var/lib/grafana
-      - ./grafana/provisioning:/etc/grafana/provisioning
-      - ./grafana/dashboards:/etc/grafana/dashboards
-    networks:
-      - app-network
-    depends_on:
-      - prometheus
+  # grafana:
+  #   image: grafana/grafana:10.3.0
+  #   container_name: grafana
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     - GF_SECURITY_ADMIN_USER=admin
+  #     - GF_SECURITY_ADMIN_PASSWORD=admin
+  #     - GF_INSTALL_PLUGINS=
+  #   volumes:
+  #     - grafana_data:/var/lib/grafana
+  #     - ./grafana/provisioning:/etc/grafana/provisioning
+  #     - ./grafana/dashboards:/etc/grafana/dashboards
+  #   networks:
+  #     - app-network
+  #   depends_on:
+  #     - prometheus
 
 networks:
   app-network:

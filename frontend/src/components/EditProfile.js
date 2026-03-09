@@ -18,7 +18,7 @@ const EditProfile = ({ currentUser }) => {
     if (!currentUser) return;
 
     axios
-      .get(`/api/auth/user/${currentUser}`)
+      .get(`https://d393qv373r18to.cloudfront.net/api/auth/user/${currentUser}`)
       .then((res) => {
         setForm({
           email: res.data.email || "",
@@ -39,7 +39,7 @@ const EditProfile = ({ currentUser }) => {
 
   const handleSave = () => {
     axios
-      .put(`/api/auth/user/${currentUser}`, form)
+      .put(`https://d393qv373r18to.cloudfront.net/api/auth/user/${currentUser}`, form)
       .then(() => {
         window.location.href = "/profile";
       })

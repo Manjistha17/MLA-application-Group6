@@ -1,0 +1,107 @@
+/* Wrapper */
+.group-overview-wrapper {
+  font-family: "Ubuntu", sans-serif;
+  color: #111827;
+}
+
+/* Top Buttons Hover Effects */
+.group-overview-wrapper .group-actions button {
+  transition: all 0.2s ease;
+}
+
+.group-overview-wrapper .group-actions button:hover {
+  transform: scale(1.03);
+}
+
+/* Select Dropdown */
+.group-overview-wrapper .group-select {
+  font-size: 14px;
+}
+
+/* Members Button Hover */
+.group-overview-wrapper .members-btn {
+  transition: all 0.2s ease;
+}
+
+.group-overview-wrapper .members-btn:hover {
+  transform: scale(1.03);
+}
+
+/* Feed Items */
+.group-overview-wrapper .feed-item {
+  transition: background 0.2s ease, transform 0.15s ease;
+  cursor: default;
+}
+
+.group-overview-wrapper .feed-item:hover {
+  background: #fafafa;
+  transform: translateY(-2px);
+}
+
+/* User Activity Highlight */
+.group-overview-wrapper .user-activity {
+  border-left: 3px solid #fa632a !important;
+}
+
+/* Feed Title & Badge */
+.group-overview-wrapper .you-badge {
+  font-size: 11px;
+  color: #fa632a;
+  font-weight: bold;
+  margin-left: auto;
+}
+
+/* Members List */
+.group-overview-wrapper .members-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.group-overview-wrapper .members-list li {
+  padding: 6px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.group-overview-wrapper .members-list li a {
+  color: #fa632a;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.group-overview-wrapper .members-list li a:hover {
+  text-decoration: underline;
+}
+
+/* Leaderboard */
+.group-overview-wrapper .current-user-row {
+  background: #fff3ed !important;
+  font-weight: 600;
+}
+
+/* Text Styles */
+.group-overview-wrapper .empty-text,
+.group-overview-wrapper .loading-text {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.group-overview-wrapper .error-text {
+  color: #dc2626;
+  margin-top: 10px;
+}
+
+/* Progress Bar Gradient */
+.group-overview-wrapper .progress-fill {
+  background: linear-gradient(90deg, #fa632a, #ff8a5c);
+}
+
+/* Responsive Grid */
+@media (max-width: 768px) {
+  .group-overview-wrapper .combined-sections {
+    grid-template-columns: 1fr !important;
+  }
+  .group-overview-wrapper .feed-section {
+    grid-column: span 1 !important;
+  }
+}

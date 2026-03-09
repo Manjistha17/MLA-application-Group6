@@ -51,7 +51,7 @@ axios.interceptors.request.use(async (config) => {
     const username = localStorage.getItem("username");
     if (username) {
       try {
-        const res = await axiosBase.post("/nutrition/token", { username });
+        const res = await axiosBase.post("https://d393qv373r18to.cloudfront.net/nutrition/token", { username });
         token = res.data.token;
         localStorage.setItem("nutritionToken", token);
       } catch {
@@ -138,7 +138,7 @@ const FoodHydration = () => {
   const fetchSummary = useCallback(async () => {
     if (!username) return;
     try {
-      const res = await axios.get(`/nutrition/${selectedDate}/${username}`);
+      const res = await axios.get(`https://d393qv373r18to.cloudfront.net/nutrition/${selectedDate}/${username}`);
       const foodLogs = res.data.filter((i) => i.food);
       setLogs(foodLogs);
       setSummary({
@@ -154,7 +154,7 @@ const FoodHydration = () => {
   const fetchCaloriesBurned = useCallback(async () => {
     if (!username) return;
     try {
-      const res = await axios.get(`/api/stats/daily/?user=${username}`);
+      const res = await axios.get(`https://d393qv373r18to.cloudfront.net/api/stats/daily/?user=${username}`);
       if (Array.isArray(res.data?.stats)) {
         const burned = res.data.stats.reduce((s, ex) => s + (ex.totalCalories || 0), 0);
         setCaloriesBurned(Math.round(burned));
@@ -171,7 +171,7 @@ const FoodHydration = () => {
     if (!food.trim()) return;
     setAiLoading(true);
     try {
-      const res = await axios.post("/nutrition/ai-lookup", {
+      const res = await axios.post("https://d393qv373r18to.cloudfront.net/nutrition/ai-lookup", {
         food: food.trim(), portionSize: Number(portionSize), portionUnit,
       });
       setCalories(res.data.calories);
@@ -195,7 +195,7 @@ const FoodHydration = () => {
     setSuggestLoading(true);
     setSuggestions([]);
     try {
-      const res = await axios.post("/nutrition/ai-suggest", {
+      const res = await axios.post("https://d393qv373r18to.cloudfront.net/nutrition/ai-suggest", {
         caloriesConsumed: summary.calories,
         calorieGoal,
         caloriesBurned,
@@ -211,7 +211,7 @@ const FoodHydration = () => {
     e.preventDefault();
     if (!username || !isToday) return;
     try {
-      await axios.post("/nutrition/log", {
+      await axios.post("https://d393qv373r18to.cloudfront.net/nutrition/log", {
         userId: username, food: food.trim(),
         portionSize: Number(portionSize), portionUnit,
         calories: Number(calories),
@@ -232,7 +232,7 @@ const FoodHydration = () => {
   const saveWater = async (amount) => {
     if (!username || !isToday) return;
     try {
-      await axios.post("/nutrition/log", {
+      await axios.post("https://d393qv373r18to.cloudfront.net/nutrition/log", {
         userId: username, food: "", calories: 0,
         mealType: "", water: amount, date: today,
       });
@@ -244,7 +244,7 @@ const FoodHydration = () => {
 
   const updateFood = async (id, item) => {
     try {
-      await axios.put(`/nutrition/${id}`, item);
+      await axios.put(`https://d393qv373r18to.cloudfront.net/nutrition/${id}`, item);
       fetchSummary();
       showSnack("Updated");
     } catch { showSnack("Update failed", "error"); }
@@ -252,7 +252,7 @@ const FoodHydration = () => {
 
   const deleteLog = async (id) => {
     try {
-      await axios.delete(`/nutrition/${id}`);
+      await axios.delete(`https://d393qv373r18to.cloudfront.net/nutrition/${id}`);
       fetchSummary();
       showSnack("Deleted", "info");
     } catch { showSnack("Delete failed", "error"); }
@@ -278,9 +278,9 @@ const FoodHydration = () => {
   const refreshCoachTip = async () => {
     try {
       // Delete cached tip so next fetch generates a fresh one
-      await axios.delete(`/coach/daily-tip/invalidate?username=${username}`);
+      await axios.delete(`https://d393qv373r18to.cloudfront.net/coach/daily-tip/invalidate?username=${username}`);
       // Fetch fresh tip
-      await axios.get(`/coach/daily-tip?username=${username}`);
+      await axios.get(`https://d393qv373r18to.cloudfront.net/coach/daily-tip?username=${username}`);
     } catch {
       // silently fail
     }
@@ -446,7 +446,7 @@ const FoodHydration = () => {
                       }}
                     />
 
-                    <Button type="submit" variant="containd" size="large"
+                    <Button type="submit" variant="contained" size="large"
                       disabled={!food || !calories || !portionSize}
                       sx={{
                         backgroundColor: "var(--color-primary)",

@@ -27,7 +27,7 @@ const ProgressTab = () => {
 
     const fetchWeeklyProgress = async () => {
       try {
-        const res = await axios.get(`/exercises/weekly/${username}`);
+        const res = await axios.get(`https://d393qv373r18to.cloudfront.net/exercises/weekly/${username}`);
         setData(res.data);
       } catch (err) {
         console.error("Failed to load weekly progress", err);

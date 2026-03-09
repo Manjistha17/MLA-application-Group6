@@ -12,7 +12,7 @@ const AICoach = ({ currentUser }) => {
     const waterGoal = Number(localStorage.getItem("dailyWaterGoal")) || 2500;
     if (!currentUser) return;
     setCoachLoading(true);
-    axios.get(`/coach/daily-tip?username=${currentUser}&calorie_goal=${calorieGoal}&water_goal=${waterGoal}`)
+    axios.get(`https://d393qv373r18to.cloudfront.net/coach/daily-tip?username=${currentUser}&calorie_goal=${calorieGoal}&water_goal=${waterGoal}`)
       .then(res => setCoachMessage(res.data.message))
       .catch(() => setCoachMessage("Keep pushing — every step counts!"))
       .finally(() => setCoachLoading(false));

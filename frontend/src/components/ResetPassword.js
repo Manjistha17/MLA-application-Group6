@@ -22,7 +22,7 @@ const ResetPassword = () => {
     }
 
     try {
-      const response = await axios.post('/api/auth/resetPassword', {
+      const response = await axios.post('https://d393qv373r18to.cloudfront.net/api/auth/resetPassword', {
         token,
         newPassword: password,
       });

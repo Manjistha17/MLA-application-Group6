@@ -11,7 +11,7 @@ const ResendVerification = () => {
     setMessage("");
 
     try {
-      const res = await axios.post("/api/auth/resend-verification");
+      const res = await axios.post("https://d393qv373r18to.cloudfront.net/api/auth/resend-verification");
       setStatus("success");
       setMessage(
         res.data?.message || "Verification email sent successfully. Please check your inbox."

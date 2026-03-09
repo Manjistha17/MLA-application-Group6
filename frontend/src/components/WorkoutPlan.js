@@ -46,7 +46,7 @@ const WorkoutPlan = ({ currentUser }) => {
     console.log("Full currentUser object:", currentUser);
 
     axios
-      .get("/workouts/user-workout-plan/all", {
+      .get("https://d393qv373r18to.cloudfront.net/workouts/user-workout-plan/all", {
         params: { user_id: userId }
       })
       .then(({ data }) => {
@@ -115,9 +115,9 @@ const WorkoutPlan = ({ currentUser }) => {
   const refreshCoachTip = async () => {
     try {
       // Delete cached tip so next fetch generates a fresh one
-      await axios.delete(`/coach/daily-tip/invalidate?username=${currentUser}`);
+      await axios.delete(`https://d393qv373r18to.cloudfront.net/coach/daily-tip/invalidate?username=${currentUser}`);
       // Fetch fresh tip
-      await axios.get(`/coach/daily-tip?username=${currentUser}`);
+      await axios.get(`https://d393qv373r18to.cloudfront.net/coach/daily-tip?username=${currentUser}`);
     } catch {
       // silently fail
     }

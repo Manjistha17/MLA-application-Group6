@@ -21,7 +21,7 @@ const VerifyEmail = () => {
 
       try {
         await axios.get(
-          `/api/auth/verify-email?token=${encodeURIComponent(token)}`
+          `https://d393qv373r18to.cloudfront.net/api/auth/verify-email?token=${encodeURIComponent(token)}`
         );
 
         setStatus("success");

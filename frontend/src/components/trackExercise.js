@@ -54,7 +54,7 @@ const TrackExercise = (props) => {
   -------------------------------- */
   useEffect(() => {
     axios
-      .get("/exercises/activities/")
+      .get("https://d393qv373r18to.cloudfront.net/exercises/activities/")
       .then((res) => setActivities(res.data))
       .catch(() => {
         setMessageType("error");

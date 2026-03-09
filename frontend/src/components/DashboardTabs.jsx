@@ -7,6 +7,8 @@ import WorkoutPlan from "./WorkoutPlan";
 import FoodHydration from "./FoodHydration";
 import ProgressTab from "./ProgressTab";
 import AdminPanel from "./AdminPanel";
+import GroupOverview from "./GroupOverview";
+
 
 const DashboardTabs = ({ currentUser, role }) => {
   const [activeTab, setActiveTab] = useState(0);
@@ -27,6 +29,7 @@ const DashboardTabs = ({ currentUser, role }) => {
           { label: "Workouts", component: <Workouts currentUser={currentUser} /> },
           { label: "Progress", component: <ProgressTab /> },
           { label: "Food & Hydration", component: <FoodHydration currentUser={currentUser} /> },
+          { label: "Group Dashboard", component: <GroupOverview currentUser={currentUser} /> },
         ];
 
   return (

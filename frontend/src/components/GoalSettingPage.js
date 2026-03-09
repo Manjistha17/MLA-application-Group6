@@ -44,7 +44,7 @@ function GoalSettingPage({ currentUser }) {
     try {
       const userId = currentUser?.username ?? currentUser?._id ?? currentUser;
 
-      const response = await axios.post("/workouts/create/user-workout-plan", {
+      const response = await axios.post("https://d393qv373r18to.cloudfront.net/workouts/create/user-workout-plan", {
         user_id: userId,
         goal_type: goalType,
         level,
