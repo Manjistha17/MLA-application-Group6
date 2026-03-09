@@ -1,21 +1,20 @@
-import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Navigate, Route, BrowserRouter as Router, Routes } from "react-router-dom";
 
-import TrackExercise from "./components/trackExercise";
-import Statistics from "./components/statistics";
-import Footer from "./components/footer";
-import Signup from "./components/signup";
-import Journal from "./components/journal";
-import DailyStats from "./components/DailyStats";
-import ForgotPassword from "./components/ForgotPassword";
-import ResetPassword from "./components/ResetPassword";
-import EditProfile from "./components/EditProfile";
-import Dashboard from "./components/Dashboard";
-import PublicLayout from "./components/layout/PublicLayout";
-import HeroBanner from "./components/HeroBanner";
-import AppHeader from "./components/layout/AppHeader";
-import Profile from "./components/UserProfile";
 import AdminPanel from "./components/AdminPanel";
+import DailyStats from "./components/DailyStats";
+import Dashboard from "./components/Dashboard";
+import EditProfile from "./components/EditProfile";
+import Footer from "./components/footer";
+import ForgotPassword from "./components/ForgotPassword";
+import HeroBanner from "./components/HeroBanner";
+import Journal from "./components/journal";
+import AppHeader from "./components/layout/AppHeader";
+import ResetPassword from "./components/ResetPassword";
+import Signup from "./components/signup";
+import Statistics from "./components/statistics";
+import TrackExercise from "./components/trackExercise";
+import Profile from "./components/UserProfile";
 
 function App() {
   // -----------------------------------------
@@ -31,17 +30,20 @@ function App() {
 
   // Restore login on refresh
   useEffect(() => {
-    const savedTheme = localStorage.getItem("theme") || "light";
-    document.documentElement.setAttribute("data-theme", savedTheme);
-
     const storedUser = localStorage.getItem("currentUser");
     const storedLogin = localStorage.getItem("isLoggedIn") === "true";
     const storedRole = localStorage.getItem("role");
 
+    // Only restore dark theme if user is logged in
     if (storedUser && storedLogin) {
+      const savedTheme = localStorage.getItem("theme") || "light";
+      document.documentElement.setAttribute("data-theme", savedTheme);
       setCurrentUser(storedUser);
       setIsLoggedIn(true);
       if (storedRole) setRole(storedRole);
+    } else {
+      // Public pages always light
+      document.documentElement.removeAttribute("data-theme");
     }
   }, []);
 
@@ -87,9 +89,7 @@ function App() {
                 isLoggedIn ? (
                   <Navigate to="/dashboard" />
                 ) : (
-                  <PublicLayout>
-                    <HeroBanner onLogin={handleLogin} />
-                  </PublicLayout>
+                  <HeroBanner onLogin={handleLogin} />
                 )
               }
             />

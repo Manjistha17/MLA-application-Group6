@@ -8,7 +8,7 @@ const Dashboard = ({ currentUser }) => {
 
   return (
     <div className="dashboardPage">
-      <br />
+    
       <div className="dashboardHeader">
         <h1 className="dashboardTitle">Welcome back, <span className="orangeText">{currentUser}</span></h1>
         <span style={{ color: "var(--color-text-secondary)", fontSize: "var(--font-size-sm)", fontWeight: 500 }}>{today}</span>
@@ -23,8 +23,6 @@ const Dashboard = ({ currentUser }) => {
 
       {/* pass role into DashboardTabs */}
       <DashboardTabs currentUser={currentUser} role={role} />
-
-      
     </div>
   );
 };

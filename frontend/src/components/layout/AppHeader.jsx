@@ -1,19 +1,19 @@
-import React, { useState } from "react";
 import {
   AppBar,
-  Toolbar,
   Avatar,
+  Divider,
+  ListItemIcon,
   Menu,
   MenuItem,
-  Divider,
   Switch,
-  ListItemIcon,
+  Toolbar,
+  Typography
 } from "@mui/material";
+import { useState } from "react";
 
+import DarkModeIcon from "@mui/icons-material/DarkMode";
 import EditIcon from "@mui/icons-material/Edit";
 import LogoutIcon from "@mui/icons-material/Logout";
-import DarkModeIcon from "@mui/icons-material/DarkMode";
-import PersonSharpIcon from "@mui/icons-material/PersonSharp";
 
 import { useNavigate } from "react-router-dom";
 import "../../styles/components/Header.loggedIn.css";
@@ -35,10 +35,10 @@ const AppHeader = ({ currentUser, onLogout }) => {
     <AppBar
       position="sticky"
       elevation={0}
-      color="inherit"   
+      color="inherit"
       className="appHeader"
       sx={{
-        backgroundColor: 'var(--color-bg-main)', 
+        backgroundColor: 'var(--color-bg-main)',
         borderBottom: '1px solid var(--color-border-subtle)',
       }}
     >
@@ -52,16 +52,25 @@ const AppHeader = ({ currentUser, onLogout }) => {
           <span className="loggedHeader__logo">
             <img src="/logo.png" alt="Shakti 360 Logo" />
           </span>
-          <span className="loggedHeader__name">Shakti <span className="orangeText">360</span></span>
+          <Typography component="span" sx={{ fontWeight: 800, color: "var(--color-text-primary)" }}>Shakti°</Typography>
+          <Typography component="span" sx={{ fontWeight: 400, color: "var(--color-text-primary)" }}>360</Typography>
         </div>
 
         {/* RIGHT: AVATAR */}
         <div className="loggedHeader__right">
           <Avatar
-            className="loggedHeader__avatar"
             onClick={(e) => setAnchorEl(e.currentTarget)}
+            sx={{
+              cursor: "pointer",
+              bgcolor: "var(--color-primary)",
+              color: "#ffffff",
+              width: 38,
+              height: 38,
+              fontSize: "15px",
+              fontWeight: 700,
+            }}
           >
-            <PersonSharpIcon color="primary" />
+            {currentUser?.charAt(0)?.toUpperCase() || "U"}
           </Avatar>
 
           <Menu

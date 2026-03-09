@@ -4,9 +4,9 @@ const muiTheme = createTheme({
   palette: {
     mode: "light",
     primary: {
-      main: "#fa632a",
-      dark: "#e0521a",
-      light: "#fde8df",
+      main: "#ea580c",
+      dark: "#c2440f",
+      light: "#fff4ef",
       contrastText: "#ffffff",
     },
     background: {
@@ -20,6 +20,33 @@ const muiTheme = createTheme({
   },
   typography: {
     fontFamily: `"Ubuntu", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`,
+    allVariants: {
+      color: "var(--color-text-primary)",
+    },
+  },
+  components: {
+    MuiMenu: {
+      styleOverrides: {
+        paper: {
+          backgroundColor: "var(--color-bg-surface)",
+          border: "1px solid var(--color-border-subtle)",
+        },
+      },
+    },
+    MuiMenuItem: {
+      styleOverrides: {
+        root: {
+          color: "var(--color-text-primary)",
+        },
+      },
+    },
+    MuiListItemIcon: {
+      styleOverrides: {
+        root: {
+          color: "var(--color-text-primary)",
+        },
+      },
+    },
   },
 });
 

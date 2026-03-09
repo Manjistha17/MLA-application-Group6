@@ -15,3 +15,9 @@ python-dotenv>=1.0
 # Testing (optional – remove in prod)
 pytest>=7.4
 pytest-mock>=3.12
+
+# OpenAI API client
+openai>=1.0.0   
+
+# Rate limiting for Open AI API calls
+slowapi>=0.1.9

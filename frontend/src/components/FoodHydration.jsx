@@ -14,6 +14,34 @@ import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
 import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
 import axiosBase from "axios";
 
+
+const cardSx = {
+  borderRadius: 3,
+  backgroundColor: "var(--color-bg-surface)",
+  border: "1px solid var(--color-border-subtle)",
+  boxShadow: "var(--shadow-sm)",
+};
+
+const textFieldSx = {
+  "& .MuiInputLabel-root": { color: "var(--color-text-secondary)" },
+  "& .MuiOutlinedInput-root": {
+    color: "var(--color-text-primary)",
+    "& fieldset": { borderColor: "var(--color-border-subtle)" },
+    "&:hover fieldset": { borderColor: "var(--color-primary)" },
+    "&.Mui-focused fieldset": { borderColor: "var(--color-primary)" },
+  },
+  "& .MuiSvgIcon-root": { color: "var(--color-text-secondary)" },
+};
+
+const textFieldStandardSx = {
+  "& .MuiInput-root": {
+    color: "var(--color-text-primary)",
+    "&:before": { borderBottomColor: "var(--color-border-subtle)" },
+    "&:hover:before": { borderBottomColor: "var(--color-primary)" },
+    "&:after": { borderBottomColor: "var(--color-primary)" },
+  },
+  "& .MuiInputLabel-root": { color: "var(--color-text-secondary)" },
+};
 // Axios instance that automatically sends the nutrition JWT token
 const axios = axiosBase.create();
 axios.interceptors.request.use(async (config) => {
@@ -196,6 +224,7 @@ const FoodHydration = () => {
       setCalories(""); setProtein(0); setCarbs(0); setFat(0);
       setAiDone(false); setAiNote(""); setMealType("Breakfast");
       fetchSummary();
+      refreshCoachTip();
       showSnack("Food logged!");
     } catch { showSnack("Failed to save food", "error"); }
   };
@@ -208,6 +237,7 @@ const FoodHydration = () => {
         mealType: "", water: amount, date: today,
       });
       fetchSummary();
+      refreshCoachTip();
       showSnack(`+${amount} ml logged 💧`);
     } catch { showSnack("Failed to save water", "error"); }
   };
@@ -245,6 +275,17 @@ const FoodHydration = () => {
     return acc;
   }, {});
 
+  const refreshCoachTip = async () => {
+    try {
+      // Delete cached tip so next fetch generates a fresh one
+      await axios.delete(`/coach/daily-tip/invalidate?username=${username}`);
+      // Fetch fresh tip
+      await axios.get(`/coach/daily-tip?username=${username}`);
+    } catch {
+      // silently fail
+    }
+  };
+
   return (
     <Box sx={{ maxWidth: 1200, margin: "auto" }}>
 
@@ -263,7 +304,7 @@ const FoodHydration = () => {
             type="date" size="small" value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
             inputProps={{ max: today }}
-            sx={{ width: 160 }}
+            sx={{ width: 160, ...textFieldSx }}
           />
         </Stack>
       </Stack>
@@ -274,7 +315,7 @@ const FoodHydration = () => {
         <Stack spacing={3}>
 
           {/* Water */}
-          <Card sx={{ borderRadius: 3 }}>
+          <Card sx={cardSx}>
             <CardContent>
               <Stack direction="row" alignItems="center" spacing={1} mb={1}>
                 <WaterDropIcon color="info" />
@@ -282,7 +323,7 @@ const FoodHydration = () => {
                 {!isToday && <Chip label="View only" size="small" color="warning" />}
               </Stack>
               <WaterGlasses water={summary.water} waterGoal={waterGoal} />
-              <Typography variant="body2" color="text.secondary" textAlign="center" mt={1} mb={2}>
+              <Typography variant="body2" color="var(--color-text-secondary)" textAlign="center" mt={1} mb={2}>
                 {summary.water} / {waterGoal} ml
               </Typography>
               {isToday && (
@@ -297,8 +338,16 @@ const FoodHydration = () => {
                   </Stack>
                   <Stack direction="row" spacing={1}>
                     <TextField label="Custom (ml)" type="number" value={water}
-                      onChange={(e) => setWater(e.target.value)} size="small" sx={{ flex: 1 }} />
-                    <Button variant="contained" color="info" disabled={!water}
+                      onChange={(e) => setWater(e.target.value)} size="small" sx={{ flex: 1, ...textFieldSx }} />
+                    <Button variant="contained" sx={{
+                      backgroundColor: "var(--color-primary)",
+                      color: "#ffffff",
+                      "&:hover": { backgroundColor: "var(--color-primary-hover)" },
+                      "&.Mui-disabled": {
+                        backgroundColor: "var(--color-bg-muted)",
+                        color: "var(--color-text-muted)",
+                      },
+                    }} disabled={!water}
                       onClick={() => { if (water) saveWater(Number(water)); setWater(""); }}>
                       Add
                     </Button>
@@ -310,7 +359,7 @@ const FoodHydration = () => {
 
           {/* Log Food */}
           {isToday && (
-            <Card sx={{ borderRadius: 3 }}>
+            <Card sx={cardSx}>
               <CardContent>
                 <Stack direction="row" alignItems="center" spacing={1} mb={2}>
                   <LocalFireDepartmentIcon color="error" />
@@ -319,7 +368,7 @@ const FoodHydration = () => {
                 <form onSubmit={saveFood}>
                   <Stack spacing={2}>
                     <TextField select label="Meal Type" value={mealType}
-                      onChange={(e) => setMealType(e.target.value)} fullWidth>
+                      onChange={(e) => setMealType(e.target.value)} fullWidth sx={textFieldSx}>
                       {MEAL_TYPES.map((m) => (
                         <MenuItem key={m} value={m}>
                           <Stack direction="row" alignItems="center" spacing={1}>
@@ -333,21 +382,30 @@ const FoodHydration = () => {
                     <TextField label="Food Name" value={food} required fullWidth
                       placeholder="e.g. Chicken biryani, Dosa, Oats..."
                       onChange={(e) => { setFood(e.target.value); setAiDone(false); setCalories(""); }}
-                      helperText="Enter any food — hit ✨ to auto-calculate" />
+                      helperText="Enter any food — hit ✨ to auto-calculate"
+                      sx={textFieldSx} />
 
                     <Stack direction="row" spacing={1}>
                       <TextField label="Portion Size" type="number" value={portionSize} required
                         onChange={(e) => setPortionSize(e.target.value)}
-                        inputProps={{ min: 1 }} sx={{ flex: 2 }} />
+                        inputProps={{ min: 1 }} sx={{ flex: 2, ...textFieldSx }} />
                       <TextField select label="Unit" value={portionUnit}
-                        onChange={(e) => setPortionUnit(e.target.value)} sx={{ flex: 1 }}>
+                        onChange={(e) => setPortionUnit(e.target.value)} sx={{ flex: 1, ...textFieldSx }}>
                         {PORTION_UNITS.map((u) => <MenuItem key={u} value={u}>{u}</MenuItem>)}
                       </TextField>
                     </Stack>
 
                     <Tooltip title="Auto-calculate calories + macros using AI">
                       <span>
-                        <Button variant="outlined" color="secondary" fullWidth
+                        <Button variant="outlined" sx={{
+                          backgroundColor: "var(--color-primary)",
+                          color: "#ffffff",
+                          "&:hover": { backgroundColor: "var(--color-primary-hover)" },
+                          "&.Mui-disabled": {
+                            backgroundColor: "var(--color-bg-muted)",
+                            color: "var(--color-text-muted)",
+                          },
+                        }} fullWidth
                           onClick={() => handleAiLookup(true)}
                           disabled={!food.trim() || aiLoading}
                           startIcon={aiLoading ? <CircularProgress size={16} color="inherit" /> : <AutoAwesomeIcon />}>
@@ -376,11 +434,29 @@ const FoodHydration = () => {
                           </InputAdornment>
                         ),
                       }}
-                      sx={{ "& .MuiOutlinedInput-root": aiDone ? { "& fieldset": { borderColor: "secondary.main" } } : {} }}
+                      sx={{
+                        ...textFieldSx,
+                        "& .MuiOutlinedInput-root": {
+                          color: "var(--color-text-primary)",
+                          "& fieldset": { borderColor: aiDone ? "secondary.main" : "var(--color-border-subtle)" },
+                          "&:hover fieldset": { borderColor: "var(--color-primary)" },
+                          "&.Mui-focused fieldset": { borderColor: "var(--color-primary)" },
+                        },
+                        "& .MuiFormHelperText-root": { color: "var(--color-text-muted)" },
+                      }}
                     />
 
-                    <Button type="submit" variant="contained" size="large"
-                      disabled={!food || !calories || !portionSize}>
+                    <Button type="submit" variant="containd" size="large"
+                      disabled={!food || !calories || !portionSize}
+                      sx={{
+                        backgroundColor: "var(--color-primary)",
+                        color: "#ffffff",
+                        "&:hover": { backgroundColor: "var(--color-primary-hover)" },
+                        "&.Mui-disabled": {
+                          backgroundColor: "var(--color-bg-muted)",
+                          color: "var(--color-text-muted)",
+                        },
+                      }}>
                       Save Food
                     </Button>
                   </Stack>
@@ -394,7 +470,7 @@ const FoodHydration = () => {
         <Stack spacing={3}>
 
           {/* Summary */}
-          <Card sx={{ borderRadius: 3 }}>
+          <Card sx={cardSx}>
             <CardContent>
               <Typography variant="h6">
                 {isToday ? "Today's Summary" : "Day Summary"}
@@ -403,15 +479,17 @@ const FoodHydration = () => {
               <Stack spacing={3}>
                 <Box>
                   <Stack direction="row" justifyContent="space-between">
-                    <Typography variant="body2" color="text.secondary">Calories Eaten</Typography>
+                    <Typography variant="body2" color="var(--color-text-secondary)">
+                      Calories Eaten
+                    </Typography>
                     <Typography variant="body2" fontWeight={600}
-                      color={caloriePercent > 90 ? "error.main" : "text.secondary"}>
+                      color={caloriePercent > 90 ? "error.main" : "var(--color-text-secondary)"}>
                       {Math.round(caloriePercent)}%
                     </Typography>
                   </Stack>
                   <Typography variant="h4" fontWeight={700}>
                     {summary.calories}
-                    <Typography component="span" variant="body1" color="text.secondary" ml={1}>
+                    <Typography component="span" variant="body1" color="var(--color-text-secondary)" ml={1}>
                       / {calorieGoal} kcal
                     </Typography>
                   </Typography>
@@ -420,7 +498,7 @@ const FoodHydration = () => {
                 </Box>
 
                 {caloriesBurned > 0 && (
-                  <Box sx={{ bgcolor: "action.hover", borderRadius: 2, p: 1.5 }}>
+                  <Box sx={{ bgcolor: "var(--color-bg-muted)", borderRadius: 2, p: 1.5 }}>
                     <Stack direction="row" justifyContent="space-between" alignItems="center">
                       <Stack direction="row" alignItems="center" spacing={1}>
                         <FitnessCenterIcon fontSize="small" color="success" />
@@ -432,7 +510,7 @@ const FoodHydration = () => {
                     </Stack>
                     <Divider sx={{ my: 1 }} />
                     <Stack direction="row" justifyContent="space-between">
-                      <Typography variant="body2" color="text.secondary">Net calories</Typography>
+                      <Typography variant="body2" color="var(--color-text-secondary)">Net calories</Typography>
                       <Typography variant="body2" fontWeight={700}
                         color={netCalories > calorieGoal ? "error.main" : "success.main"}>
                         {netCalories} kcal
@@ -443,7 +521,7 @@ const FoodHydration = () => {
 
                 {(summary.protein > 0 || summary.carbs > 0 || summary.fat > 0) && (
                   <Box>
-                    <Typography variant="body2" color="text.secondary" mb={1}>Macros</Typography>
+                    <Typography variant="body2" color="var(--color-text-secondary)" mb={1}>Macros</Typography>
                     <Stack direction="row" spacing={1} flexWrap="wrap">
                       <MacroChip label="Protein" value={summary.protein} color="#2196F3" />
                       <MacroChip label="Carbs" value={summary.carbs} color="#FF9800" />
@@ -454,20 +532,20 @@ const FoodHydration = () => {
 
                 <Box>
                   <Stack direction="row" justifyContent="space-between">
-                    <Typography variant="body2" color="text.secondary">Hydration</Typography>
-                    <Typography variant="body2" fontWeight={600} color="text.secondary">
+                    <Typography variant="body2" color="var(--color-text-secondary)">Hydration</Typography>
+                    <Typography variant="body2" fontWeight={600} color="var(--color-text-secondary)">
                       {Math.round(hydrationPercent)}%
                     </Typography>
                   </Stack>
                   <Typography variant="h4" fontWeight={700}>
                     {summary.water}
-                    <Typography component="span" variant="body1" color="text.secondary" ml={1}>
+                    <Typography component="span" variant="body1" color="var(--color-text-secondary)" ml={1}>
                       / {waterGoal} ml
                     </Typography>
                   </Typography>
                   <LinearProgress variant="determinate" value={hydrationPercent}
                     color="info" sx={{ height: 10, borderRadius: 5, mt: 1 }} />
-                  <Typography variant="caption" color="text.secondary">
+                  <Typography variant="caption" color="var(--color-text-secondary)">
                     {Math.max(0, waterGoal - summary.water)} ml remaining
                   </Typography>
                 </Box>
@@ -477,7 +555,7 @@ const FoodHydration = () => {
 
           {/* AI Meal Suggestions */}
           {isToday && (
-            <Card sx={{ borderRadius: 3 }}>
+            <Card sx={cardSx}>
               <CardContent>
                 <Stack direction="row" alignItems="center" justifyContent="space-between" mb={2}>
                   <Stack direction="row" alignItems="center" spacing={1}>
@@ -491,7 +569,7 @@ const FoodHydration = () => {
                   </Button>
                 </Stack>
                 {suggestions.length === 0 && !suggestLoading && (
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography variant="body2" color="var(--color-text-secondary)">
                     Hit "Suggest" to get AI-powered meal ideas based on your remaining calories.
                   </Typography>
                 )}
@@ -502,7 +580,7 @@ const FoodHydration = () => {
                         <Typography variant="body2" fontWeight={700}>{s.name}</Typography>
                         <Chip label={`~${s.calories} kcal`} size="small" color="warning" variant="outlined" />
                       </Stack>
-                      <Typography variant="caption" color="text.secondary">{s.reason}</Typography>
+                      <Typography variant="caption" color="var(--color-text-secondary)">{s.reason}</Typography>
                     </Box>
                   ))}
                 </Stack>
@@ -511,13 +589,13 @@ const FoodHydration = () => {
           )}
 
           {/* Food Log */}
-          <Card sx={{ borderRadius: 3 }}>
+          <Card sx={cardSx}>
             <CardContent>
               <Typography variant="h6" mb={2}>
                 {isToday ? "Today's Food Log" : "Food Log"}
               </Typography>
               {Object.keys(groupedLogs).length === 0 ? (
-                <Typography variant="body2" color="text.secondary" textAlign="center" py={2}>
+                <Typography variant="body2" color="var(--color-text-secondary)" textAlign="center" py={2}>
                   No food logged {isToday ? "yet today" : "on this day"}
                 </Typography>
               ) : (
@@ -527,18 +605,18 @@ const FoodHydration = () => {
                       <Stack direction="row" alignItems="center" spacing={1} mb={1}>
                         <Box sx={{ width: 10, height: 10, borderRadius: "50%", bgcolor: MEAL_COLORS[meal] }} />
                         <Typography variant="subtitle2" fontWeight={700}>{meal}</Typography>
-                        <Typography variant="caption" color="text.secondary">
+                        <Typography variant="caption" color="var(--color-text-secondary)">
                           ({items.reduce((s, i) => s + Number(i.calories || 0), 0)} kcal)
                         </Typography>
                       </Stack>
-                      <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2 }}>
+                      <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2, backgroundColor: "var(--color-bg-surface)" }}>
                         <Table size="small">
                           <TableHead>
-                            <TableRow sx={{ bgcolor: "action.hover" }}>
-                              <TableCell><b>Food</b></TableCell>
-                              <TableCell><b>Portion</b></TableCell>
-                              <TableCell><b>kcal</b></TableCell>
-                              {isToday && <TableCell align="center"><b>Actions</b></TableCell>}
+                            <TableRow sx={{ bgcolor: "var(--color-bg-muted)" }}>
+                              <TableCell sx={{ color: "var(--color-text-secondary)" }}><b>Food</b></TableCell>
+                              <TableCell sx={{ color: "var(--color-text-secondary)" }}><b>Portion</b></TableCell>
+                              <TableCell sx={{ color: "var(--color-text-secondary)" }}><b>kcal</b></TableCell>
+                              {isToday && <TableCell sx={{ color: "var(--color-text-secondary)" }} align="center"><b>Actions</b></TableCell>}
                             </TableRow>
                           </TableHead>
                           <TableBody>
@@ -548,7 +626,7 @@ const FoodHydration = () => {
                                   <TextField variant="standard" value={item.food}
                                     onChange={(e) => setLogs((prev) =>
                                       prev.map((l) => l._id === item._id ? { ...l, food: e.target.value } : l)
-                                    )} sx={{ minWidth: 90 }}
+                                    )} sx={{ minWidth: 90, ...textFieldStandardSx }}
                                     InputProps={{ readOnly: !isToday }} />
                                 </TableCell>
                                 <TableCell>
@@ -560,7 +638,7 @@ const FoodHydration = () => {
                                   <TextField variant="standard" type="number" value={item.calories}
                                     onChange={(e) => setLogs((prev) =>
                                       prev.map((l) => l._id === item._id ? { ...l, calories: e.target.value } : l)
-                                    )} sx={{ width: 55 }}
+                                    )} sx={{ width: 55, ...textFieldStandardSx }}
                                     InputProps={{ readOnly: !isToday }} />
                                 </TableCell>
                                 {isToday && (
@@ -588,15 +666,15 @@ const FoodHydration = () => {
           </Card>
 
           {/* Goals */}
-          <Card sx={{ borderRadius: 3 }}>
+          <Card sx={cardSx}>
             <CardContent>
               <Typography variant="h6" mb={2}>Daily Goals</Typography>
               <Stack spacing={2}>
                 <TextField label="Calories Goal (kcal)" type="number" value={calorieGoal}
-                  onChange={(e) => setCalorieGoal(e.target.value)} fullWidth
+                  onChange={(e) => setCalorieGoal(e.target.value)} fullWidth sx={textFieldSx}
                   InputProps={{ endAdornment: <InputAdornment position="end">kcal</InputAdornment> }} />
                 <TextField label="Water Goal (ml)" type="number" value={waterGoal}
-                  onChange={(e) => setWaterGoal(e.target.value)} fullWidth
+                  onChange={(e) => setWaterGoal(e.target.value)} fullWidth sx={textFieldSx}
                   InputProps={{ endAdornment: <InputAdornment position="end">ml</InputAdornment> }} />
                 <Button variant="contained" onClick={saveGoals}>Save Goals</Button>
               </Stack>

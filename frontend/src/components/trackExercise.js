@@ -25,15 +25,14 @@ import Timer from "./Timer";
 
 const activitiesConfig = [
   { key: "Running", label: "Running", icon: <DirectionsRunIcon fontSize="large" color='primary' /> },
-  { key: "Swimming", label: "Swimming", icon: <PoolIcon fontSize="large" color='primary'/> },
-  { key: "Cycling", label: "Cycling", icon: <DirectionsBikeIcon fontSize="large" color='primary'/> },
-  { key: "Yoga", label: "Yoga", icon: <SelfImprovementIcon fontSize="large" color='primary'/> },
-  { key: "Gym", label: "Weights", icon: <FitnessCenterIcon fontSize="large" color='primary'/> },
-  { key: "Other", label: "Others", icon: <HelpOutlineIcon fontSize="large" color='primary'/> },
+  { key: "Swimming", label: "Swimming", icon: <PoolIcon fontSize="large" color='primary' /> },
+  { key: "Cycling", label: "Cycling", icon: <DirectionsBikeIcon fontSize="large" color='primary' /> },
+  { key: "Yoga", label: "Yoga", icon: <SelfImprovementIcon fontSize="large" color='primary' /> },
+  { key: "Gym", label: "Weights", icon: <FitnessCenterIcon fontSize="large" color='primary' /> },
+  { key: "Other", label: "Others", icon: <HelpOutlineIcon fontSize="large" color='primary' /> },
 ];
 
 const TrackExercise = (props) => {
-  console.log("ALL PROPS:", props);
   const { currentUser } = props;
   const [state, setState] = useState({
     exerciseType: "",
@@ -106,7 +105,7 @@ const TrackExercise = (props) => {
         return;
       }
 
-      
+
       finalDuration = Math.ceil(timerSession.duration / 60);
       description = `${state.exerciseType} session`;
 
@@ -132,6 +131,7 @@ const TrackExercise = (props) => {
         duration: finalDuration,
         description,
       });
+      refreshCoachTip();
 
       setMessageType("success");
       setMessage("Exercise logged successfully!");
@@ -158,12 +158,22 @@ const TrackExercise = (props) => {
     }
   };
 
+  const refreshCoachTip = async () => {
+    try {
+      // Delete cached tip so next fetch generates a fresh one
+      await axios.delete(`/coach/daily-tip/invalidate?username=${currentUser}`);
+      // Fetch fresh tip
+      await axios.get(`/coach/daily-tip?username=${currentUser}`);
+    } catch {
+      // silently fail
+    }
+  };
 
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
-      <Card variant="outlined" sx={{ borderRadius: 2 }}>
+      <Card variant="outlined" sx={{ borderRadius: 2, backgroundColor: "var(--color-bg-surface)" }}>
         <CardContent sx={{ p: { xs: 3, md: 4 } }}>
-          <Typography variant="h4" fontWeight={600} gutterBottom>
+          <Typography variant="h4" fontWeight={600} gutterBottom color="var(--color-text-primary)" textAlign={'center'}>
             Track Exercise
           </Typography>
 
@@ -176,14 +186,14 @@ const TrackExercise = (props) => {
               mb: 4,
               "& .MuiToggleButton-root": {
                 borderColor: "divider",
-                color: "text.secondary",
+                color: "var(--color-text-primary)",
                 "&.Mui-selected": {
-                  borderColor: "primary.main",
-                  color: "primary.main",
-                  backgroundColor: "rgba(25, 118, 210, 0.08)", 
+                  borderColor: "var(--color-primary)",
+                  color: "var(--color-primary)",
+                  backgroundColor: "rgba(234,88,12,0.08)",  // ← brand orange instead of blue
                 },
                 "&.Mui-selected:hover": {
-                  backgroundColor: "rgba(25, 118, 210, 0.12)",
+                  backgroundColor: "rgba(234,88,12,0.12)",
                 },
               },
             }}
@@ -193,7 +203,7 @@ const TrackExercise = (props) => {
             <ToggleButton value="timer">Timer Mode</ToggleButton>
           </ToggleButtonGroup>
 
-          <Typography fontWeight={500} mb={1.5}>
+          <Typography fontWeight={500} mb={1.5} color="var(--color-text-primary)">
             Select Activity
           </Typography>
 
@@ -215,6 +225,11 @@ const TrackExercise = (props) => {
                   sx={{
                     borderRadius: 2,
                     borderColor: selected ? "primary.main" : "divider",
+                    backgroundColor: selected ? "rgba(234,88,12,0.08)" : "var(--color-bg-surface)",  // ← brand orange instead of blue
+                    "&:hover": {
+                      backgroundColor: selected ? "rgba(234,88,12,0.12)" : "var(--color-bg-surface)",
+                    },
+                    color: selected ? "var(--color-primary)" : "var(--color-text-primary)",
                   }}
                 >
                   <CardActionArea onClick={() => handleExerciseTypeSelect(item.key)}>
@@ -243,7 +258,16 @@ const TrackExercise = (props) => {
               type="number"
               value={manualDuration}
               onChange={(e) => setManualDuration(e.target.value)}
-              sx={{ mb: 4 }}
+              sx={{
+                mb: 4,
+                "& .MuiInputLabel-root": { color: "var(--color-text-secondary)" },
+                "& .MuiOutlinedInput-root": {
+                  color: "var(--color-text-primary)",
+                  "& fieldset": { borderColor: "var(--color-border-subtle)" },
+                  "&:hover fieldset": { borderColor: "var(--color-primary)" },
+                  "&.Mui-focused fieldset": { borderColor: "var(--color-primary)" },
+                },
+              }}
             />
           )}
 
@@ -257,7 +281,16 @@ const TrackExercise = (props) => {
                 setState({ ...state, subActivity: e.target.value })
               }
               SelectProps={{ native: true }}
-              sx={{ mb: 4 }}
+              sx={{
+                mb: 4,
+                "& .MuiInputLabel-root": { color: "var(--color-text-secondary)" },
+                "& .MuiOutlinedInput-root": {
+                  color: "var(--color-text-primary)",
+                  "& fieldset": { borderColor: "var(--color-border-subtle)" },
+                  "&:hover fieldset": { borderColor: "var(--color-primary)" },
+                  "&.Mui-focused fieldset": { borderColor: "var(--color-primary)" },
+                },
+              }}
             >
               <option value=""></option>
               {selectedActivity.sub_activity_options.map((opt) => (
@@ -274,6 +307,11 @@ const TrackExercise = (props) => {
             variant="contained"
             onClick={onSubmit}
             disabled={trackingMode === "timer" && !timerSession?.duration}
+            sx={{
+              backgroundColor: "var(--color-primary)",
+              "&:hover": { backgroundColor: "var(--color-primary-hover)" },
+              "&.Mui-disabled": { backgroundColor: "var(--color-bg-muted)", color: "var(--color-text-muted)" },
+            }}
           >
             Save Exercise
           </Button>

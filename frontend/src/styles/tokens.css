@@ -69,13 +69,15 @@
         0 6px 16px rgba(0, 0, 0, 0.12);
 
     /* Brand */
-    --color-primary: #fa632a;
+    --color-primary: #ea580c;
     --color-primary-hover: #e0521a;
     --color-primary-soft: #fde8df;
 
     /* Neutral palette */
     --color-white: #ffffff;
     --color-black: #000000;
+    --color-blue:#0288d1;
+    --color-light-blue: #2196F320;
 
     --color-gray-50: #f9fafb;
     --color-gray-100: #f3f4f6;
@@ -84,4 +86,21 @@
     --color-gray-500: #6b7280;
     --color-gray-700: #374151;
     --color-gray-900: #111827;
+
+    /* Background */
+    --color-bg-main: #f8fafc;
+    --color-bg-surface: #ffffff;
+    --color-bg-muted: #f3f4f6;
+
+    /* Text */
+    --color-text-primary: #111827;
+    --color-text-secondary: #374151;
+    --color-text-muted: #6b7280;
+
+    /* Border */
+    --color-border-subtle: #e5e7eb;
+
+    /* App header */
+    --color-app-header-bg: #ffffff;
+    
 }
