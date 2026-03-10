@@ -132,7 +132,9 @@ services:
       dockerfile: Dockerfile
     container_name: workout-api
     environment:
-      - MONGO_URI=mongodb+srv://mlagroup6_db_user1:Mlagrp6%402026@mlagroup6datacluster.ms0cuuq.mongodb.net/mlagrp6db
+      - MONGO_URI=${MONGO_URI}
+      - MONGO_DB=${MONGO_DB}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
     ports:
       - "8000:8000"
     networks:
