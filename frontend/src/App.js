@@ -57,7 +57,8 @@ function App() {
     localStorage.removeItem("isLoggedIn");
     localStorage.removeItem("currentUser");
     localStorage.removeItem("role");
-
+    localStorage.removeItem("nutritionToken");
+    
     setIsLoggedIn(false);
     setCurrentUser("");
     setRole("");

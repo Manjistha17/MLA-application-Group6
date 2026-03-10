@@ -23,16 +23,15 @@
 .loggedHeader__left {
   display: flex;
   align-items: center;
-  gap: 8px;
   cursor: pointer;
   min-width: 0; /* prevents weird flex overflow */
 }
 
 /* Logo */
 .loggedHeader__logo img {
-  height: 52px;        /* IMPORTANT: was too big before */
-  width: auto;
-  display: block;
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
 }
 
 /* App name */
@@ -54,4 +53,17 @@
 /* Avatar */
 .loggedHeader__avatar {
   cursor: pointer;
+}
+
+.loggedHeader__brandName {
+  font-family: 'Syne', 'Ubuntu', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--color-text-primary);
+  letter-spacing: -0.4px;
+  line-height: 1;
+}
+
+.loggedHeader__brandAccent {
+  color: var(--color-primary);
 }

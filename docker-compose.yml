@@ -149,7 +149,8 @@ services:
       dockerfile: Dockerfile
     container_name: group-api
     environment:
-      - MONGO_URI=mongodb+srv://mlagroup6_db_user1:Mlagrp6%402026@mlagroup6datacluster.ms0cuuq.mongodb.net/mlagrp6db
+        - MONGO_URI=${MONGO_URI}
+        - MONGO_DB=${MONGO_DB}
     ports:
       - "8005:8005"
     networks:

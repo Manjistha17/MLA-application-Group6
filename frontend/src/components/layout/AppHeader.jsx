@@ -6,8 +6,7 @@ import {
   Menu,
   MenuItem,
   Switch,
-  Toolbar,
-  Typography
+  Toolbar
 } from "@mui/material";
 import { useState } from "react";
 
@@ -50,10 +49,11 @@ const AppHeader = ({ currentUser, onLogout }) => {
           onClick={() => navigate("/")}
         >
           <span className="loggedHeader__logo">
-            <img src="/logo.png" alt="Shakti 360 Logo" />
+            <img src="/logo_no_bg.png" alt="Shakti 360 Logo" />
           </span>
-          <Typography component="span" sx={{ fontWeight: 800, color: "var(--color-text-primary)" }}>Shakti°</Typography>
-          <Typography component="span" sx={{ fontWeight: 400, color: "var(--color-text-primary)" }}>360</Typography>
+          <span className="loggedHeader__brandName">
+            <span className="loggedHeader__brandAccent">Shakti°360</span>
+          </span>
         </div>
 
         {/* RIGHT: AVATAR */}

@@ -1,21 +1,16 @@
 import "../styles/components/WorkoutsTab.css";
 import TrackExercise from "./trackExercise";
 
-const WorkoutsTab = ({ currentUser }) => {
+const WorkoutsTab = ({ currentUser, onTipRefresh }) => {
   return (
     <div className="workoutsLayout">
       {/* LEFT: Primary action */}
       <div className="workoutsMain">
-        <TrackExercise currentUser={currentUser} />
+        <TrackExercise currentUser={currentUser} onTipRefresh={onTipRefresh} />
       </div>
 
-      {/* RIGHT: Context / support */}
-     {/*  <div className="workoutsSide">
-        <WorkoutSidePanel currentUser={currentUser} /> 
-      </div> */}
     </div>
   );
 };
 
-
-export default WorkoutsTab
+export default WorkoutsTab;

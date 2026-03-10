@@ -1,4 +1,4 @@
-import { Alert, Typography } from "@mui/material";
+import { Alert } from "@mui/material";
 import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -71,9 +71,10 @@ const HeroBanner = ({ onLogin }) => {
         {/* LEFT — FORM */}
         <div className="loginFormSide">
           <div className="loginLogo">
-            <img src="/logo.png" alt="Shakti 360 logo" className="loginLogoImg" />
-            <Typography component="span" sx={{ fontWeight: 800, color: "#111827" }}>Shakti°</Typography>
-            <Typography component="span" sx={{ fontWeight: 400, color: "#111827" }}>360</Typography>
+            <img src="/logo_no_bg.png" alt="Shakti 360 logo" className="loginLogoImg" />
+            <span className="loginLogoText">
+              <span className="loginLogoBrand">Shakti°360</span>
+            </span>
           </div>
 
           <div className="loginHeadingGroup">
