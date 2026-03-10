@@ -1,6 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const Exercise = require('../models/exercise.model');
+const { LambdaClient, InvokeCommand } = require("@aws-sdk/client-lambda");
+
+// Initialize Lambda client
+const lambdaClient = new LambdaClient({ region: "eu-north-1" }); // replace region if needed
+const { LambdaClient, InvokeCommand } = require("@aws-sdk/client-lambda");
+
+// Initialize Lambda client
+const lambdaClient = new LambdaClient({ region: "eu-north-1" }); // replace region if needed
 
 
 // GET: Retrieve all exercises
@@ -83,6 +91,22 @@ router.post('/add', async (req, res) => {
     });
 
     await newExercise.save();
+    // 2️⃣ Call Lambda asynchronously for badge issuance
+    const payload = {
+      userId: username,           // assuming username maps to userId
+      exerciseId: newExercise._id.toString()
+    };
+
+    const command = new InvokeCommand({
+      FunctionName: "shaktiGroupChallengeBadgeFunction", // replace with your Lambda name
+      Payload: Buffer.from(JSON.stringify(payload)),
+      InvocationType: "Event" // async - fire and forget
+    });
+
+    // Invoke Lambda asynchronously without waiting
+    lambdaClient.send(command).catch((lambdaErr) => {
+      console.error("Failed to invoke Lambda:", lambdaErr);
+    });
     res.json({ message: 'Exercise added!' });
 
   } catch (error) {
