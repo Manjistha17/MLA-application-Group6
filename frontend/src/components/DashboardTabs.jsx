@@ -7,9 +7,13 @@ import WorkoutPlan from "./WorkoutPlan";
 import FoodHydration from "./FoodHydration";
 import ProgressTab from "./ProgressTab";
 import AdminPanel from "./AdminPanel";
+import GroupOverview from "./GroupOverview";
 
 const DashboardTabs = ({ currentUser, role }) => {
   const [activeTab, setActiveTab] = useState(0);
+  const [tipVersion, setTipVersion] = useState(0);
+
+  const bumpTip = () => setTipVersion((v) => v + 1);
 
   // Define tabs based on role
   const tabs =
@@ -21,12 +25,50 @@ const DashboardTabs = ({ currentUser, role }) => {
           },
         ]
       : [
-          { label: "Overview", component: <Overview currentUser={currentUser} onNavigate={setActiveTab} /> },
-          { label: "Goals", component: <GoalSettingPage currentUser={currentUser} /> },
-          { label: "Workout Plan", component: <WorkoutPlan currentUser={currentUser} /> },
-          { label: "Workouts", component: <Workouts currentUser={currentUser} /> },
-          { label: "Progress", component: <ProgressTab /> },
-          { label: "Food & Hydration", component: <FoodHydration currentUser={currentUser} /> },
+          {
+            label: "Overview",
+            component: (
+              <Overview
+                currentUser={currentUser}
+                onNavigate={setActiveTab}
+                tipVersion={tipVersion}
+              />
+            ),
+          },
+          {
+            label: "Goals",
+            component: <GoalSettingPage currentUser={currentUser} />,
+          },
+          {
+            label: "Workout Plan",
+            component: <WorkoutPlan currentUser={currentUser} />,
+          },
+          {
+            label: "Workouts",
+            component: (
+              <Workouts
+                currentUser={currentUser}
+                onTipRefresh={bumpTip}
+              />
+            ),
+          },
+          {
+            label: "Progress",
+            component: <ProgressTab />,
+          },
+          {
+            label: "Food & Hydration",
+            component: (
+              <FoodHydration
+                currentUser={currentUser}
+                onTipRefresh={bumpTip}
+              />
+            ),
+          },
+          {
+            label: "Groups",
+            component: <GroupOverview currentUser={currentUser} />,
+          },
         ];
 
   return (
@@ -52,7 +94,7 @@ const DashboardTabs = ({ currentUser, role }) => {
         ))}
       </Tabs>
 
-      {/* Render the active tab’s content */}
+      {/* Render the active tab's content */}
       {tabs[activeTab].component}
     </Box>
   );

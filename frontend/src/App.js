@@ -15,6 +15,9 @@ import Signup from "./components/signup";
 import Statistics from "./components/statistics";
 import TrackExercise from "./components/trackExercise";
 import Profile from "./components/UserProfile";
+import JoinGroups from "./components/JoinGroups";
+import AddMembers from "./components/AddMembers";
+import GroupCreate from "./components/GroupCreate";
 
 function App() {
   // -----------------------------------------
@@ -54,7 +57,8 @@ function App() {
     localStorage.removeItem("isLoggedIn");
     localStorage.removeItem("currentUser");
     localStorage.removeItem("role");
-
+    localStorage.removeItem("nutritionToken");
+    
     setIsLoggedIn(false);
     setCurrentUser("");
     setRole("");
@@ -185,6 +189,39 @@ function App() {
                 )
               }
             />
+
+            <Route
+              path="/JoinGroups"
+              element={
+              isLoggedIn ? (
+              <JoinGroups currentUser={currentUser} />
+              ) : (
+              <Navigate to="/login" />
+              )
+             }
+            />     
+
+            <Route
+              path="/AddMembers"
+              element={
+              isLoggedIn ? (
+              <AddMembers currentUser={currentUser} />
+              ) : (
+              <Navigate to="/login" />
+              )
+             }
+            />     
+
+            <Route
+              path="/GroupCreate"
+              element={
+              isLoggedIn ? (
+              <GroupCreate currentUser={currentUser} />
+              ) : (
+              <Navigate to="/login" />
+              )
+             }
+            />     
 
             {/* Admin-only route */}
             <Route

@@ -1,0 +1,122 @@
+/* Wrapper */
+.group-create-wrapper {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  padding: 2rem;
+  max-width: 400px;
+  margin: 2rem auto;
+  font-family: "Ubuntu", sans-serif;
+  color: #111827;
+}
+
+/* Title */
+.group-create-wrapper h3 {
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* Form Groups */
+.group-create-wrapper .form-group {
+  margin-bottom: 1.2rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.group-create-wrapper .form-group label {
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+/* Inputs and Selects */
+.group-create-wrapper .form-group input,
+.group-create-wrapper .form-group select,
+.group-create-wrapper .form-group textarea {
+  width: 100%;
+  padding: 0.6rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+.group-create-wrapper .form-group input:focus,
+.group-create-wrapper .form-group select:focus,
+.group-create-wrapper .form-group textarea:focus {
+  border-color: #fa632a;
+  box-shadow: 0 0 0 2px rgba(250, 99, 42, 0.15);
+}
+
+/* Textarea */
+.group-create-wrapper textarea {
+  resize: vertical;
+}
+
+/* Submit Button */
+.group-create-wrapper button[type="submit"] {
+  width: 100%;
+  padding: 0.7rem;
+  background: #fa632a;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.group-create-wrapper button[type="submit"]:hover {
+  background: #e0521a;
+  transform: translateY(-1px);
+}
+
+.group-create-wrapper button[type="submit"]:disabled {
+  background: #fbb59b;
+  cursor: not-allowed;
+}
+
+/* Messages */
+.group-create-wrapper .error-text {
+  color: #dc2626;
+  margin-top: 0.5rem;
+  text-align: center;
+  font-size: 14px;
+}
+
+.group-create-wrapper .success-text {
+  color: #16a34a;
+  margin-top: 0.5rem;
+  text-align: center;
+  font-size: 14px;
+}
+
+/* Add Members Button */
+.group-create-wrapper .add-members-btn {
+  margin-top: 16px;
+  width: 100%;
+  padding: 0.7rem;
+  border-radius: 6px;
+  border: none;
+  background: #fa632a;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.group-create-wrapper .add-members-btn:hover {
+  background: #e0521a;
+  transform: translateY(-1px);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .group-create-wrapper {
+    padding: 1.5rem;
+  }
+}

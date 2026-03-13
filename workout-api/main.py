@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field
 from motor.motor_asyncio import AsyncIOMotorClient
 from typing import List, Optional
 from dotenv import load_dotenv
-from datetime import datetime
+from datetime import datetime, timedelta, date
 import os
 from prometheus_client import Counter, Histogram, REGISTRY
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -285,61 +285,80 @@ openai_client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 # AI Coach endpoint
 # ============================================================
 @app.get("/coach/daily-tip")
-@limiter.limit("20/15minutes")
-async def get_daily_tip(request: Request, username: str = Query(...), calorie_goal: int = Query(2000),
-    water_goal: int = Query(2500)):
-    from datetime import date
+async def get_daily_tip(
+    request: Request,
+    username: str = Query(...),
+    calorie_goal: int = Query(2000),
+    water_goal: int = Query(2500),
+):
     today = str(date.today())
 
-    # Return cached tip if exists for today
-    cached = await db.coach_tips.find_one({
-        "username": username,
-        "date": today
-    })
+    # ── Per-user daily rate limit (100 requests/day) via MongoDB ──
+    rate_key = f"{username}:{today}"
+    rate_doc = await db.coach_rate_limits.find_one({"key": rate_key})
+    if rate_doc and rate_doc.get("count", 0) >= 100:
+        raise HTTPException(
+            status_code=429,
+            detail="Daily tip limit reached (100/day). Try again tomorrow.",
+        )
+    await db.coach_rate_limits.update_one(
+        {"key": rate_key},
+        {
+            "$inc": {"count": 1},
+            "$setOnInsert": {
+                "expires_at": datetime.utcnow() + timedelta(days=2)
+            },
+        },
+        upsert=True,
+    )
+
+    # ── Return cached tip if one already exists for today ──
+    cached = await db.coach_tips.find_one({"username": username, "date": today})
     if cached:
         return {"message": cached["message"]}
 
-    # Fetch user profile
+    # ── Fetch user profile ──
     user = await db.users.find_one({"username": username})
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    # Fetch today's nutrition
-    nutrition = await db.nutritions.find_one({
-        "userId": username,
-        "date": today
-    })
+    # ── Fetch today's nutrition — sum ALL docs for today (each log is a separate doc) ──
+    nutrition_docs = await db.nutritions.find(
+        {"userId": username, "date": today}
+    ).to_list(length=200)
+    calories_consumed = sum(doc.get("calories", 0) for doc in nutrition_docs)
+    water_intake      = sum(doc.get("water", 0)    for doc in nutrition_docs)
 
-    # Fetch today's exercises
-    exercises_cursor = db.exercises.find({
+    # ── Fetch today's exercises — matched by datetime object range ──
+    start_dt = datetime.combine(date.today(), datetime.min.time())
+    end_dt   = datetime.combine(date.today(), datetime.max.time())
+    exercises_today = await db.exercises.find({
         "username": username,
-        "date": {"$gte": datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)}
-    })
-    exercises_today = await exercises_cursor.to_list(length=100)
+        "date": {"$gte": start_dt, "$lte": end_dt}
+    }).to_list(length=100)
 
-    # Fetch user's active workout plan
+    # ── Fetch user's active workout plan ──
     plan = await db.user_workout_plans.find_one({"user_id": username})
 
-    # User profile
-    age = user.get("age", "unknown")
-    weight = user.get("weight", "unknown")
-    height = user.get("height", "unknown")
-    gender = user.get("gender", "unknown")
+    # ── User profile fields ──
+    age       = user.get("age", "unknown")
+    weight    = user.get("weight", "unknown")
+    height    = user.get("height", "unknown")
+    gender    = user.get("gender", "unknown")
     goal_type = plan.get("goal_type", "General Fitness") if plan else "General Fitness"
-    level = plan.get("level", "Beginner") if plan else "Beginner"
+    level     = plan.get("level", "Beginner")            if plan else "Beginner"
 
-    # Nutrition data
-    calories_consumed = nutrition.get("calories", 0) if nutrition else 0
-    water_intake = nutrition.get("water", 0) if nutrition else 0
-    calories_goal = calorie_goal
-    water_goal = water_goal
-    calories_remaining = max(0, calories_goal - calories_consumed)
-    water_remaining = max(0, water_goal - water_intake)
+    # ── Derived nutrition values ──
+    calories_remaining = max(0, calorie_goal - calories_consumed)
+    water_remaining    = max(0, water_goal   - water_intake)
 
-    # Exercise data
+    # ── Exercise fields ──
     total_exercise_minutes = sum(e.get("duration", 0) for e in exercises_today)
-    exercise_count = len(exercises_today)
-    exercise_types = ", ".join([e.get("exerciseType", "") for e in exercises_today]) if exercises_today else "none"
+    exercise_count         = len(exercises_today)
+    exercise_types         = (
+        ", ".join([e.get("exerciseType", "") for e in exercises_today])
+        if exercises_today else "none"
+    )
 
     prompt = f"""
 You are a knowledgeable, direct fitness coach. Give ONE specific, actionable recommendation.
@@ -351,7 +370,7 @@ User profile:
 Today's data:
 - Exercises done: {exercise_count} ({exercise_types})
 - Total exercise minutes: {total_exercise_minutes}
-- Calories consumed: {calories_consumed} / {calories_goal} kcal ({calories_remaining} kcal remaining)
+- Calories consumed: {calories_consumed} / {calorie_goal} kcal ({calories_remaining} kcal remaining)
 - Water intake: {water_intake} / {water_goal} ml ({water_remaining} ml remaining)
 
 Rules:
@@ -359,23 +378,22 @@ Rules:
 - If calories remaining > 800, suggest a specific meal or snack with approximate calories
 - If water remaining > 500ml, tell them exactly how many glasses they still need
 - If exercise minutes < 30, suggest a specific workout type suited to their goal and level
+- Always acknowledge what exercises were completed today if exercise_count > 0
 - If everything looks good, suggest one recovery or optimization tip (sleep, stretching, protein timing etc.)
 - Be conversational but concrete. Maximum 3 sentences. No generic phrases like "keep it up" or "you got this".
 """
 
     response = await openai_client.chat.completions.create(
         model="gpt-4o-mini",
-        messages=[{"role": "user", "content": prompt}]
+        messages=[{"role": "user", "content": prompt}],
     )
     message = response.choices[0].message.content
 
-    # Cache the tip
+    # ── Cache the tip for today ──
     await db.coach_tips.delete_many({"username": username, "date": today})
-    await db.coach_tips.insert_one({
-        "username": username,
-        "date": today,
-        "message": message
-    })
+    await db.coach_tips.insert_one(
+        {"username": username, "date": today, "message": message}
+    )
 
     return {"message": message}
 
@@ -385,18 +403,6 @@ Rules:
 # ============================================================
 @app.delete("/coach/daily-tip/invalidate")
 async def invalidate_coach_tip(username: str = Query(...)):
-    from datetime import date
-    today = str(date.today())
-    await db.coach_tips.delete_many({"username": username, "date": today})
-    return {"message": "Cache invalidated"}
-
-# ============================================================
-# Invalidate coach tip cache endpoint
-# ============================================================  
-
-@app.delete("/coach/daily-tip/invalidate")
-async def invalidate_coach_tip(username: str = Query(...)):
-    from datetime import date
     today = str(date.today())
     await db.coach_tips.delete_many({"username": username, "date": today})
     return {"message": "Cache invalidated"}

@@ -1,0 +1,138 @@
+/* Wrapper */
+.add-members-wrapper {
+  padding: 24px;
+  font-family: "Ubuntu", sans-serif;
+  background: #fff;
+  color: #111827;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  max-width: 500px;
+  margin: 2rem auto;
+}
+
+/* Title */
+.add-members-wrapper h3 {
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #fa632a; /* Orange highlight */
+  margin-bottom: 1.5rem;
+}
+
+/* Form Group */
+.add-members-wrapper .form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.2rem;
+}
+
+.add-members-wrapper .form-group label {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+/* Input Fields */
+.add-members-wrapper input,
+.add-members-wrapper select,
+.add-members-wrapper textarea {
+  padding: 0.6rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+.add-members-wrapper input:focus,
+.add-members-wrapper select:focus,
+.add-members-wrapper textarea:focus {
+  border-color: #fa632a;
+  box-shadow: 0 0 0 2px rgba(250, 99, 42, 0.15);
+}
+
+/* Buttons */
+.add-members-wrapper button {
+  width: 100%;
+  padding: 0.7rem;
+  border-radius: 6px;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  background-color: #fa632a;
+  color: white;
+  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.add-members-wrapper button:hover:not(:disabled) {
+  background-color: #e0521a;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+}
+
+/* Disabled Button */
+.add-members-wrapper button:disabled {
+  background-color: #fbb59b;
+  cursor: not-allowed;
+  color: white;
+}
+
+/* Add Members Specific Button */
+.add-members-wrapper .add-members-btn {
+  margin-top: 16px;
+}
+
+/* Messages */
+.add-members-wrapper .error-text {
+  color: #dc2626;
+  margin-top: 0.5rem;
+  text-align: center;
+  font-size: 14px;
+}
+
+.add-members-wrapper .success-text {
+  color: #16a34a;
+  margin-top: 0.5rem;
+  text-align: center;
+  font-size: 14px;
+}
+
+/* Member List */
+.add-members-wrapper .members-list {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 0 0;
+  border-top: 1px solid #f1f5f9;
+}
+
+.add-members-wrapper .members-list li {
+  padding: 8px 0;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.add-members-wrapper .members-list li span {
+  font-weight: 500;
+}
+
+.add-members-wrapper .members-list li button {
+  background: #fa632a;
+  padding: 4px 10px;
+  font-size: 12px;
+  border-radius: 4px;
+}
+
+.add-members-wrapper .members-list li button:hover {
+  background: #e0521a;
+  transform: translateY(-1px);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .add-members-wrapper {
+    padding: 16px;
+  }
+}
