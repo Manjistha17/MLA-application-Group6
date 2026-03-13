@@ -39,20 +39,19 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 24px;
+  gap: 16px; /* was 24px */
 }
 
 /* Logo */
 .loginLogo {
   display: flex;
   align-items: center;
-  gap: 10px;
   animation: loginFadeUp 0.5s 0.1s both;
 }
 
 .loginLogoImg {
-  width: 36px;
-  height: 36px;
+  width: 72px;   /* was 100px */
+  height: 72px;  /* was 100px */
   border-radius: 10px;
   object-fit: contain;
 }
@@ -60,9 +59,9 @@
 .loginLogoText {
   font-family: 'Syne', 'Ubuntu', sans-serif;
   font-weight: 800;
-  font-size: 20px;
+  font-size: 28px;   /* was 20px */
   color: #0f172a;
-  letter-spacing: -0.3px;
+  letter-spacing: -0.5px;
 }
 
 .loginLogoBrand {

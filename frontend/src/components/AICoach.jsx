@@ -3,7 +3,7 @@ import axios from "axios";
 import { Box, Card, CardContent, Typography, Stack, Divider, LinearProgress, Chip } from "@mui/material";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 
-const AICoach = ({ currentUser }) => {
+const AICoach = ({ currentUser, tipVersion }) => {
   const [coachMessage, setCoachMessage] = useState("");
   const [coachLoading, setCoachLoading] = useState(false);
 
@@ -11,29 +11,50 @@ const AICoach = ({ currentUser }) => {
     const calorieGoal = Number(localStorage.getItem("dailyCaloriesGoal")) || 2000;
     const waterGoal = Number(localStorage.getItem("dailyWaterGoal")) || 2500;
     if (!currentUser) return;
-    setCoachLoading(true);
-    axios.get(`https://d393qv373r18to.cloudfront.net/coach/daily-tip?username=${currentUser}&calorie_goal=${calorieGoal}&water_goal=${waterGoal}`)
-      .then(res => setCoachMessage(res.data.message))
-      .catch(() => setCoachMessage("Keep pushing — every step counts!"))
-      .finally(() => setCoachLoading(false));
-  }, [currentUser]);
+
+    const fetchTip = async () => {
+      setCoachLoading(true);
+      try {
+        await axios.delete(`https://d393qv373r18to.cloudfront.net/coach/daily-tip/invalidate?username=${currentUser}`);
+        const res = await axios.get(
+          `https://d393qv373r18to.cloudfront.net/coach/daily-tip?username=${currentUser}&calorie_goal=${calorieGoal}&water_goal=${waterGoal}`
+        );
+        setCoachMessage(res.data.message);
+      } catch {
+        setCoachMessage("Keep pushing — every step counts!");
+      } finally {
+        setCoachLoading(false);
+      }
+    };
+
+    fetchTip();
+  }, [currentUser, tipVersion]);
 
   return (
     <Box sx={{ mt: 0 }}>
-      <Card sx={{
-        borderRadius: "14px",
-        border: "1px solid var(--color-border-subtle)",
-        boxShadow: "var(--shadow-sm)",
-        backgroundColor: "var(--color-bg-surface)",
-      }}>
+      <Card
+        sx={{
+          borderRadius: "14px",
+          border: "1px solid var(--color-border-subtle)",
+          boxShadow: "var(--shadow-sm)",
+          backgroundColor: "var(--color-bg-surface)",
+        }}
+      >
         <CardContent>
           <Stack direction="row" alignItems="center" spacing={1.5} mb={1}>
-            <Box sx={{
-              width: 40, height: 40, borderRadius: "12px",
-              bgcolor: "rgba(234,88,12,0.12)", color: "#ea580c",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: 20,
-            }}>
+            <Box
+              sx={{
+                width: 40,
+                height: 40,
+                borderRadius: "12px",
+                bgcolor: "rgba(234,88,12,0.12)",
+                color: "#ea580c",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 20,
+              }}
+            >
               🏋️
             </Box>
             <Typography variant="h6" fontWeight={700} sx={{ color: "var(--color-text-primary)" }}>

@@ -1,16 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import {
-  Container,
-  Typography,
-  Box,
-  Card,
-  CardContent,
-  CardActionArea,
-  ToggleButton,
-  ToggleButtonGroup,
-  TextField,
-  Button,
+  Container, Typography, Box, Card, CardContent, CardActionArea,
+  ToggleButton, ToggleButtonGroup, TextField, Button,
 } from "@mui/material";
 
 import DirectionsRunIcon from "@mui/icons-material/DirectionsRun";
@@ -24,21 +16,18 @@ import { trackExercise } from "../api";
 import Timer from "./Timer";
 
 const activitiesConfig = [
-  { key: "Running", label: "Running", icon: <DirectionsRunIcon fontSize="large" color='primary' /> },
-  { key: "Swimming", label: "Swimming", icon: <PoolIcon fontSize="large" color='primary' /> },
-  { key: "Cycling", label: "Cycling", icon: <DirectionsBikeIcon fontSize="large" color='primary' /> },
-  { key: "Yoga", label: "Yoga", icon: <SelfImprovementIcon fontSize="large" color='primary' /> },
-  { key: "Gym", label: "Weights", icon: <FitnessCenterIcon fontSize="large" color='primary' /> },
-  { key: "Other", label: "Others", icon: <HelpOutlineIcon fontSize="large" color='primary' /> },
+  { key: "Running",  label: "Running", icon: <DirectionsRunIcon fontSize="large" color="primary" /> },
+  { key: "Swimming", label: "Swimming", icon: <PoolIcon fontSize="large" color="primary" /> },
+  { key: "Cycling",  label: "Cycling", icon: <DirectionsBikeIcon fontSize="large" color="primary" /> },
+  { key: "Yoga",     label: "Yoga", icon: <SelfImprovementIcon fontSize="large" color="primary" /> },
+  { key: "Gym",      label: "Weights", icon: <FitnessCenterIcon fontSize="large" color="primary" /> },
+  { key: "Other",    label: "Others", icon: <HelpOutlineIcon fontSize="large" color="primary" /> },
 ];
 
-const TrackExercise = (props) => {
-  const { currentUser } = props;
+// ── TrackExercise now accepts onTipRefresh from the parent ──
+const TrackExercise = ({ currentUser, onTipRefresh }) => {
   const [state, setState] = useState({
-    exerciseType: "",
-    duration: 0,
-    subActivity: "",
-    date: new Date(),
+    exerciseType: "", duration: 0, subActivity: "", date: new Date(),
   });
 
   const [trackingMode, setTrackingMode] = useState("manual");
@@ -47,11 +36,8 @@ const TrackExercise = (props) => {
   const [selectedActivity, setSelectedActivity] = useState(null);
   const [timerSession, setTimerSession] = useState(null);
   const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState("success"); // success | error
+  const [messageType, setMessageType] = useState("success");
 
-  /* -------------------------------
-     Fetch activities (once)
-  -------------------------------- */
   useEffect(() => {
     axios
       .get("https://d393qv373r18to.cloudfront.net/exercises/activities/")
@@ -62,7 +48,6 @@ const TrackExercise = (props) => {
       });
   }, []);
 
-
   const handleExerciseTypeSelect = (type) => {
     const activity = activities.find((a) => a.activity === type);
     setState((prev) => ({ ...prev, exerciseType: type, subActivity: "" }));
@@ -72,13 +57,21 @@ const TrackExercise = (props) => {
   const handleTimerStop = (sessionData) => {
     setTimerSession(sessionData);
     if (sessionData?.duration) {
-      setState((prev) => ({
-        ...prev,
-        duration: Math.round(sessionData.duration / 60),
-      }));
+      setState((prev) => ({ ...prev, duration: Math.round(sessionData.duration / 60) }));
     }
   };
 
+  // ── Invalidate cached coach tip, then signal parent to re-render AICoach ──
+  const refreshCoachTip = async () => {
+    console.log("refreshCoachTip called, onTipRefresh is:", onTipRefresh);
+    try {
+      await axios.delete(`https://d393qv373r18to.cloudfront.net/coach/daily-tip/invalidate?username=${currentUser}`);
+      console.log("invalidate success");
+    } catch (e) { 
+      console.log("invalidate error:", e);
+    }
+    onTipRefresh?.();
+  };
 
   const onSubmit = async () => {
     setMessage("");
@@ -104,20 +97,15 @@ const TrackExercise = (props) => {
         setMessage("Please stop the timer before saving.");
         return;
       }
-
-
       finalDuration = Math.ceil(timerSession.duration / 60);
       description = `${state.exerciseType} session`;
-
     } else {
       const parsedDuration = Number(manualDuration);
-
       if (!Number.isInteger(parsedDuration) || parsedDuration <= 0) {
         setMessageType("error");
         setMessage("Please enter a valid duration in minutes.");
         return;
       }
-
       finalDuration = parsedDuration;
       description = `${state.exerciseType} manual entry`;
     }
@@ -131,18 +119,14 @@ const TrackExercise = (props) => {
         duration: finalDuration,
         description,
       });
-      refreshCoachTip();
+
+      refreshCoachTip(); // invalidate + signal parent after successful save
 
       setMessageType("success");
       setMessage("Exercise logged successfully!");
 
-      // reset
-      setState({
-        exerciseType: "",
-        duration: 0,
-        subActivity: "",
-        date: new Date(),
-      });
+      // reset form
+      setState({ exerciseType: "", duration: 0, subActivity: "", date: new Date() });
       setManualDuration("");
       setTimerSession(null);
       setSelectedActivity(null);
@@ -158,29 +142,17 @@ const TrackExercise = (props) => {
     }
   };
 
-  const refreshCoachTip = async () => {
-    try {
-      // Delete cached tip so next fetch generates a fresh one
-      await axios.delete(`/coach/daily-tip/invalidate?username=${currentUser}`);
-      // Fetch fresh tip
-      await axios.get(`/coach/daily-tip?username=${currentUser}`);
-    } catch {
-      // silently fail
-    }
-  };
-
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
       <Card variant="outlined" sx={{ borderRadius: 2, backgroundColor: "var(--color-bg-surface)" }}>
         <CardContent sx={{ p: { xs: 3, md: 4 } }}>
-          <Typography variant="h4" fontWeight={600} gutterBottom color="var(--color-text-primary)" textAlign={'center'}>
+          <Typography variant="h4" fontWeight={600} gutterBottom
+            color="var(--color-text-primary)" textAlign="center">
             Track Exercise
           </Typography>
 
           <ToggleButtonGroup
-            fullWidth
-            value={trackingMode}
-            exclusive
+            fullWidth value={trackingMode} exclusive
             onChange={(e, v) => setTrackingMode(v ?? "manual")}
             sx={{
               mb: 4,
@@ -190,15 +162,12 @@ const TrackExercise = (props) => {
                 "&.Mui-selected": {
                   borderColor: "var(--color-primary)",
                   color: "var(--color-primary)",
-                  backgroundColor: "rgba(234,88,12,0.08)",  // ← brand orange instead of blue
+                  backgroundColor: "rgba(234,88,12,0.08)",
                 },
-                "&.Mui-selected:hover": {
-                  backgroundColor: "rgba(234,88,12,0.12)",
-                },
+                "&.Mui-selected:hover": { backgroundColor: "rgba(234,88,12,0.12)" },
               },
             }}
           >
-
             <ToggleButton value="manual">Manual Entry</ToggleButton>
             <ToggleButton value="timer">Timer Mode</ToggleButton>
           </ToggleButtonGroup>
@@ -207,17 +176,9 @@ const TrackExercise = (props) => {
             Select Activity
           </Typography>
 
-          <Box
-            sx={{
-              display: "grid",
-              gridTemplateColumns: "repeat(3, 1fr)",
-              gap: 2,
-              mb: 4,
-            }}
-          >
+          <Box sx={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 2, mb: 4 }}>
             {activitiesConfig.map((item) => {
               const selected = state.exerciseType === item.key;
-
               return (
                 <Card
                   key={item.key}
@@ -225,7 +186,7 @@ const TrackExercise = (props) => {
                   sx={{
                     borderRadius: 2,
                     borderColor: selected ? "primary.main" : "divider",
-                    backgroundColor: selected ? "rgba(234,88,12,0.08)" : "var(--color-bg-surface)",  // ← brand orange instead of blue
+                    backgroundColor: selected ? "rgba(234,88,12,0.08)" : "var(--color-bg-surface)",
                     "&:hover": {
                       backgroundColor: selected ? "rgba(234,88,12,0.12)" : "var(--color-bg-surface)",
                     },
@@ -235,9 +196,7 @@ const TrackExercise = (props) => {
                   <CardActionArea onClick={() => handleExerciseTypeSelect(item.key)}>
                     <CardContent sx={{ textAlign: "center", py: 3 }}>
                       {item.icon}
-                      <Typography variant="body2" fontWeight={500}>
-                        {item.label}
-                      </Typography>
+                      <Typography variant="body2" fontWeight={500}>{item.label}</Typography>
                     </CardContent>
                   </CardActionArea>
                 </Card>
@@ -253,9 +212,7 @@ const TrackExercise = (props) => {
 
           {trackingMode === "manual" && (
             <TextField
-              fullWidth
-              label="Duration (minutes)"
-              type="number"
+              fullWidth label="Duration (minutes)" type="number"
               value={manualDuration}
               onChange={(e) => setManualDuration(e.target.value)}
               sx={{
@@ -273,13 +230,9 @@ const TrackExercise = (props) => {
 
           {selectedActivity && (
             <TextField
-              fullWidth
-              select
-              label={selectedActivity.dropdown_label}
+              fullWidth select label={selectedActivity.dropdown_label}
               value={state.subActivity}
-              onChange={(e) =>
-                setState({ ...state, subActivity: e.target.value })
-              }
+              onChange={(e) => setState({ ...state, subActivity: e.target.value })}
               SelectProps={{ native: true }}
               sx={{
                 mb: 4,
@@ -294,18 +247,13 @@ const TrackExercise = (props) => {
             >
               <option value=""></option>
               {selectedActivity.sub_activity_options.map((opt) => (
-                <option key={opt.name} value={opt.name}>
-                  {opt.name}
-                </option>
+                <option key={opt.name} value={opt.name}>{opt.name}</option>
               ))}
             </TextField>
           )}
 
           <Button
-            fullWidth
-            size="large"
-            variant="contained"
-            onClick={onSubmit}
+            fullWidth size="large" variant="contained" onClick={onSubmit}
             disabled={trackingMode === "timer" && !timerSession?.duration}
             sx={{
               backgroundColor: "var(--color-primary)",
@@ -317,11 +265,8 @@ const TrackExercise = (props) => {
           </Button>
 
           {message && (
-            <Typography
-              mt={2}
-              textAlign="center"
-              color={messageType === "success" ? "success.main" : "error.main"}
-            >
+            <Typography mt={2} textAlign="center"
+              color={messageType === "success" ? "success.main" : "error.main"}>
               {message}
             </Typography>
           )}

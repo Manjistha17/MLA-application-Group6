@@ -5,4 +5,4 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
   });
 
-export const trackExercise = (payload) => api.post('exercises/add/', payload);
+export const trackExercise = (payload) => api.post('https://d393qv373r18to.cloudfront.net/exercises/add/', payload);
