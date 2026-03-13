@@ -2,7 +2,7 @@ global:
   resolve_timeout: 5m
   smtp_smarthost: 'smtp.gmail.com:587'
   smtp_auth_username: 'sagarikabohidar94@gmail.com'
-  smtp_auth_password: 'vdmjybwedvfmbnar'  # Gmail App Password (no spaces)
+  smtp_auth_password: 'xxxxxxxxx'
   smtp_require_tls: true
   smtp_from: 'sagarikabohidar94@gmail.com'
 
