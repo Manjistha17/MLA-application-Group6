@@ -34,7 +34,7 @@ receivers:
         from: 'sagarikabohidar94@gmail.com'
         smarthost: 'smtp.gmail.com:587'
         auth_username: 'sagarikabohidar94@gmail.com'
-        auth_password: 'vdmjybwedvfmbnar'
+        auth_password: 'xxxxxxxx'
         require_tls: true
         headers:
           Subject: '[{{ .GroupLabels.severity | toUpper }}] {{ .GroupLabels.alertname }}'
