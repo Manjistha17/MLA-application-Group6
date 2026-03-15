@@ -25,6 +25,8 @@ Browser
      -> /api/stats/*      Analytics (Flask, 5050)
      -> /nutrition/*      Nutrition API (Node/Express, 5005)
      -> /workouts/*       Workout API (FastAPI, 8000)
+     -> /groups/*         Group API (FastAPI, 8005)
+
 ```
 
 ## Services and Tech Stack
@@ -37,6 +39,7 @@ Browser
 | Auth Service | Java Spring Boot (Gradle, Java 17) | 8080 | not exposed |
 | Nutrition API | Node.js + Express + Mongoose | 5005 | 5005 |
 | Workout API | FastAPI + Motor | 8000 | 8000 |
+| Group API | FastAPI + Motor | 8005 | 8005 |
 | Prometheus | Prometheus | 9090 | 9090 |
 | Alertmanager | Alertmanager | 9093 | 9093 |
 | Grafana | Grafana | 3000 | 3000 |
@@ -53,6 +56,7 @@ Browser
   - `/nutrition/ai-lookup` for calories/macros.
   - `/nutrition/ai-suggest` for meal suggestions.
 - Workout planning with master plan lookup, per-user plan creation, and completion tracking.
+- Group challenges with realtime updates,issues badges ,generate leader board for members.
 - Observability with service metrics, dashboards, and alert routing.
 
 ## API Routing (through Nginx `http://localhost:8081`)
@@ -63,6 +67,7 @@ Browser
 - Analytics: `/api/stats/*`
 - Nutrition: `/nutrition/*`
 - Workout: `/workouts/*`
+- Group:'/groups/*'
 - Swagger (Auth service):
   - `/swagger-ui/`
   - `/v3/api-docs`
@@ -83,6 +88,7 @@ docker compose up --build
 
 - App: `http://localhost:8081`
 - Workout API direct: `http://localhost:8000`
+- Group API direct: `http://localhost:8005`
 - Nutrition API direct: `http://localhost:5005`
 - Prometheus: `http://localhost:9090`
 - Alertmanager: `http://localhost:9093`
@@ -146,5 +152,6 @@ Examples from current repo:
 - `analytics/` Stats and calorie analytics service
 - `nutrition-api/` Nutrition + AI service
 - `workout-api/` FastAPI workout plan service
+- `group-api/` FastAPI Group service
 - `prometheus/` Prometheus, alerts, and Alertmanager config
 - `grafana/` Grafana provisioning and dashboards
